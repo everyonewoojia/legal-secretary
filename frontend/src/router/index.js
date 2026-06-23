@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  { path: '/', redirect: '/login' },
+  { path: '/', name: 'Home', component: () => import('../views/Home.vue') },
   { path: '/login', name: 'Login', component: () => import('../views/Login.vue') },
   { path: '/draft', name: 'ContractDraft', component: () => import('../views/ContractDraft.vue') },
   { path: '/negotiate', name: 'Negotiate', component: () => import('../views/Negotiate.vue') },
