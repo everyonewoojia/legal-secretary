@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Risk Analysis API (风险分析接口)",
+  "description": "合同修改风险分析契约。后端传入原文 / 修改文 / diff 结果，Agent 逐条识别风险项并给出法律依据与应对建议。\n对应 Agent: agent/risk_agent.py RiskAgent.run(context)\n对应 Prompt: agent/prompts/risk_analysis.txt",
+
+  "request": {
+    "description": "后端 → Agent 的风险分析请求",
+    "type": "object",
+    "required": ["contract_type", "original_text", "modified_text", "diff_text"],
+    "properties": {
+      "contract_type": {
+        "type": "string",
+        "enum": ["tech_service", "procurement", "employment", "cooperation", "non_disclosure"],
+        "description": "合同类型编码"
+      },
+      "original_text": {
+        "type": "string",
+        "maxLength": 10000,
+        "description": "原始合同全文文本"
+      },
+      "modified_text": {
+        "type": "string",
+        "maxLength": 10000,
+        "description": "对方修改后的合同全文文本"
+      },
+      "diff_text": {
+        "type": "string",
+        "description": "diff-match-patch 库生成的差异分析 JSON 字符串（序列化数组）"
+      },
+      "bottom_line_rules": {
+        "type": "string",
+        "description": "我方底线策略 JSON 字符串（可选），来自 knowledge_base/clauses/bottom_line_rules.json",
+        "default": ""
+      }
+    }
+  },
+
+  "response": {
+    "description": "Agent → 后端的风险分析响应",
+    "type": "object",
+    "required": ["intent", "risk_items"],
+    "properties": {
+      "intent": {
+        "type": "string",
+        "enum": ["risk_analysis"],
+        "description": "固定值 risk_analysis"
+      },
+      "risk_items": {
+        "type": "array",
+        "description": "风险项列表",
+        "items": {
+          "type": "object",
+          "required": ["clause_title", "risk_level", "risk_desc", "legal_basis", "advice", "original", "modified"],
+          "properties": {
+            "clause_title": {
+              "type": "string",
+              "description": "条款名称，如"管辖权条款"、"违约金条款""
+            },
+            "risk_level": {
+              "type": "string",
+              "enum": ["high", "medium", "low"],
+              "description": "风险等级：high=高风险必须应对，medium=中等风险建议应对，low=低风险可接受"
+            },
+            "risk_desc": {
+              "type": "string",
+              "description": "风险详细描述，说明对方做了什么修改、对我方有何不利影响"
+            },
+            "legal_basis": {
+              "type": "string",
+              "description": "相关法律依据，引用具体法条（如《民法典》第XXX条）"
+            },
+            "advice": {
+              "type": "string",
+              "description": "应对建议：建议接受、拒绝或折中修改"
+            },
+            "original": {
+              "type": "string",
+              "description": "原条款内容摘要"
+            },
+            "modified": {
+              "type": "string",
+              "description": "对方修改后内容摘要"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "examples": {
+    "request": {
+      "contract_type": "tech_service",
+      "original_text": "任何争议应提交甲方所在地人民法院管辖。",
+      "modified_text": "任何争议应提交北京仲裁委员会仲裁。",
+      "diff_text": "[{\"type\":\"delete\",\"text\":\"甲方所在地人民法院管辖\"},{\"type\":\"insert\",\"text\":\"北京仲裁委员会仲裁\"}]",
+      "bottom_line_rules": "[{\"risk_type\":\"jurisdiction\",\"red_line\":\"管辖法院必须为甲方所在地\"}]"
+    },
+    "response": {
+      "intent": "risk_analysis",
+      "risk_items": [
+        {
+          "clause_title": "管辖权条款",
+          "risk_level": "high",
+          "risk_desc": "对方将管辖法院改为仲裁，将增加争议解决成本和时间。",
+          "legal_basis": "《民法典》第XXX条",
+          "advice": "建议拒绝，坚持甲方所在地法院管辖。",
+          "original": "甲方所在地人民法院管辖",
+          "modified": "北京仲裁委员会仲裁"
+        }
+      ]
+    }
+  }
+}

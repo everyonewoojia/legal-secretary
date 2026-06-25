@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Contract Generation API (合同生成接口)",
+  "description": "合同初稿生成契约。后端传入已收齐的合同要素，Agent 基于模板 + LLM 填充生成完整合同文本。\n对应 Agent: agent/contract_agent.py ContractAgent.run(session)\n对应 Prompt: agent/prompts/contract_generation.txt",
+
+  "request": {
+    "description": "后端 → Agent 的生成请求",
+    "type": "object",
+    "required": ["contract_type", "slots"],
+    "properties": {
+      "contract_type": {
+        "type": "string",
+        "enum": ["tech_service", "procurement", "employment", "cooperation", "non_disclosure"],
+        "description": "合同类型编码"
+      },
+      "slots": {
+        "type": "object",
+        "description": "已收齐的合同要素键值对，必须包含对应合同类型的全部必填字段",
+        "patternProperties": {
+          "^[a-z_]+$": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "rag_context": {
+        "type": "string",
+        "description": "来自知识库检索的参考法律条文（可选），用于增强生成质量",
+        "default": ""
+      }
+    }
+  },
+
+  "response": {
+    "description": "Agent → 后端的生成响应",
+    "type": "object",
+    "required": ["intent", "contract_text", "title"],
+    "properties": {
+      "intent": {
+        "type": "string",
+        "enum": ["contract"],
+        "description": "固定值 contract，表示合同生成完成"
+      },
+      "contract_text": {
+        "type": "string",
+        "description": "完整的合同文本，包含条款编号、签署栏、免责声明"
+      },
+      "title": {
+        "type": "string",
+        "description": "合同标题，如「技术服务合同初稿」"
+      },
+      "slots": {
+        "type": "object",
+        "description": "回显本次生成所使用的合同要素"
+      }
+    }
+  },
+
+  "examples": {
+    "request": {
+      "contract_type": "tech_service",
+      "slots": {
+        "party_a": "深圳科技有限公司",
+        "party_b": "北京技术有限公司",
+        "subject": "ERP 系统开发与实施",
+        "amount": "人民币伍拾万元整（¥500,000）",
+        "term": "自合同签订之日起 12 个月",
+        "payment": "合同签订后支付 30%，验收合格后支付 70%",
+        "penalty": "每日万分之五",
+        "jurisdiction": "甲方所在地人民法院"
+      }
+    },
+    "response": {
+      "intent": "contract",
+      "contract_text": "技术服务合同\n\n合同编号：LS-tech_service-20260625-001\n\n甲方（委托方）：深圳科技有限公司\n乙方（受托方）：北京技术有限公司\n\n...（完整条款）...\n\n免责声明：本合同由法务小秘AI自动生成，仅供初步参考...",
+      "title": "技术服务合同初稿",
+      "slots": { "party_a": "深圳科技有限公司", "party_b": "北京技术有限公司", ... }
+    }
+  }
+}
