@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Negotiation Reply API (批量谈判话术生成接口)",
+  "description": "谈判反驳话术批量生成契约。后端传入 Risk Analysis 产出的风险项列表，Agent 逐条生成强硬 / 折中两套话术。\n对应 Agent: agent/negotiation_agent.py NegotiationAgent.run(context)",
+
+  "request": {
+    "description": "后端 → Agent 的批量话术生成请求",
+    "type": "object",
+    "required": ["risk_items", "contract_type"],
+    "properties": {
+      "contract_type": {
+        "type": "string",
+        "enum": ["tech_service", "procurement", "employment", "cooperation", "non_disclosure"],
+        "description": "合同类型编码"
+      },
+      "risk_items": {
+        "type": "array",
+        "description": "risk_analysis 接口产出的风险项列表",
+        "items": {
+          "type": "object",
+          "required": ["clause_title", "risk_level", "risk_desc", "legal_basis", "advice", "original", "modified"],
+          "properties": {
+            "clause_title": { "type": "string" },
+            "risk_level": { "type": "string", "enum": ["high", "medium", "low"] },
+            "risk_desc": { "type": "string" },
+            "legal_basis": { "type": "string" },
+            "advice": { "type": "string" },
+            "original": { "type": "string" },
+            "modified": { "type": "string" }
+          }
+        }
+      },
+      "position": {
+        "type": "string",
+        "description": "我方谈判立场描述（可选），如"维护我方合法权益"",
+        "default": "维护我方合法权益"
+      },
+      "bottom_line_rules": {
+        "type": "string",
+        "description": "我方底线策略（可选），覆盖全局或逐条",
+        "default": ""
+      }
+    }
+  },
+
+  "response": {
+    "description": "Agent → 后端的批量话术生成响应",
+    "type": "object",
+    "required": ["intent"],
+    "properties": {
+      "intent": {
+        "type": "string",
+        "enum": ["negotiation_replies", "no_risk"],
+        "description": "negotiation_replies=正常生成；no_risk=传入的 risk_items 为空"
+      },
+      "replies": {
+        "type": "array",
+        "description": "intent=negotiation_replies 时返回，每条对应一个风险项的谈判话术",
+        "items": {
+          "type": "object",
+          "required": ["title", "strategy_a", "strategy_b", "bottom_line"],
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "条款简称，如"管辖权""
+            },
+            "strategy_a": {
+              "type": "object",
+              "required": ["title", "usage", "script"],
+              "properties": {
+                "title": { "type": "string", "description": "策略标题，如"方案一：据理力争"" },
+                "usage": { "type": "string", "description": "适用场景说明" },
+                "script": { "type": "string", "description": "可直接复制使用的完整话术（包含法条引用）" }
+              }
+            },
+            "strategy_b": {
+              "type": "object",
+              "required": ["title", "usage", "script"],
+              "properties": {
+                "title": { "type": "string", "description": "策略标题，如"方案二：折中方案"" },
+                "usage": { "type": "string", "description": "适用场景说明" },
+                "script": { "type": "string", "description": "包含替代条款建议的完整话术" }
+              }
+            },
+            "bottom_line": {
+              "type": "string",
+              "description": "我方在此条款上的底线说明"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "examples": {
+    "request": {
+      "contract_type": "tech_service",
+      "position": "维护我方合法权益",
+      "risk_items": [
+        {
+          "clause_title": "管辖权条款",
+          "risk_level": "high",
+          "risk_desc": "对方将管辖法院改为仲裁，将增加争议解决成本。",
+          "legal_basis": "《民法典》第XXX条",
+          "advice": "建议拒绝，坚持甲方所在地法院管辖。",
+          "original": "甲方所在地人民法院管辖",
+          "modified": "北京仲裁委员会仲裁"
+        }
+      ]
+    },
+    "response": {
+      "intent": "negotiation_replies",
+      "replies": [
+        {
+          "title": "管辖权",
+          "strategy_a": {
+            "title": "方案一：据理力争",
+            "usage": "适用于我方谈判地位较强时",
+            "script": "根据《民法典》第XXX条，...（完整话术）"
+          },
+          "strategy_b": {
+            "title": "方案二：折中方案",
+            "usage": "适用于需要维护合作关系时",
+            "script": "考虑到双方长期合作，建议改为...（折中方案话术）"
+          },
+          "bottom_line": "管辖法院必须为甲方所在地人民法院，不可退让。"
+        }
+      ]
+    }
+  }
+}
