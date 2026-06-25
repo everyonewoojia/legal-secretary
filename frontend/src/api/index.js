@@ -1,36 +1,34 @@
-const BASE_URL = '/api/v1'
+import axios from 'axios'
+import { mockChatStream } from './mock/contractMock'
 
-async function request(url, options = {}) {
+const http = axios.create({ baseURL: '/api/v1' })
+
+http.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  const headers = { 'Content-Type': 'application/json', ...options.headers }
-  if (token) headers['Authorization'] = `Bearer ${token}`
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-  const res = await fetch(`${BASE_URL}${url}`, { ...options, headers })
-  return res.json()
-}
+http.interceptors.response.use(
+  (res) => res.data,
+  (err) => {
+    const msg = err.response?.data?.message || err.message || '请求失败'
+    return Promise.reject(new Error(msg))
+  },
+)
+
+export default http
 
 export const auth = {
-  login: (phone, password) =>
-    request('/auth/login', { method: 'POST', body: JSON.stringify({ phone, password }) }),
-  register: (data) =>
-    request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-}
-
-export const contract = {
-  createSession: (contractType) =>
-    request('/contract/session', { method: 'POST', body: JSON.stringify({ contract_type: contractType }) }),
-  generate: (sessionId) =>
-    request('/contract/generate', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) }),
-  export: (draftId, format = 'docx') =>
-    request(`/contract/${draftId}/export?format=${format}`),
-  analyze: (draftId, modifiedText, contractType) =>
-    request('/contract/negotiate/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ draft_id: draftId, modified_text: modifiedText, contract_type: contractType }),
-    }),
+  login: (phone, password) => http.post('/auth/login', { phone, password }),
+  register: (data) => http.post('/auth/register', data),
 }
 
 export const rag = {
   search: (query, contractType = '') =>
-    request('/rag/search', { method: 'POST', body: JSON.stringify({ query, contract_type: contractType }) }),
+    http.post('/rag/search', { query, contract_type: contractType }),
+}
+
+export function chatStream(sessionId, message, onChunk, onDone, onError, getMessages) {
+  return mockChatStream(sessionId, message, onChunk, onDone, onError, getMessages)
 }
