@@ -54,7 +54,7 @@
           "properties": {
             "clause_title": {
               "type": "string",
-              "description": "条款名称，如"管辖权条款"、"违约金条款""
+              "description": "条款名称，如\"管辖权条款\"、\"违约金条款\""
             },
             "risk_level": {
               "type": "string",
