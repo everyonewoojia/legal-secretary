@@ -17,6 +17,7 @@
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复 |
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
+| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：合同模板初始化与 clauses 填充 |
 
 ## 目录结构
 ```
@@ -95,11 +96,16 @@ legal-secretary/
 │   └── rag/rag_search.json       # 知识库检索接口契约（stub）
 ├── knowledge_base/               # 领域知识库
 │   ├── templates/                # 5 类合同结构化模板（JSON 条款数组）
-│   │   ├── tech_service.json
-│   │   ├── procurement.json
-│   │   ├── employment.json
-│   │   ├── cooperation.json
-│   │   └── non_disclosure.json
+│   │   ├── tech_service.json              # (旧版 stub)
+│   │   ├── procurement.json               # (旧版 stub)
+│   │   ├── employment.json                # (旧版 stub)
+│   │   ├── cooperation.json               # (旧版 stub)
+│   │   ├── non_disclosure.json            # (旧版 stub)
+│   │   ├── technical_service_contract.json # 技术服务合同（完整模板，含 clauses）
+│   │   ├── purchase_contract.json          # 采购合同（完整模板，含 clauses）
+│   │   ├── labor_contract.json             # 劳动合同（完整模板，含 clauses）
+│   │   ├── cooperation_agreement.json      # 合作协议（完整模板，含 clauses）
+│   │   └── nda_contract.json               # 保密协议（完整模板，含 clauses）
 │   ├── clauses/
 │   │   └── bottom_line_rules.json  # 底线策略规则库
 │   └── legal_docs/
@@ -165,6 +171,32 @@ legal-secretary/
 7. 视图层知识库：5 类合同 JSON 结构化模板、底线策略规则库、民法典合同编摘要
 8. 代码合并与修复：手动合并 feat-agent 分支，修复契约 JSON 文件中的尾部逗号等语法错误，放宽 faiss-cpu 版本约束
 
+## 已完成的工作 (feat-zhy / 张怀月 / ops-test)
+1. 合同模板初始化与 clauses 填充：在 `knowledge_base/templates/` 下新建 5 个完整合同模板 JSON 文件，保留旧版 stub 文件不做删除
+2. `technical_service_contract.json` — 技术服务合同，10 条 clauses，覆盖服务内容、验收、知识产权等核心条款
+3. `purchase_contract.json` — 采购合同，11 条 clauses，覆盖采购标的、质量、质保售后等条款
+4. `labor_contract.json` — 劳动合同，12 条 clauses，覆盖工时、报酬、社保、竞业限制等法定必备条款
+5. `cooperation_agreement.json` — 合作协议，13 条 clauses，覆盖投入、收益分配、退出机制等条款
+6. `nda_contract.json` — 保密协议，10 条 clauses，覆盖保密范围、例外情形、信息归还等条款
+7. 每个 clause 包含 `id` / `title` / `content`（`{{变量名}}` 占位符）/ `variables` / `risk_tips`，用于中期汇报展示和后续 RAG/合同生成
+8. 所有模板文件 JSON 格式验证通过，未改动 backend、frontend、agent 目录
+9. `knowledge_base/README.md` 同步更新，补充 `clauses` 字段说明
+
+## 已完成的工作 (feat-zhy / 第二轮 / legal_docs 法律知识库)
+1. 在 `knowledge_base/legal_docs/` 下新增 5 个 Markdown 法律知识库文件，覆盖合同法通用规则、劳动法、保密法律、争议解决、风险审查规则五大领域
+2. `contract_law_summary.md` — 合同法通用规则摘要（合同订立/效力/履行/违约/解除 + 6 类风险）
+3. `labor_contract_law_summary.md` — 劳动合同知识摘要（试用期/工资/社保/解除/竞业限制 + 5 类风险）
+4. `confidentiality_summary.md` — 商业秘密与保密义务知识摘要（构成要件/义务来源/违约竞合/例外情形 + 6 类风险）
+5. `dispute_resolution_summary.md` — 争议解决知识摘要（诉讼管辖/仲裁/劳动争议/诉讼时效/送达 + 7 类风险）
+6. `risk_review_rules.md` — 谈判风险审查规则库（9 类核心风险：管辖/违约金/付款/验收/保密/解约/责任限制/不可抗力/知识产权，每条含风险描述、审查标准、强硬/折中/底线三档谈判话术）
+7. 每个 Markdown 文件采用统一结构：适用场景 > 核心法律要点 > 常见风险表 > RAG 摘要文本 > 注意事项，均标注"仅作为实训 Demo 知识库素材"声明
+8. `knowledge_base/README.md` 同步更新：legal_docs 目录说明、向量化素材来源表、RAG 分块策略、版本限制补充
+9. 所有修改未涉及 backend、frontend、agent 目录
+
+## 已完成的工作 (feat-zhy / 第三轮 / 中期汇报文档)
+1. 新建 `docs/ops_test_midterm_report.md` — 中期汇报工作说明文档，包含成员身份、已完成工作、成果支撑说明、可展示文件清单、后续计划、风险与限制、版本记录
+2. 文档结构清晰，适合中期汇报时照着讲解，未夸大项目完成度，未声称提供正式法律意见
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|
@@ -183,7 +215,7 @@ legal-secretary/
 - 启动后端: `cd ~/projects/legal-secretary && uvicorn backend.app.main:app --reload --port 8000`
 - 前端代理配置：`vite.config.js` 中 `/api` → `http://localhost:8000`
 - 需配置 `.env` 文件（参考 `.env.example`），填入 `LLM_API_KEY`（阿里云 DashScope）
-- 当前分支: `master`
+- 当前分支: `feat-zhy`
 
 ## 待办/后续可做
 - [ ] 完善登录流程（当前 Login 页面已存在，且 Api 层已配置 JWT 拦截器）
