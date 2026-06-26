@@ -66,20 +66,20 @@
             },
             "strategy_a": {
               "type": "object",
-              "required": ["title", "usage", "script"],
+              "required": ["title", "usage", "content"],
               "properties": {
                 "title": { "type": "string", "description": "策略标题，如"方案一：据理力争"" },
                 "usage": { "type": "string", "description": "适用场景说明" },
-                "script": { "type": "string", "description": "可直接复制使用的完整话术（包含法条引用）" }
+                "content": { "type": "string", "description": "可直接复制使用的完整话术（包含法条引用）" }
               }
             },
             "strategy_b": {
               "type": "object",
-              "required": ["title", "usage", "script"],
+              "required": ["title", "usage", "content"],
               "properties": {
                 "title": { "type": "string", "description": "策略标题，如"方案二：折中方案"" },
                 "usage": { "type": "string", "description": "适用场景说明" },
-                "script": { "type": "string", "description": "包含替代条款建议的完整话术" }
+                "content": { "type": "string", "description": "包含替代条款建议的完整话术" }
               }
             },
             "bottom_line": {
@@ -116,12 +116,12 @@
           "strategy_a": {
             "title": "方案一：据理力争",
             "usage": "适用于我方谈判地位较强时",
-            "script": "根据《民法典》第XXX条，...（完整话术）"
+            "content": "根据《民法典》第XXX条，...（完整话术）"
           },
           "strategy_b": {
             "title": "方案二：折中方案",
             "usage": "适用于需要维护合作关系时",
-            "script": "考虑到双方长期合作，建议改为...（折中方案话术）"
+            "content": "考虑到双方长期合作，建议改为...（折中方案话术）"
           },
           "bottom_line": "管辖法院必须为甲方所在地人民法院，不可退让。"
         }

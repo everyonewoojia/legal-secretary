@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Single Negotiation Reply API (单条谈判话术生成接口)",
-  "description": "单条风险项的话术生成契约。用于前端"逐条生成话术"场景，针对单个风险项生成强硬 / 折中两套方案。\n对应 Agent: agent/risk_agent.py RiskAgent.generate_reply(risk_item, context)",
+  "description": "单条风险项的话术生成契约。用于前端"逐条生成话术"场景，针对单个风险项生成强硬 / 折中两套方案。\n对应 Agent: agent/negotiation_agent.py NegotiationAgent (通过 orchestrator.process_risk_negotiation 编排)",
 
   "request": {
     "description": "后端 → Agent 的单条话术生成请求",

@@ -1,4 +1,4 @@
-"""风险分析Agent：差异分析、风险分类、反驳话术生成"""
+"""风险分析Agent：差异分析、风险分类（不包含话术生成，话术统一由 NegotiationAgent 负责）"""
 
 import json
 
@@ -65,55 +65,6 @@ class RiskAgent:
         return {
             "intent": "risk_analysis",
             "risk_items": risks,
-        }
-
-    async def generate_reply(self, risk_item: dict, context: dict) -> dict:
-        system_prompt = (
-            "你是一名经验丰富的中国商务律师，擅长合同谈判。\n"
-            "你的任务是根据风险分析结果，为企业业务人员生成可以直接在谈判中使用的反驳话术。\n"
-            "话术应专业、有礼、有力，同时保持商务沟通的得体性。"
-        )
-
-        user_prompt = (
-            f"请为以下风险条款生成谈判反驳话术：\n\n"
-            f"条款名称：{risk_item.get('clause_title', '未知条款')}\n"
-            f"风险等级：{risk_item.get('risk_level', 'low')}\n"
-            f"风险描述：{risk_item.get('risk_desc', '无')}\n"
-            f"法律依据：{risk_item.get('legal_basis', '无')}\n"
-            f"原条款：{risk_item.get('original', '无')}\n"
-            f"对方修改为：{risk_item.get('modified', '无')}\n\n"
-            f"合同类型：{context.get('contract_type', '未知')}\n"
-            f"我方立场描述：{context.get('position', '未指定')}\n\n"
-            f"请按以下JSON格式输出（纯JSON，不要包含其他文字）：\n"
-            f"{{\n"
-            f'  "strategy_a": {{\n'
-            f'    "title": "方案一：强硬立场",\n'
-            f'    "content": "完整的反驳话术（可直接复制使用，包含法条引用）",\n'
-            f'    "适用场景": "对方让步空间较大或我方处于优势地位时"\n'
-            f'  }},\n'
-            f'  "strategy_b": {{\n'
-            f'    "title": "方案二：折中妥协",\n'
-            f'    "content": "完整的妥协方案话术（包含替代条款建议）",\n'
-            f'    "适用场景": "双方关系重要，需要平衡利益时"\n'
-            f'  }},\n'
-            f'  "bottom_line": "我方底线（不可退让的内容）"\n'
-            f"}}"
-        )
-
-        result_str = await llm_complete(user_prompt, system_prompt)
-
-        try:
-            reply = json.loads(result_str)
-        except json.JSONDecodeError:
-            reply = {
-                "strategy_a": {"title": "方案一：强硬立场", "content": "无法自动生成话术，请人工处理。"},
-                "strategy_b": {"title": "方案二：折中妥协", "content": "无法自动生成话术，请人工处理。"},
-                "bottom_line": "请根据实际情况判断底线。",
-            }
-
-        return {
-            "intent": "negotiation_reply",
-            "reply": reply,
         }
 
     @staticmethod
