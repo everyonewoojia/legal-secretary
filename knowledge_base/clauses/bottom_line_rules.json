@@ -1,0 +1,40 @@
+{
+  "rules": [
+    {
+      "risk_type": "jurisdiction",
+      "title": "管辖法院变更",
+      "default_advice": "建议约定在甲方所在地法院管辖，避免异地诉讼成本",
+      "red_line": "不得约定在对方所在地之外的偏远地区法院"
+    },
+    {
+      "risk_type": "penalty_rate",
+      "title": "违约金比例调整",
+      "default_advice": "违约金比例不宜超过合同总金额的30%",
+      "red_line": "不得超过法定上限（合同总金额的30%）"
+    },
+    {
+      "risk_type": "confidentiality",
+      "title": "保密期限修改",
+      "default_advice": "保密期限通常为2-3年，最短不应少于1年",
+      "red_line": "保密期限不得少于1年"
+    },
+    {
+      "risk_type": "liability_limit",
+      "title": "责任限制条款",
+      "default_advice": "排除故意或重大过失的责任限制条款无效",
+      "red_line": "不得排除根本违约或人身损害的责任"
+    },
+    {
+      "risk_type": "payment_term",
+      "title": "付款条件变更",
+      "default_advice": "建议保持合理的付款节奏，避免100%验收后付款",
+      "red_line": "必须保留预付款或进度款"
+    },
+    {
+      "risk_type": "force_majeure",
+      "title": "不可抗力条款",
+      "default_advice": "不可抗力的范围应按法律定义，不宜扩大",
+      "red_line": "不得将常规商业风险纳入不可抗力"
+    }
+  ]
+}

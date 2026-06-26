@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Single Negotiation Reply API (单条谈判话术生成接口)",
+  "description": "单条风险项的话术生成契约。用于前端\"逐条生成话术\"场景，针对单个风险项生成强硬 / 折中两套方案。\n对应 Agent: agent/negotiation_agent.py NegotiationAgent (通过 orchestrator.process_risk_negotiation 编排)",
+
+  "request": {
+    "description": "后端 → Agent 的单条话术生成请求",
+    "type": "object",
+    "required": ["risk_item", "contract_type"],
+    "properties": {
+      "contract_type": {
+        "type": "string",
+        "enum": ["tech_service", "procurement", "employment", "cooperation", "non_disclosure"],
+        "description": "合同类型编码"
+      },
+      "risk_item": {
+        "type": "object",
+        "required": ["clause_title", "risk_level", "risk_desc", "legal_basis", "original", "modified"],
+        "properties": {
+          "clause_title": { "type": "string" },
+          "risk_level": { "type": "string", "enum": ["high", "medium", "low"] },
+          "risk_desc": { "type": "string" },
+          "legal_basis": { "type": "string" },
+          "advice": { "type": "string" },
+          "original": { "type": "string" },
+          "modified": { "type": "string" }
+        }
+      },
+      "position": {
+        "type": "string",
+        "description": "我方谈判立场描述（可选）",
+        "default": "维护我方合法权益"
+      }
+    }
+  },
+
+  "response": {
+    "description": "Agent → 后端的单条话术响应",
+    "type": "object",
+    "required": ["intent", "reply"],
+    "properties": {
+      "intent": {
+        "type": "string",
+        "enum": ["negotiation_reply"],
+        "description": "固定值 negotiation_reply"
+      },
+      "reply": {
+        "type": "object",
+        "required": ["strategy_a", "strategy_b", "bottom_line"],
+        "properties": {
+          "strategy_a": {
+            "type": "object",
+            "required": ["title", "content"],
+            "properties": {
+              "title": { "type": "string", "description": "方案标题，如\"方案一：强硬立场\"" },
+              "content": { "type": "string", "description": "完整反驳话术，可直接复制使用" }
+            }
+          },
+          "strategy_b": {
+            "type": "object",
+            "required": ["title", "content"],
+            "properties": {
+              "title": { "type": "string", "description": "方案标题，如\"方案二：折中妥协\"" },
+              "content": { "type": "string", "description": "包含替代条款建议的完整话术" }
+            }
+          },
+          "bottom_line": {
+            "type": "string",
+            "description": "我方在此条款上的底线说明（不可退让的内容）"
+          }
+        }
+      }
+    }
+  },
+
+  "examples": {
+    "request": {
+      "contract_type": "tech_service",
+      "risk_item": {
+        "clause_title": "违约金条款",
+        "risk_level": "high",
+        "risk_desc": "对方将违约金比例从每日万分之五改为千分之一",
+        "legal_basis": "《民法典》第585条",
+        "advice": "建议拒绝，违约金过高可能不被法院支持",
+        "original": "每日万分之五",
+        "modified": "每日千分之一"
+      },
+      "position": "控制我方违约责任风险"
+    },
+    "response": {
+      "intent": "negotiation_reply",
+      "reply": {
+        "strategy_a": {
+          "title": "方案一：强硬立场",
+          "content": "根据《民法典》第585条，约定的违约金过分高于造成的损失的，人民法院或者仲裁机构可以根据当事人的请求予以适当减少。贵方提出的每日千分之一（年化36.5%）显著高于市场惯例，我司建议维持原条款的每日万分之五（年化18.25%）。"
+        },
+        "strategy_b": {
+          "title": "方案二：折中妥协",
+          "content": "考虑到双方长期合作，我司可接受将违约金比例调整为每日万分之八，但贵方提出的千分之一确实过高，不符合行业惯例及《民法典》的规定。"
+        },
+        "bottom_line": "违约金比例不得超过每日万分之八（年化29.2%）。"
+      }
+    }
+  }
+}
