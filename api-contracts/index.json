@@ -55,14 +55,14 @@
     {
       "id": "single_reply",
       "name": "单条话术生成接口 (Single Reply)",
-      "description": "针对单个风险项生成反驳话术",
+      "description": "针对单个风险项生成反驳话术（由 orchestrator 编排 RiskAgent + NegotiationAgent）",
       "file": "risk/single_reply.json",
-      "agent_class": "RiskAgent",
-      "agent_method": "generate_reply(risk_item, context)",
-      "agent_file": "agent/risk_agent.py",
-      "prompt_file": "（hardcoded 在 generate_reply 方法中）",
+      "agent_class": "NegotiationAgent (via AgentOrchestrator)",
+      "agent_method": "process_risk_negotiation(context)",
+      "agent_file": "agent/orchestrator.py",
+      "prompt_file": "agent/negotiation_agent.py (hardcoded in _generate_single)",
       "priority": "P1",
-      "status": "已实现（后端 API 未接入）"
+      "status": "已重构（话术生成已收拢至 NegotiationAgent）"
     },
     {
       "id": "rag_search",

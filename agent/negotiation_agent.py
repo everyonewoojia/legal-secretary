@@ -1,4 +1,4 @@
-"""谈判反驳话术生成Agent：基于风险项生成商务谈判话术"""
+""""谈判反驳话术生成Agent：基于风险项生成商务谈判话术"""
 
 import json
 
@@ -46,18 +46,18 @@ class NegotiationAgent:
             f"原条款：{risk_item.get('original', '无')}\n"
             f"对方修改为：{risk_item.get('modified', '无')}\n"
             f"我方底线策略：{bottom_line}\n\n"
-            f"请输出JSON格式的谈判话术：\n"
+            f"请严格按照以下JSON格式输出谈判话术（务必使用纯英文键名，不要包含其他文字）：\n"
             f"{{\n"
             f'  "title": "条款简称",\n'
             f'  "strategy_a": {{\n'
             f'    "title": "方案一：据理力争",\n'
             f'    "usage": "适用于我方谈判地位较强时",\n'
-            f'    "script": "可直接复制使用的完整话术，包含法条引用"\n'
+            f'    "content": "可直接复制使用的完整话术，包含法条引用"\n'
             f'  }},\n'
             f'  "strategy_b": {{\n'
             f'    "title": "方案二：折中方案",\n'
             f'    "usage": "适用于需要维护合作关系时",\n'
-            f'    "script": "包含替代条款建议的完整话术"\n'
+            f'    "content": "包含替代条款建议的完整话术"\n'
             f'  }},\n'
             f'  "bottom_line": "我方在此条款上的底线说明"\n'
             f"}}"
@@ -72,11 +72,13 @@ class NegotiationAgent:
                 "title": risk_item.get("clause_title", "未知条款"),
                 "strategy_a": {
                     "title": "方案一：据理力争",
-                    "script": "无法自动生成话术，请咨询专业律师。",
+                    "usage": "适用于我方谈判地位较强时",
+                    "content": "无法自动生成话术，请咨询专业律师。",
                 },
                 "strategy_b": {
                     "title": "方案二：折中方案",
-                    "script": "无法自动生成话术，请咨询专业律师。",
+                    "usage": "适用于需要维护合作关系时",
+                    "content": "无法自动生成话术，请咨询专业律师。",
                 },
                 "bottom_line": "请根据实际情况判断。",
             }

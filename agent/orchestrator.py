@@ -108,3 +108,28 @@ class AgentOrchestrator:
             return result
 
         return {"intent": "unknown", "reply": "请先选择合同类型。"}
+
+    async def process_risk_negotiation(self, context: dict) -> dict:
+        from agent.risk_agent import RiskAgent
+        from agent.negotiation_agent import NegotiationAgent
+
+        risk_result = await RiskAgent().run(context)
+        risk_items = risk_result.get("risk_items", [])
+
+        if not risk_items:
+            return {"intent": "no_risk", "reply": None}
+
+        negotiation_context = {
+            "risk_items": risk_items,
+            "contract_type": context.get("contract_type", ""),
+            "position": context.get("position", "维护我方合法权益"),
+            "bottom_line_rules": context.get("bottom_line_rules", ""),
+        }
+
+        reply_result = await NegotiationAgent().run(negotiation_context)
+
+        return {
+            "intent": "risk_negotiation",
+            "risk_items": risk_items,
+            "replies": reply_result.get("replies", []),
+        }
