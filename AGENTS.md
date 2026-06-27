@@ -215,7 +215,6 @@ legal-secretary/
 - 启动后端: `cd ~/projects/legal-secretary && uvicorn backend.app.main:app --reload --port 8000`
 - 前端代理配置：`vite.config.js` 中 `/api` → `http://localhost:8000`
 - 需配置 `.env` 文件（参考 `.env.example`），填入 `LLM_API_KEY`（阿里云 DashScope）
-- 当前分支: `feat-zhy`
 
 ## 待办/后续可做
 - [ ] 完善登录流程（当前 Login 页面已存在，且 Api 层已配置 JWT 拦截器）
