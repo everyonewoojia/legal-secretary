@@ -17,7 +17,8 @@
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复 |
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
-| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：FAISS 向量索引构建（索引脚本 + 搜索脚本 + index.json） |
+| `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
+| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：合同模板初始化与 clauses 填充 |
 
 ## 目录结构
 ```
@@ -53,29 +54,52 @@ legal-secretary/
 │   └── package.json
 ├── backend/                      # FastAPI 后端项目
 │   └── app/
-│       ├── main.py               # FastAPI 入口，注册 4 个路由模块
-│       ├── api/                   # REST API 路由
-│       │   ├── auth.py           # /api/v1/auth/* 登录/注册
-│       │   ├── contract.py       # /api/v1/contract/* 会话/对话/生成/导出/谈判分析
-│       │   ├── admin.py          # /api/v1/admin/* 用户管理/日志/LLM 配置（stub）
-│       │   └── rag.py            # /api/v1/rag/search 知识库检索
+│       ├── main.py               # FastAPI 入口，注册 6 个路由模块
+│       ├── routers/               # REST API 路由
+│       │   ├── api.py            # 路由聚合器，挂载 6 个子路由
+│       │   ├── auth.py           # /api/v1/auth/* 登录/注册/改密
+│       │   ├── users.py          # /api/v1/users/* 个人信息/头像
+│       │   ├── contracts.py      # /api/v1/contracts/* 会话/对话/生成/版本/风险
+│       │   ├── negotiation.py    # /api/v1/negotiation/* 文件上传/差异比对/AI分析/话术
+│       │   ├── rag.py            # /api/v1/rag/* 法律法规/合同模板 CRUD
+│       │   └── admin.py          # /api/v1/admin/* 用户管理/API密钥/日志/统计
 │       ├── core/                 # 配置与基础设施
 │       │   ├── config.py         # pydantic-settings 读取 .env
-│       │   ├── database.py       # SQLAlchemy async engine + session
-│       │   ├── llm.py            # OpenAI 兼容 SDK 封装（流式/非流式）
-│       │   └── response.py       # 统一响应格式 {code, message, data}
-│       ├── models/               # SQLAlchemy ORM 模型
-│       │   ├── user.py           # User 模型（含角色/状态）
-│       │   └── contract.py       # ContractSession / ChatMessage / ContractDraft / NegotiationCase / RiskItem
-│       ├── schemas/              # Pydantic 请求/响应 DTO
-│       │   ├── common.py         # 通用分页等
-│       │   └── contract.py       # CreateSession / Chat / Generate / Export / Negotiate 请求
-│       └── services/             # 业务逻辑层
-│           ├── contract_generator.py  # 调用 LLM 生成合同初稿
-│           ├── diff_service.py        # diff-match-patch 文本差异比对
-│           ├── risk_service.py        # LLM 风险分析 + 入库
-│           ├── export_service.py      # DOCX/PDF 导出
-│           └── rag_service.py         # FAISS 向量检索（stub）
+│       │   ├── database.py       # SQLAlchemy engine + session
+│       │   ├── security.py       # JWT 创建/验证 + bcrypt 密码哈希
+│       │   └── deps.py           # get_current_user 依赖注入
+│       ├── models/               # SQLAlchemy ORM 模型（9 张表）
+│       │   ├── base.py           # TimestampMixin 基类
+│       │   ├── user.py           # User 模型
+│       │   ├── contract.py       # Contract / ContractVersion / RiskAssessment
+│       │   ├── contract_type.py  # ContractType
+│       │   ├── template.py       # ContractTemplate
+│       │   ├── knowledge_base.py # LawArticle（含 embedding 字段）
+│       │   ├── risk.py           # (保留)
+│       │   ├── audit.py          # AuditLog
+│       │   └── api_key.py        # ApiKeyConfig
+│       ├── schemas/              # Pydantic 请求/响应 DTO（6 文件）
+│       │   ├── common.py         # 统一响应 {code, message, data} + 分页
+│       │   ├── user.py           # 登录/注册/个人信息/改密
+│       │   ├── contract.py       # 会话/对话/生成/合同 CRUD
+│       │   ├── negotiation.py    # 差异项/风险项/话术请求
+│       │   ├── rag.py            # 法律法规/模板 CRUD
+│       │   └── admin.py          # 用户管理/API密钥/审计日志
+│       ├── services/             # 业务逻辑层（10 个 Service）
+│       │   ├── ai_service.py     # OpenAI SDK 封装 + mock 回退（流式/非流式）
+│       │   ├── auth_service.py   # 注册/登录
+│       │   ├── user_service.py   # 用户信息 CRUD
+│       │   ├── contract_service.py  # 合同 CRUD + AI 对话/生成
+│       │   ├── dialogue_service.py  # 5 类合同 System Prompt + 槽位提取
+│       │   ├── negotiation_service.py  # 风险分析 + 话术生成
+│       │   ├── admin_service.py  # 用户管理/API密钥/日志/统计
+│       │   ├── rag_service.py    # 法律法规/模板 CRUD
+│       │   ├── rag_engine.py     # ChromaDB 向量检索 + SQL 回退
+│       │   └── file_service.py   # 文件上传/文本提取
+│       └── utils/                # 工具函数
+│           ├── file_parser.py    # DOCX 解析（PDF stub）
+│           ├── text_diff.py      # difflib 文本差异比对
+│           └── sse.py            # SSE 格式化辅助
 ├── agent/                        # AI Agent 层（进程内调用）
 │   ├── orchestrator.py           # 主控 Agent：意图识别、槽位追踪、任务路由
 │   ├── dialogue_agent.py         # 多轮对话引导：槽位抽取、校验与追问
@@ -201,19 +225,28 @@ legal-secretary/
 1. 新建 `knowledge_base/clauses/bottom_line_rules.json` — 结构化底线策略规则库，定义 10 类核心风险：管辖法院变更、违约金比例过高、付款节点不明确、验收标准模糊、保密期限过短、单方解除权过宽、责任限制不合理、不可抗力范围异常、知识产权归属不清、交付义务过重
 2. 每条规则包含 11 个字段：id / name / description / applicable_contract_types / trigger_keywords / risk_level / review_points / bottom_line / recommended_response / negotiation_strategy（三档话术：强硬/折中/底线）/ demo_disclaimer
 3. 规则风险等级分布：high 6 条（管辖/违约金/付款/解除/责任限制/知识产权），medium 4 条（验收/保密/不可抗力/交付）
-4. 更新 `legal_docs/risk_review_rules.md` — 增加与 `bottom_line_rules.json` 的对应关系表，说明 Markdown 格式用于展示、JSON 格式用于程序化处理
-5. 更新 `knowledge_base/README.md` — 增加 `clauses/` 目录说明、`bottom_line_rules.json` 字段说明和 FAISS 向量化素材说明
-6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.4 节（底线策略规则库）和 2.5 节（配套文档更新），更新可展示文件清单和版本记录
+4. 更新 `legal_docs/risk_review_rules.md` — 增加与 `bottom_line_rules.json` 的对应关系表
+5. 更新 `knowledge_base/README.md` — 增加 `clauses/` 目录说明、`bottom_line_rules.json` 字段说明
+6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.4 节（底线策略规则库）和 2.5 节（配套文档更新）
 7. 所有修改未涉及 backend、frontend、agent 目录
 
 ## 已完成的工作 (feat-zhy / 第五轮 / FAISS 向量索引构建)
-1. 新建 `scripts/build_vector_index.py` — 遍历 knowledge_base/ 下全部 JSON 和 Markdown 文件，提取文本块（模板条款/风险点/底线规则/法律文档段落），使用 sentence-transformers 生成 384 维 embedding，构建 FAISS IndexFlatIP 索引并保存
-2. 新建 `scripts/search_knowledge_base.py` — 加载 FAISS 索引，支持命令行查询，返回 Top 5 相似知识块（score / source_file / chunk_type / title / text_preview）
+1. 新建 `scripts/build_vector_index.py` — 遍历 knowledge_base/ 下全部 JSON 和 Markdown 文件，提取文本块，使用 sentence-transformers 生成 384 维 embedding，构建 FAISS IndexFlatIP 索引
+2. 新建 `scripts/search_knowledge_base.py` — 加载 FAISS 索引，支持命令行查询，返回 Top 5 相似知识块
 3. 新建 `knowledge_base/index.json` — 知识库源文件清单，描述 11 个源文件的类型、用途和向量化状态
 4. 更新 `.gitignore` — 忽略 `knowledge_base/faiss_index.bin` 等可重新生成的二进制产物
 5. 更新 `knowledge_base/README.md` — 替换 FAISS 接入计划为实际构建步骤和搜索演示用法
-6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.6 节（FAISS 向量索引构建），更新可展示文件清单、后续计划和版本记录
+6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.6 节（FAISS 向量索引构建）
 7. 所有修改未涉及 backend、frontend、agent 目录
+
+## 已完成的工作 (feat-jzx / 后端集成 & 结构优化 · 2026-06-26)
+1. **后端 FastAPI 完整实现** — 37+ API 端点，覆盖 6 组路由（auth/users/contracts/negotiation/rag/admin），含 JWT 认证、请求校验、统一响应格式
+2. **9 个 ORM 模型** — User / Contract / ContractVersion / ContractType / ContractTemplate / RiskAssessment / LawArticle / AuditLog / ApiKeyConfig，含完整关系映射与索引
+3. **10 个 Service 层** — ai_service（OpenAI SDK + mock 回退）/ auth_service / user_service / contract_service / dialogue_service（5 类合同 Prompt + 槽位抽取）/ negotiation_service / admin_service / rag_service / rag_engine（ChromaDB + SQL 回退）/ file_service
+4. **项目结构重构** — 统一调整为 `backend/app/` 结构，整理 agents、contracts、knowledge_base 目录
+5. **合并 feat-agent** — 将 AI Agent 层（5 个 Agent + 3 套 Prompt）和后端路由代码纳入 feat-jzx
+6. **AI 开发规范** — 新增 `.opencode/constraints.md`，定义全栈联调契约、进度同步、垃圾文件防护规则
+7. **AGENTS.md 同步改版** — 项目概况、完整目录树、API 端点表、路由表、分支状态看板、多人工作日志
 
 ## 路由表
 | 路径 | 页面 | 访问权限 |
@@ -235,8 +268,12 @@ legal-secretary/
 - 需配置 `.env` 文件（参考 `.env.example`），填入 `LLM_API_KEY`（阿里云 DashScope）
 
 ## 待办/后续可做
-- [ ] 完善登录流程（当前 Login 页面已存在，且 Api 层已配置 JWT 拦截器）
+- [ ] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
+- [ ] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
+- [ ] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
+- [ ] 实现真正的 DOCX/PDF 导出（当前 download 端点仅返回 JSON）
+- [ ] 实现 `utils/file_parser.py` 的 PDF 解析（当前抛 NotImplementedError）
+- [ ] 补全测试（`tests/` 目录为空）
+- [ ] 构建 FAISS 向量索引（知识库数据已就绪）
 - [ ] 增强合同预览的 Markdown 渲染样式
 - [ ] 移动端适配
-- [ ] 合同保存/历史记录管理
-- [ ] 多轮对话上下文优化
