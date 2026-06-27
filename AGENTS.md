@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复 |
-| `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
+| `feat-wlf` (前端) | 调试完成 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术），全端点手动测试通过 |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：FAISS 向量索引构建（索引脚本 + 搜索脚本 + index.json） |
 
@@ -115,18 +115,32 @@ legal-secretary/
 └── requirements.txt              # Python 依赖（FastAPI / SQLAlchemy / openai / ...）
 ```
 
-## 后端 API（已完成，可直接对接）
+## 后端 API（当前重构后）
 | 端点 | 方法 | 说明 |
 |------|------|------|
 | `/api/v1/auth/login` | POST | 登录，返回 JWT token |
 | `/api/v1/auth/register` | POST | 注册 |
-| `/api/v1/contract/session` | POST | 创建合同会话 |
-| `/api/v1/contract/chat/stream` | POST | SSE 流式多轮对话 |
-| `/api/v1/contract/generate` | POST | 生成合同初稿 |
-| `/api/v1/contract/{id}/export` | GET | 导出 DOCX |
-| `/api/v1/contract/negotiate/analyze` | POST | 谈判风险分析（支持文件上传）|
-| `/api/v1/rag/search` | POST | RAG 知识库检索 |
-| `/api/v1/admin/*` | GET/POST | 后台管理 |
+| `/api/v1/auth/sms-code` | POST | 发送验证码（演示模式返回 123456）|
+| `/api/v1/users/me` | GET/PUT | 获取/更新个人信息 |
+| `/api/v1/contracts/types` | GET | 合同类型列表 |
+| `/api/v1/contracts/chat/{type_id}` | POST | SSE 流式多轮对话 |
+| `/api/v1/contracts/generate/{type_id}` | POST | 生成合同初稿（非流式）|
+| `/api/v1/contracts/generate-stream/{type_id}` | POST | SSE 流式生成合同 |
+| `/api/v1/contracts/` | GET/POST | 合同列表 / 创建合同 |
+| `/api/v1/contracts/{id}` | GET/DELETE | 合同详情 / 删除 |
+| `/api/v1/contracts/{id}/download` | GET | 下载合同 |
+| `/api/v1/contracts/{id}/versions` | GET | 合同版本列表 |
+| `/api/v1/negotiation/upload/{contract_id}` | POST | 上传对方修改稿 |
+| `/api/v1/negotiation/diff/{contract_id}` | GET | 文本差异比对 |
+| `/api/v1/negotiation/ai-analyze/{contract_id}` | POST | AI 风险分析 |
+| `/api/v1/negotiation/risks/{contract_id}` | GET | 风险列表 |
+| `/api/v1/negotiation/counter-argument` | POST | 生成谈判话术 |
+| `/api/v1/admin/users` | GET | 用户列表（分页）|
+| `/api/v1/admin/users/{id}/toggle-active` | PUT | 禁用/启用用户 |
+| `/api/v1/admin/users/{id}/role` | PUT | 修改用户角色 |
+| `/api/v1/admin/api-keys` | GET/PUT | API Key 管理 |
+| `/api/v1/admin/logs` | GET | 系统日志 |
+| `/api/v1/admin/stats` | GET | 系统统计 |
 
 **响应格式**: `{code: 0, message: "success", data: {...}}`
 
@@ -152,6 +166,47 @@ legal-secretary/
 5. 路由守卫 (`router/index.js`)：beforeEach 守卫 — 未登录跳转 /login，已登录访问登录页跳转首页，/admin 需 admin 角色
 6. App.vue 重写：登录后显示深色顶部导航栏（法务小秘 Logo + 合同起草/谈判分析/后台管理），右侧显示用户头像+用户名+退出登录
 7. 所有页面构建通过 (vite build)
+
+## 已完成的工作 (2025-06-27)
+1. API 层全面切换：新建 `api/auth.js`（认证 + 用户管理 + 管理员 API），重写 `api/contract.js`（合同 types / chat / generate-stream / CRUD / download），重写 `api/negotiation.js`（upload / diff / ai-analyze / counter-argument）
+2. SSE 流式重写：`api/index.js` 移除 mockChatStream，改用 `fetch` + `ReadableStream` 消费真实后端 SSE（`chatStream` + `generateStream` 两个函数）
+3. `stores/user.js`：移除全部 mock 引入，调用真实 HTTP API；登录后自动 `getProfile()` 获取用户信息；映射 `nickname` → `username` 兼容现有视图；admin 用户列表适配后端分页格式
+4. `stores/contract.js`：移除 sessionId 概念，改用 typeId（后端 integer）；`startSession` 从后端拉取合同类型列表；`sendMessage` 使用真实 SSE；`generateContract` 使用 generate-stream SSE
+5. `stores/negotiation.js`：适配新后端流程（创建合同 → 上传文件 → 对比差异 → AI 分析 → 获取风险 → 加载话术），`loadCounterArgument` 选中风险时异步加载话术
+6. `ContractDraft.vue`：`store.sessionId` → `store.typeId`，`store.contractType` → `store.contractCode`，下载改用 `contractApi.download` 支持文件下载回退
+7. `NegotiationAnalyze.vue`：导入 `contractApi` 替代 mock，选中风险时调用 `loadCounterArgument` 获取话术，导出报告改用文本文件下载
+
+## 已完成的工作 (2025-06-27 / 第二轮 / 后端 mock 增强 & Bug 修复)
+1. 后端 mock (`backend/app/services/ai_service.py`) 丰富至与前前端 mock 等质：新增 5 类合同模板（CONTRACT_TEMPLATES）、5 类合同多轮对话流（CHAT_FLOWS）+ 默认流、slots 抽取正则（SLOT_EXTRACTION_MAP）、5 条详细风险项（MOCK_RISK_ITEMS，含 clause_location / risk_level / description / suggestion / legal_basis）、话术生成 mock（返回 JSON 格式 plan_a/plan_b）
+2. `_mock_chat` 流程重写：根据 system prompt 中【合同类型】自动匹配对话流；根据 `ai_turns` 自动推进对话轮次；`generate` / `risk` / `counter-argument` / `dialogue` 四路分支智能路由；`_mock_generate_contract` 按合同类型返回对应模板；`_mock_risk_analysis` 返回 5 条 Mock 风险项；`_mock_counter_argument` 返回 JSON 格式话术
+3. 修复 `generate_stream` 路径：`_mock_chat` 关键字检测补充 `合同生成专家` 和 `输出合同全文`，使合同生成 mock 模式返回合同模板而非对话文本
+4. 修复 counter-argument mock 返回非 JSON 导致 500：`_mock_chat` 检测 `plan_a` / `plan_b` 关键词后返回 `_mock_counter_argument()`（JSON 格式）
+5. 修复 negotiation store 文本上传路径：当无文件上传时，将 `modifiedText` 转换为 Blob/File 通过 upload 端点上载为版本 2，解决"版本数不足"错误
+6. 修复 `UserInfo` 无 `username` 字段兼容：`normalizeUser(data)` 映射 `nickname` → `username`
+7. 修复 `persist()` 空 userInfo 覆盖 token 问题：分开检查 token 和 userInfo 后再存入 localStorage
+8. 修复 axios 拦截器响应 400+ 时 `detail` 字段未捕获：error 拦截器补充 `body?.detail`
+9. build 通过（仅 @vueuse/core PURE 注释警告，非阻塞）
+
+## 已完成的工作 (2025-06-27 / 第三轮 / 全流程修复 & TXT 上传支持)
+1. 后端 mock 增强补全：`ai_service.py` 追加 5 类合同完整模板（CONTRACT_TEMPLATES）、5 类合同多轮对话流（CHAT_FLOWS）、slots 抽取正则、5 条详细风险项、话术 JSON 格式返回
+2. 修复 `_mock_chat` 关键检测缺失：补充 `合同生成专家` / `输出合同全文` 匹配 `generate` 路径；追加 `plan_a` / `plan_b` 匹配 `counter-argument` 路径
+3. 修复 `chat_stream` mock 模式下 `_mock_stream` 为 async generator 但被 `for` 迭代的 TypeError：改为 `async for`
+4. 修复前端 negotiation store 文本模式无文件上传时"版本数不足"：pasted text 转为 Blob/File 通过 upload 上传为 version 2
+5. 后端 `FileService` / `file_parser.py` 增加 `.txt` 文件上传解析支持（parse_txt + ext check）
+6. 后端 `seed_data` 启动时自动初始化演示账号 + 5 类合同类型
+7. 后端 `law_secretary.db` 清理后自动重建（删旧库重启即可）
+8. 所有 API 端点手动测试通过：login / types / chat SSE / generate-stream / create / upload / diff / ai-analyze / risks / counter-argument
+
+## 已完成的工作 (2025-06-27 / 第四轮 / Mock 智能对话增强 & 修复)
+1. **Mock 多轮对话升级为字段驱动**：`_mock_chat` 改为提取全量 user 消息的 slots → 按 FIELD_LIST 检测缺失字段 → 仅问缺失项 + 确认已填内容；去掉旧固定回复，改为动态追问
+2. **合同生成填充 slots**：`_mock_generate_contract` 从 generation prompt JSON 提取 `collected_fields` → `_fill_placeholders` 替换占位符（甲方/乙方/金额/交付物/付款节点/验收标准 → 模板中对应位置）
+3. **修复 `ack` 覆盖 Bug**：`last_slots` 循环改为 `ack_parts` 列表累积 + `"，"` join，支持多字段同时提取（如"乙方是XX，合同金额是50万"）
+4. **修复对话 JSON 与 SSE 不兼容**：移除 `_mock_chat` 的 JSON 返回格式（含 slots），改为纯文本对话，避免 SSE 字符流渲染原始 JSON 字符串
+5. **清理冗余代码**：移除 `_all_slots_from_messages` 重复定义、`_extract_slots_from_json` 未使用函数；仅从 user 消息提取 slots（不再解析 system prompt 的模板占位符）
+6. **修复生成时 slots 获取失败**：`_all_slots_from_messages` 恢复对 system 消息的 JSON 提取（`from_system=True` 参数），保障 `generate-stream` 端点正确填充 collected_fields 到合同
+7. **扩展正则匹配**：甲方 regex 增加 `采购方` 关键词，覆盖采购合同场景
+8. **清理 `FIELD_QUESTIONS` 硬编码前缀**：去掉各问题的"已了解"/"已记录"/"好的/"明白了"等前缀，避免与动态 `ack` 重复
+9. **build 通过**，全流程手动测试通过
 
 ## 已完成的工作 (2025-06-26)
 1. 新建个人中心页面 (`Profile.vue`)：左右布局（侧边导航 + 内容区），个人信息编辑（昵称/头像/脱敏手机号/角色/注册时间）、修改密码（当前密码/新密码/确认密码校验）

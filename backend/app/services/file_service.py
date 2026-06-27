@@ -4,14 +4,14 @@ import uuid
 from fastapi import UploadFile
 
 from app.core.config import settings
-from app.utils.file_parser import parse_docx, parse_pdf
+from app.utils.file_parser import parse_docx, parse_pdf, parse_txt
 
 
 class FileService:
     @staticmethod
     async def save_upload(file: UploadFile) -> str:
         ext = os.path.splitext(file.filename or "")[1].lower()
-        if ext not in (".docx", ".pdf"):
+        if ext not in (".docx", ".pdf", ".txt"):
             raise ValueError("Unsupported file format")
         filename = f"{uuid.uuid4().hex}{ext}"
         path = os.path.join(settings.UPLOAD_DIR, filename)
@@ -28,4 +28,6 @@ class FileService:
             return parse_docx(file_path)
         elif ext == ".pdf":
             return parse_pdf(file_path)
+        elif ext == ".txt":
+            return parse_txt(file_path)
         raise ValueError("Unsupported file format")

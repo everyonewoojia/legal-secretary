@@ -1,16 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as contractApi from '../api/contract'
-import { chatStream } from '../api'
+import { contractApi } from '../api/contract'
+import { chatStream, generateStream } from '../api'
 
 export const useContractStore = defineStore('contract', () => {
-  const contractType = ref('tech_service')
-  const sessionId = ref(null)
+  const contractTypes = ref([])
+  const typeId = ref(null)
+  const contractCode = ref('tech_service')
   const messages = ref([])
   const slots = ref({})
   const draftId = ref(null)
   const currentDraft = ref('')
   const generating = ref(false)
+  const typesLoaded = ref(false)
+  const sessions = ref({})
 
   const contractTypeMap = {
     tech_service: '技术服务合同',
@@ -24,18 +27,61 @@ export const useContractStore = defineStore('contract', () => {
     return contractTypeMap[type] || type
   }
 
-  async function startSession(type) {
-    contractType.value = type
-    const res = await contractApi.createSession(type)
-    if (res.code === 0) {
-      sessionId.value = res.data.session_id
-      slots.value = res.data.slots || {}
-      const content = res.data.next_question || '您好，请告诉我合同相关信息。'
-      messages.value = [{ role: 'agent', content }]
+  async function fetchTypes() {
+    if (typesLoaded.value) return
+    try {
+      const res = await contractApi.getTypes()
+      if (res.code === 0 && res.data?.length) {
+        contractTypes.value = res.data
+        typesLoaded.value = true
+      }
+    } catch {
+      contractTypes.value = Object.entries(contractTypeMap).map(([code, name], i) => ({
+        id: i + 1,
+        code,
+        name,
+        description: '',
+        sort_order: i + 1,
+      }))
+      typesLoaded.value = true
+    }
+  }
+
+  function getTypeId(code) {
+    const t = contractTypes.value.find((c) => c.code === code)
+    return t ? t.id : 1
+  }
+
+  function getTypeCode(id) {
+    const t = contractTypes.value.find((c) => c.id === id)
+    return t ? t.code : 'tech_service'
+  }
+
+  async function startSession(code) {
+    await fetchTypes()
+    const prev = contractCode.value
+    if (prev && prev !== code && messages.value.length) {
+      sessions.value[prev] = {
+        messages: messages.value.map((m) => ({ ...m })),
+        slots: { ...slots.value },
+        draftId: draftId.value,
+        currentDraft: currentDraft.value,
+      }
+    }
+    contractCode.value = code
+    typeId.value = getTypeId(code)
+    const saved = sessions.value[code]
+    if (saved) {
+      messages.value = saved.messages
+      slots.value = saved.slots
+      draftId.value = saved.draftId
+      currentDraft.value = saved.currentDraft
+    } else {
+      messages.value = [{ role: 'agent', content: '您好！我是法务小秘的合同助手。请告诉我合同的基本信息，例如甲方/乙方的名称，以及您希望起草的合同涉及的主要内容。' }]
+      slots.value = {}
       draftId.value = null
       currentDraft.value = ''
     }
-    return res
   }
 
   function sendMessage(text) {
@@ -47,21 +93,17 @@ export const useContractStore = defineStore('contract', () => {
       const lastAi = messages.value[messages.value.length - 1]
 
       chatStream(
-        sessionId.value,
+        typeId.value,
         text,
         (chunk) => {
-          if (chunk.startsWith('{')) {
-            try {
-              const parsed = JSON.parse(chunk)
-              if (parsed.content) lastAi.content += parsed.content
-              if (parsed.slots) {
-                slots.value = { ...slots.value, ...parsed.slots }
-              }
-              return
-            } catch {
+          if (typeof chunk === 'object' && chunk.content !== undefined) {
+            lastAi.content += chunk.content
+            if (chunk.slots) {
+              slots.value = { ...slots.value, ...chunk.slots }
             }
+          } else if (typeof chunk === 'string') {
+            lastAi.content += chunk
           }
-          lastAi.content += chunk
         },
         () => {
           lastAi.loading = false
@@ -80,15 +122,29 @@ export const useContractStore = defineStore('contract', () => {
   async function generateContract() {
     generating.value = true
     try {
-      const res = await contractApi.generateContract(sessionId.value)
-      if (res.code === 0) {
-        draftId.value = res.data.draft_id
-        currentDraft.value = res.data.contract_text
-        messages.value.push({ role: 'agent', content: '✅ 合同已生成，请在右侧预览。' })
-      }
-      return res
+      const title = contractTypeMap[contractCode.value] || '合同'
+      return await new Promise((resolve, reject) => {
+        generateStream(
+          typeId.value,
+          slots.value,
+          title,
+          (chunk) => {
+            currentDraft.value += chunk
+          },
+          (id) => {
+            draftId.value = id
+            messages.value.push({ role: 'agent', content: '✅ 合同已生成，请在右侧预览。' })
+            generating.value = false
+            resolve({ code: 0, data: { draft_id: id, contract_text: currentDraft.value } })
+          },
+          (err) => {
+            generating.value = false
+            reject(new Error(err || '合同生成失败'))
+          },
+        )
+      })
     } finally {
-      generating.value = false
+      if (generating.value) generating.value = false
     }
   }
 
@@ -97,16 +153,19 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   function clearSession() {
-    sessionId.value = null
+    typeId.value = null
+    contractCode.value = 'tech_service'
     messages.value = []
     slots.value = {}
     draftId.value = null
     currentDraft.value = ''
+    sessions.value = {}
   }
 
   return {
-    contractType,
-    sessionId,
+    contractTypes,
+    typeId,
+    contractCode,
     messages,
     slots,
     draftId,
@@ -118,5 +177,6 @@ export const useContractStore = defineStore('contract', () => {
     generateContract,
     updateSlots,
     clearSession,
+    fetchTypes,
   }
 })
