@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "title": "法务小秘知识库索引清单",
+    "description": "描述 knowledge_base/ 下所有知识源文件的类型、用途和向量化状态。",
+    "version": "1.0",
+    "updated": "2026-06-27",
+    "demo_disclaimer": "本索引清单仅作为实训 Demo 素材，不替代专业律师意见。"
+  },
+  "sources": [
+    {
+      "path": "templates/technical_service_contract.json",
+      "type": "json",
+      "category": "合同模板",
+      "description": "技术服务合同完整模板，含 10 条 clauses、5 个 risk_points、generation_notes",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": "输出块类型：template_clause / template_risk_point / template_generation_note"
+    },
+    {
+      "path": "templates/purchase_contract.json",
+      "type": "json",
+      "category": "合同模板",
+      "description": "采购合同完整模板，含 11 条 clauses、5 个 risk_points、generation_notes",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "templates/labor_contract.json",
+      "type": "json",
+      "category": "合同模板",
+      "description": "劳动合同完整模板，含 12 条 clauses、5 个 risk_points、generation_notes",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "templates/cooperation_agreement.json",
+      "type": "json",
+      "category": "合同模板",
+      "description": "合作协议完整模板，含 13 条 clauses、6 个 risk_points、generation_notes",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "templates/nda_contract.json",
+      "type": "json",
+      "category": "合同模板",
+      "description": "保密协议完整模板，含 10 条 clauses、5 个 risk_points、generation_notes",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "clauses/bottom_line_rules.json",
+      "type": "json",
+      "category": "底线规则",
+      "description": "结构化底线策略规则库，定义 10 类核心风险的底线判断标准",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": "输出块类型：bottom_line_rule"
+    },
+    {
+      "path": "legal_docs/contract_law_summary.md",
+      "type": "markdown",
+      "category": "法律知识库",
+      "description": "合同法通用规则知识摘要，含合同订立/效力/履行/违约/解除等核心要点",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": "按 ## 二级标题切分为 legal_doc_section 块"
+    },
+    {
+      "path": "legal_docs/labor_contract_law_summary.md",
+      "type": "markdown",
+      "category": "法律知识库",
+      "description": "劳动法/劳动合同知识摘要，含试用期/工资/社保/解除/竞业限制等核心要点",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "legal_docs/confidentiality_summary.md",
+      "type": "markdown",
+      "category": "法律知识库",
+      "description": "商业秘密与保密义务知识摘要，含构成要件/义务来源/违约竞合/例外情形等",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "legal_docs/dispute_resolution_summary.md",
+      "type": "markdown",
+      "category": "法律知识库",
+      "description": "争议解决知识摘要，含诉讼管辖/仲裁/劳动争议/诉讼时效/送达等核心要点",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    },
+    {
+      "path": "legal_docs/risk_review_rules.md",
+      "type": "markdown",
+      "category": "法律知识库",
+      "description": "谈判风险审查规则库，9 类核心风险的风险描述/审查标准/三档话术",
+      "vectorized": true,
+      "chunk_count": null,
+      "notes": ""
+    }
+  ],
+  "vector_index": {
+    "status": "待构建",
+    "build_script": "scripts/build_vector_index.py",
+    "search_script": "scripts/search_knowledge_base.py",
+    "index_file": "knowledge_base/faiss_index.bin",
+    "metadata_file": "knowledge_base/index_metadata.json",
+    "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+    "embedding_dimension": 384,
+    "index_type": "IndexFlatIP（内积，等价于余弦相似度）",
+    "notes": "运行 python3 scripts/build_vector_index.py 构建索引后，status 字段可更新为 '已构建'"
+  }
+}
