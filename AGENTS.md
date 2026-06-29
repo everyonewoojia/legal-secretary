@@ -18,7 +18,7 @@
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
-| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：合同模板初始化与 clauses 填充 |
+| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
 
 ## 目录结构
 ```
@@ -221,6 +221,37 @@ legal-secretary/
 1. 新建 `docs/ops_test_midterm_report.md` — 中期汇报工作说明文档，包含成员身份、已完成工作、成果支撑说明、可展示文件清单、后续计划、风险与限制、版本记录
 2. 文档结构清晰，适合中期汇报时照着讲解，未夸大项目完成度，未声称提供正式法律意见
 
+## 已完成的工作 (feat-zhy / 第四轮 / 底线策略规则库)
+1. 新建 `knowledge_base/clauses/bottom_line_rules.json` — 结构化底线策略规则库，定义 10 类核心风险：管辖法院变更、违约金比例过高、付款节点不明确、验收标准模糊、保密期限过短、单方解除权过宽、责任限制不合理、不可抗力范围异常、知识产权归属不清、交付义务过重
+2. 每条规则包含 11 个字段：id / name / description / applicable_contract_types / trigger_keywords / risk_level / review_points / bottom_line / recommended_response / negotiation_strategy（三档话术：强硬/折中/底线）/ demo_disclaimer
+3. 规则风险等级分布：high 6 条（管辖/违约金/付款/解除/责任限制/知识产权），medium 4 条（验收/保密/不可抗力/交付）
+4. 更新 `legal_docs/risk_review_rules.md` — 增加与 `bottom_line_rules.json` 的对应关系表
+5. 更新 `knowledge_base/README.md` — 增加 `clauses/` 目录说明、`bottom_line_rules.json` 字段说明
+6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.4 节（底线策略规则库）和 2.5 节（配套文档更新）
+7. 所有修改未涉及 backend、frontend、agent 目录
+
+## 已完成的工作 (feat-zhy / 第五轮 / FAISS 向量索引构建)
+1. 新建 `scripts/build_vector_index.py` — 遍历 knowledge_base/ 下全部 JSON 和 Markdown 文件，提取文本块，使用 sentence-transformers 生成 384 维 embedding，构建 FAISS IndexFlatIP 索引
+2. 新建 `scripts/search_knowledge_base.py` — 加载 FAISS 索引，支持命令行查询，返回 Top 5 相似知识块
+3. 新建 `knowledge_base/index.json` — 知识库源文件清单，描述 11 个源文件的类型、用途和向量化状态
+4. 更新 `.gitignore` — 忽略 `knowledge_base/faiss_index.bin` 等可重新生成的二进制产物
+5. 更新 `knowledge_base/README.md` — 替换 FAISS 接入计划为实际构建步骤和搜索演示用法
+6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.6 节（FAISS 向量索引构建）
+7. 所有修改未涉及 backend、frontend、agent 目录
+
+## 已完成的工作 (feat-zhy / 第六轮 / 基础测试体系)
+1. 新建 `tests/` 目录及其 6 个测试文件，覆盖我负责模块的关键文件结构验证
+2. 新建 `pyproject.toml` — 配置 pytest 规则
+3. 修改 `requirements.txt` — 追加 `pytest>=8.0.0`、`pytest-cov>=5.0.0`
+4. 更新 `docs/ops_test_midterm_report.md`
+5. 所有修改未涉及 backend、frontend、agent 目录
+
+## 已完成的工作 (feat-zhy / 第七轮 / 联调前接口一致性分析)
+1. 完成全链路接口一致性分析，检查后端实际路由、前端 API 调用、api-contracts 契约三方一致性
+2. 发现 **5 个高优先级问题**、**6 个中优先级问题**、**3 个低优先级问题**
+3. 新增 3 份文档：`pre_integration_api_check.md`（检查报告）、`integration_todo.md`（联调待办）、`bug_list.md`（Bug 清单）
+4. 确认前端全部使用 Mock、api-contracts 是进程内契约、合同起草模型差异最大
+
 ## 已完成的工作 (feat-jzx / 后端集成 & 结构优化 · 2026-06-26)
 1. **后端 FastAPI 完整实现** — 37+ API 端点，覆盖 6 组路由（auth/users/contracts/negotiation/rag/admin），含 JWT 认证、请求校验、统一响应格式
 2. **9 个 ORM 模型** — User / Contract / ContractVersion / ContractType / ContractTemplate / RiskAssessment / LawArticle / AuditLog / ApiKeyConfig，含完整关系映射与索引
@@ -255,7 +286,14 @@ legal-secretary/
 - [ ] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
 - [ ] 实现真正的 DOCX/PDF 导出（当前 download 端点仅返回 JSON）
 - [ ] 实现 `utils/file_parser.py` 的 PDF 解析（当前抛 NotImplementedError）
-- [ ] 补全测试（`tests/` 目录为空）
-- [ ] 构建 FAISS 向量索引（知识库数据已就绪）
+- [x] 补全基础测试（`tests/` 目录 — 模板结构、底线规则、索引清单、元数据、脚本基础结构验证已覆盖）
+- [ ] 补全后端 Service 层和 API 层测试（需等 backend 模块稳定后补充）
+- [ ] 补全前端组件测试（需等 frontend 模块稳定后补充）
+- [x] 构建 FAISS 向量索引（`knowledge_base/faiss_index.bin` 已构建）
 - [ ] 增强合同预览的 Markdown 渲染样式
 - [ ] 移动端适配
+- [ ] 前端从 Mock 切换为真实 HTTP 调用（见 `docs/integration_todo.md` 按模块推进）
+- [ ] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
+- [ ] 谈判分析流程确认（多步流程 vs. 合并端点）
+- [ ] 合同下载方案确认（文件流 vs. 文本下载）
+- [ ] api-contracts 目录定位说明更新

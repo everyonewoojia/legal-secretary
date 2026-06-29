@@ -46,37 +46,88 @@ knowledge_base/
 
 `agent/contract_agent.py` 加载的模板文件位于 `knowledge_base/templates/` 下，共用以下 5 个旧版文件名：`tech_service.json`、`procurement.json`、`employment.json`、`cooperation.json`、`non_disclosure.json`。新版模板文件名（带 `_contract` 后缀）为中期汇报展示用途，结构更完整，后续可将旧版模板逐步迁移对齐。
 
-## 风险点体系
+## `clauses/` 底线策略规则库
 
-`clauses/bottom_line_rules.json` 覆盖 6 类核心风险：管辖法院、违约金比例、保密期限、责任限制、付款条件、不可抗力。`templates/*.json` 中的 `risk_points` 字段扩展至合同类型维度的风险描述，两者配合使用——`bottom_line_rules` 提供底线断言，`risk_points` 提供场景化背景。
+`clauses/bottom_line_rules.json` 是结构化底线策略规则库，覆盖 **10 类核心风险**：管辖法院变更、违约金比例过高、付款节点不明确、验收标准模糊、保密期限过短、单方解除权过宽、责任限制不合理、不可抗力范围异常、知识产权归属不清、交付义务过重。
 
-## RAG / FAISS 接入
+### JSON 字段说明
 
-当前版本：`backend/app/services/rag_service.py` 通过文件系统遍历直接读取 JSON 模板文件，无向量检索。
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | string | 规则唯一标识（如 `jurisdiction_change`） |
+| `name` | string | 规则中文名称 |
+| `description` | string | 风险描述 |
+| `applicable_contract_types` | array | 适用合同类型列表 |
+| `trigger_keywords` | array | 触发关键词，用于 Agent 文本匹配 |
+| `risk_level` | string | 风险等级：`high` / `medium` / `low` |
+| `review_points` | array | 审查要点列表 |
+| `bottom_line` | string | 底线断言——不可退让的条件 |
+| `recommended_response` | string | 推荐应对策略（简短） |
+| `negotiation_strategy` | object | 三档谈判话术：`firm_position` / `compromise_position` / `fallback_position` |
+| `demo_disclaimer` | string | 每条款均标注实训 Demo 声明 |
+
+### 与 `risk_review_rules.md` 的关系
+
+- `legal_docs/risk_review_rules.md`（Markdown 格式）用于**人工阅读和展示**，覆盖 9 类规则
+- `clauses/bottom_line_rules.json`（JSON 格式）用于**程序化读取**，被 RiskAgent / NegotiationAgent 加载使用，覆盖 10 类规则
+- `templates/*.json` 中的 `risk_points` 字段扩展至合同类型维度的风险描述，三者配合使用——`bottom_line_rules` 提供底线断言，`risk_review_rules.md` 提供审查上下文，`risk_points` 提供场景化背景
+- 后续可作为 FAISS 向量化素材：每条规则的 `description`、`review_points`、`bottom_line` 字段均可作为 embedding 分块输入
+
+## FAISS 向量索引构建
+
+当前版本：通过 `scripts/build_vector_index.py` 实现完整的 Embedding + FAISS 索引构建流程。
 
 ### 向量化素材来源
 
 | 来源 | 格式 | 内容 | 分块策略 |
 |------|------|------|----------|
-| `templates/*.json` 的 `sections[].content_template` | JSON | 各类合同模板条款 | 每条 sections 为一个分块 |
 | `templates/*.json` 的 `clauses[]` | JSON | 结构化条款含 risk_tips | 每条 clause 为一个分块 |
 | `templates/*.json` 的 `risk_points[]` | JSON | 合同类型维度风险点 | 每条 risk_point 为一个分块 |
-| `legal_docs/*.md` | Markdown | 法律知识摘要和审查规则 | 按二级标题（##）分块 |
+| `templates/*.json` 的 `generation_notes` | JSON | 生成注意事项 | 每文件一个文本块 |
 | `clauses/bottom_line_rules.json` | JSON | 底线策略断言 | 每条规则为一个分块 |
-| `legal_docs/民法典合同编摘要.json` | JSON | 合同法条文摘要 | 每条条文为一个分块 |
+| `legal_docs/*.md` | Markdown | 法律知识摘要和审查规则 | 按二级标题（##）分块 |
 
-### 后续接入计划（见 `scripts/build_vector_index.py`）
+### 构建步骤
 
-1. 遍历 `knowledge_base/` 下所有 JSON 和 Markdown 文件，识别各文件格式按上述策略分块
-2. 使用 `sentence-transformers`（`paraphrase-multilingual-MiniLM-L12-v2`）生成 768 维 embedding
-3. 写入 FAISS `IndexFlatIP`（内积索引），保存到 `knowledge_base/faiss_index.bin`
-4. 查询时：query → embedding → FAISS 搜索 → 返回 top_k 片段（含来源文件路径和 chunk 类型）
+```bash
+# 1. 安装依赖
+pip install sentence-transformers faiss-cpu
+
+# 2. 构建向量索引
+python3 scripts/build_vector_index.py
+```
+
+输出文件：
+- `knowledge_base/faiss_index.bin` — FAISS 向量索引（IndexFlatIP，384 维）
+- `knowledge_base/index_metadata.json` — 索引元信息（来源文件、块类型、标题、预览）
+
+### 搜索演示
+
+```bash
+# 搜索 top 5 相似知识块
+python3 scripts/search_knowledge_base.py "违约金过高怎么办"
+python3 scripts/search_knowledge_base.py "管辖法院可以在哪里约定"
+python3 scripts/search_knowledge_base.py "试用期最长多久"
+```
+
+搜索结果包含：`score`（相似度）、`source_file`（来源文件）、`chunk_type`（块类型）、`title`（块标题）、`text_preview`（内容预览）。
+
+### 索引元信息（index.json）
+
+`knowledge_base/index.json` 描述了所有知识源文件清单、类型、用途和向量化状态，可配合 FAISS 索引进行可视化展示。
+
+### 技术细节
+
+- Embedding 模型：`paraphrase-multilingual-MiniLM-L12-v2`（支持中文，384 维）
+- FAISS 索引：`IndexFlatIP`（内积索引，等价于余弦相似度）
+- Embedding 归一化：构建时已对向量进行 L2 归一化
+- 块类型：`template_clause` / `template_risk_point` / `template_generation_note` / `bottom_line_rule` / `legal_doc_section`
 
 ## 当前版本限制
 
 - **实训 Demo 用途**：本知识库所有模板、规则、法律摘要**仅作为实训 Demo 模板，不替代专业律师意见**。实际使用中须由执业律师审核。
 - 法律条文摘要仅覆盖民法典合同编、劳动法、商业秘密保护、争议解决等基础领域，未覆盖全部法律法规。
 - 底线策略规则库和风险审查规则库仅覆盖常见风险场景，不能替代针对具体合同的全面审查。
-- 尚未接入向量检索（FAISS），当前为文件级直接读取。
+- **索引结果仅供辅助检索**，不构成法律意见，实际合同审查须由执业律师完成。
 - 模板中的 `content_template` 使用 `[____]` 占位符，AI 生成时需替换为实际内容。
-- `legal_docs/` 下的 Markdown 文件暂未接入 Agent 调用，后续可通过 RAG 实现语义检索增强。
+- `legal_docs/` 下的 Markdown 文件通过本地检索使用，暂未接入后端 RAG 接口。

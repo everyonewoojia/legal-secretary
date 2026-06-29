@@ -60,6 +60,67 @@
 - 更新 `knowledge_base/README.md` — 补充 `clauses` 字段说明、legal_docs 目录说明、向量化素材来源表、RAG 分块策略
 - 更新 `AGENTS.md` — 新增分支状态表 `feat-zhy` 行、目录结构中的新模板和 legal_docs 文件、两轮工作记录
 
+### 2.4 底线策略规则库（2026-06-27）
+
+在 `knowledge_base/clauses/` 下新建 `bottom_line_rules.json`，结构化定义 10 类核心风险的底线判断规则：
+
+| 规则 id | 风险类别 | 风险等级 | 适用合同 |
+|---------|---------|---------|---------|
+| `jurisdiction_change` | 管辖法院变更 | high | 5 类合同 |
+| `excessive_liquidated_damages` | 违约金比例过高 | high | 技术服务/采购/合作 |
+| `vague_payment_terms` | 付款节点不明确 | high | 技术服务/采购/合作 |
+| `vague_acceptance_standard` | 验收标准模糊 | medium | 技术服务/采购/合作 |
+| `short_confidentiality_period` | 保密期限过短 | medium | 技术服务/合作/保密 |
+| `broad_unilateral_termination` | 单方解除权过宽 | high | 技术服务/采购/合作/劳动 |
+| `unreasonable_liability_limitation` | 责任限制不合理 | high | 技术服务/采购/合作/保密 |
+| `abnormal_force_majeure` | 不可抗力范围异常 | medium | 技术服务/采购/合作 |
+| `unclear_ip_ownership` | 知识产权归属不清 | high | 技术服务/合作 |
+| `unfavorable_delivery_terms` | 交付义务过重 | medium | 技术服务/采购/合作 |
+
+每条规则包含 `id` / `name` / `description` / `applicable_contract_types` / `trigger_keywords` / `risk_level` / `review_points` / `bottom_line` / `recommended_response` / `negotiation_strategy`（三档话术：强硬/折中/底线）/ `demo_disclaimer`。
+
+### 2.5 配套文档更新（2026-06-27）
+
+- `legal_docs/risk_review_rules.md`：增加与 `bottom_line_rules.json` 的对应关系表，说明 Markdown 格式用于展示、JSON 格式用于程序化读取
+- `knowledge_base/README.md`：增加 `clauses/` 目录说明和 `bottom_line_rules.json` 字段说明，标注其后续可作为 FAISS 向量化素材
+
+### 2.7 基础测试体系（2026-06-29）
+
+在 `tests/` 下新建基础测试体系，覆盖我的模块内所有关键文件的结构正确性和完整性验证：
+
+| 测试文件 | 覆盖内容 | 测试项数 |
+|----------|---------|---------|
+| `test_templates_schema.py` | 5 类合同模板 JSON 的结构字段完整性校验 | 6 项参数化测试 |
+| `test_bottom_line_rules.py` | 底线策略规则库的字段完整性、枚举约束、话术结构 | 7 项 |ss
+| `test_index_manifest.py` | index.json 的源文件存在性验证、布尔字段类型检查 | 6 项 |
+| `test_vector_scripts.py` | 向量脚本的存在性和基础结构（main入口、faiss引用） | 6 项 |
+| `test_metadata_basic.py` | index_metadata.json 的元数据格式和可追溯字段校验 | 5 项 |
+
+测试设计原则：
+- 只做结构验证，不做法律内容正确性检查
+- 不依赖外部网络，不下载 Hugging Face 模型
+- 不修改业务代码和知识库正文
+- 自动兼容 JSON 结构变化（如 index.json 的顶层字段名）
+
+配套变更：
+- 新增 `pyproject.toml` — 配置 pytest 发现规则（`testpaths = ["tests"]`）
+- 修改 `requirements.txt` — 追加 `pytest>=8.0.0`、`pytest-cov>=5.0.0`
+
+### 2.6 FAISS 向量索引构建（2026-06-27）
+
+在 `scripts/` 下新建索引构建脚本和搜索演示脚本，实现知识库的向量化检索能力：
+
+- `scripts/build_vector_index.py` — 遍历知识库全部 JSON 和 Markdown 文件，提取文本块，使用 `sentence-transformers`（`paraphrase-multilingual-MiniLM-L12-v2`）生成 384 维 embedding，构建 FAISS `IndexFlatIP` 索引
+- `scripts/search_knowledge_base.py` — 加载索引，支持命令行查询，返回 Top 5 最相似知识块（含 score / source_file / chunk_type / title / text_preview）
+- `knowledge_base/index.json` — 知识库源文件清单，描述每个文件类型、用途和向量化状态
+
+分块策略：
+- 合同模板 JSON：按 `clauses[]`（条款）、`risk_points[]`（风险点）、`generation_notes`（生成说明）提取
+- 底线规则 JSON：按每条规则提取
+- 法律知识库 Markdown：按 `##` 二级标题切分
+
+输出产物：`knowledge_base/faiss_index.bin`（向量索引）+ `knowledge_base/index_metadata.json`（索引元信息）
+
 ---
 
 ## 三、当前成果如何支撑项目
@@ -71,18 +132,21 @@
 
 ### 3.2 支撑谈判风险审查
 - `risk_review_rules.md` 提供 9 类核心风险的审查标准和三档话术
+- `bottom_line_rules.json` 提供 10 类风险的底线断言和结构化谈判话术，可通过 RiskAgent / NegotiationAgent 程序化加载
 - `clauses` 中的 `risk_tips` 为每一条款提供针对性的风险提示
 - `legal_docs/` 下的法律摘要可为 Agent 提供法律依据引用
 
-### 3.3 支撑后续 FAISS 向量化和 RAG 检索
-- 各文件已按统一格式组织，便于按二级标题分块
-- JSON 模板可直接解析为 embedding 输入
-- Markdown 知识库可切分为语义块后索引
+### 3.3 FAISS 向量化和 RAG 检索
+- FAISS 索引构建脚本（`scripts/build_vector_index.py`）已就绪，可一键生成向量索引
+- 搜索演示脚本（`scripts/search_knowledge_base.py`）可在命令行实时检索知识库
+- `knowledge_base/index.json` 提供知识库文件清单和向量化状态一览
+- 共覆盖 5 类合同模板 + 10 类底线规则 + 5 份法律知识库文档
 
 ### 3.4 支撑中期汇报展示
-- 5 个完整模板 + 5 个知识库文件可组合成演示链路
+- 5 个完整模板 + 5 个知识库文件 + 底线策略规则库可组合成演示链路
 - 模板中的 `display_name`、`description` 字段可用于 UI 展示
 - `risk_points` 和 `risk_tips` 可用于风险分析的界面呈现
+- `bottom_line_rules.json` 的 `negotiation_strategy` 三档话术可直接在谈判分析界面展示
 
 ---
 
@@ -91,6 +155,7 @@
 ```
 knowledge_base/
 ├── README.md                              # 知识库说明文档（已更新）
+├── index.json                             # 知识库文件清单与向量化状态
 ├── templates/
 │   ├── technical_service_contract.json     # 技术服务合同模板（10 clauses）
 │   ├── purchase_contract.json              # 采购合同模板（11 clauses）
@@ -98,15 +163,19 @@ knowledge_base/
 │   ├── cooperation_agreement.json          # 合作协议模板（13 clauses）
 │   └── nda_contract.json                   # 保密协议模板（10 clauses）
 ├── clauses/
-│   └── bottom_line_rules.json              # 底线策略规则库
+│   └── bottom_line_rules.json              # 底线策略规则库（10 类风险规则）
 ├── legal_docs/
 │   ├── contract_law_summary.md             # 合同法知识摘要
 │   ├── labor_contract_law_summary.md       # 劳动法知识摘要
 │   ├── confidentiality_summary.md          # 保密法律知识摘要
 │   ├── dispute_resolution_summary.md       # 争议解决知识摘要
 │   └── risk_review_rules.md                # 谈判风险审查规则库
-├── faiss_index.bin                         # [待生成] FAISS 向量索引
-└── index.json                              # [待创建] 知识库索引清单
+├── faiss_index.bin                         # FAISS 向量索引（由 build_vector_index.py 生成）
+└── index_metadata.json                     # 索引元信息（由 build_vector_index.py 生成）
+
+scripts/
+├── build_vector_index.py                   # 构建 FAISS 向量索引
+└── search_knowledge_base.py                # 搜索演示脚本
 ```
 
 ---
@@ -116,8 +185,8 @@ knowledge_base/
 | 序号 | 计划事项 | 优先级 | 依赖 |
 |------|---------|--------|------|
 | 1 | 继续标准化模板字段，与 agent/ 层 slot 定义对齐 | 高 | 与后端团队确认字段映射 |
-| 2 | 配合后端接入 RAG 检索（`backend/app/services/rag_service.py`）| 高 | FAISS 构建脚本就绪 |
-| 3 | 配合前端展示模板选择列表和风险提示面板 | 中 | 前端 UI 组件就绪 |
+| 2 | 配合后端接入 RAG 检索（`backend/app/services/rag_service.py`）| 高 | FAISS 索引已就绪，接入后端需联调 |
+| 3 | 配合前端展示模板选择列表、风险提示和底线话术面板 | 中 | 前端 UI 组件就绪 |
 | 4 | 编写测试用例和测试报告（`tests/` 目录）| 中 | 后端 API 稳定 |
 | 5 | 参与全栈联调与验收 | 中 | 前后端对接完成 |
 
@@ -128,7 +197,7 @@ knowledge_base/
 1. **实训 Demo 属性**：所有模板、规则、法律摘要**仅作为实训 Demo 素材，不替代专业律师意见**。实际使用中须由执业律师审核。
 2. **法律知识库覆盖有限**：当前仅覆盖合同法、劳动法、保密法律、争议解决等基础领域，未覆盖公司法、知识产权法、税法等其他相关法律法规。
 3. **知识准确性**：法律条文摘要已尽力确保准确，但可能因法律法规更新、地方性差异等原因存在偏差，需定期校对和更新。
-4. **向量检索尚未就绪**：FAISS 索引尚未构建，当前 RAG 接口仅支持文件级直接读取，语义检索能力待接入。
+4. **向量检索为本地脚本**：当前 FAISS 索引构建和搜索均为本地脚本，尚未接入后端 `RagService` 或前端 API 调用，需联调后方可上线。
 5. **联调进度**：当前 `feat-zhy` 分支独立开发，尚未与 `master` 分支或 `backend`、`frontend` 进行集成联调。
 6. **模板格式兼容**：新模板与旧版 stub 文件（`tech_service.json` 等）格式不同，后续需确认过渡方案。
 
@@ -139,3 +208,6 @@ knowledge_base/
 | 版本 | 日期 | 内容 | 作者 |
 |------|------|------|------|
 | v1.0 | 2026-06-26 | 初始版本，记录合同模板初始化和 legal_docs 知识库搭建成果 | 张怀月 |
+| v2.0 | 2026-06-27 | 增加底线策略规则库（bottom_line_rules.json）和配套文档更新 | 张怀月 |
+| v3.0 | 2026-06-27 | 增加 FAISS 向量索引构建脚本和搜索演示脚本，知识库文件清单（index.json） | 张怀月 |
+| v4.0 | 2026-06-29 | 基础测试体系搭建（tests/），覆盖模板结构、底线规则、索引清单、元数据、脚本基础验证 | 张怀月 |
