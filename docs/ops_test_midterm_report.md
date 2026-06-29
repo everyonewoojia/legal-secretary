@@ -84,6 +84,28 @@
 - `legal_docs/risk_review_rules.md`：增加与 `bottom_line_rules.json` 的对应关系表，说明 Markdown 格式用于展示、JSON 格式用于程序化读取
 - `knowledge_base/README.md`：增加 `clauses/` 目录说明和 `bottom_line_rules.json` 字段说明，标注其后续可作为 FAISS 向量化素材
 
+### 2.7 基础测试体系（2026-06-29）
+
+在 `tests/` 下新建基础测试体系，覆盖我的模块内所有关键文件的结构正确性和完整性验证：
+
+| 测试文件 | 覆盖内容 | 测试项数 |
+|----------|---------|---------|
+| `test_templates_schema.py` | 5 类合同模板 JSON 的结构字段完整性校验 | 6 项参数化测试 |
+| `test_bottom_line_rules.py` | 底线策略规则库的字段完整性、枚举约束、话术结构 | 7 项 |ss
+| `test_index_manifest.py` | index.json 的源文件存在性验证、布尔字段类型检查 | 6 项 |
+| `test_vector_scripts.py` | 向量脚本的存在性和基础结构（main入口、faiss引用） | 6 项 |
+| `test_metadata_basic.py` | index_metadata.json 的元数据格式和可追溯字段校验 | 5 项 |
+
+测试设计原则：
+- 只做结构验证，不做法律内容正确性检查
+- 不依赖外部网络，不下载 Hugging Face 模型
+- 不修改业务代码和知识库正文
+- 自动兼容 JSON 结构变化（如 index.json 的顶层字段名）
+
+配套变更：
+- 新增 `pyproject.toml` — 配置 pytest 发现规则（`testpaths = ["tests"]`）
+- 修改 `requirements.txt` — 追加 `pytest>=8.0.0`、`pytest-cov>=5.0.0`
+
 ### 2.6 FAISS 向量索引构建（2026-06-27）
 
 在 `scripts/` 下新建索引构建脚本和搜索演示脚本，实现知识库的向量化检索能力：
@@ -188,3 +210,4 @@ scripts/
 | v1.0 | 2026-06-26 | 初始版本，记录合同模板初始化和 legal_docs 知识库搭建成果 | 张怀月 |
 | v2.0 | 2026-06-27 | 增加底线策略规则库（bottom_line_rules.json）和配套文档更新 | 张怀月 |
 | v3.0 | 2026-06-27 | 增加 FAISS 向量索引构建脚本和搜索演示脚本，知识库文件清单（index.json） | 张怀月 |
+| v4.0 | 2026-06-29 | 基础测试体系搭建（tests/），覆盖模板结构、底线规则、索引清单、元数据、脚本基础验证 | 张怀月 |
