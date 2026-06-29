@@ -4,6 +4,7 @@ import json
 
 from backend.app.core.llm import llm_complete
 from agent.prompts import load_prompt
+from agent.rag_client import RagClient
 
 
 class RiskAgent:
@@ -24,6 +25,16 @@ class RiskAgent:
         original_text = context.get("original_text", "")
         modified_text = context.get("modified_text", "")
         bottom_line_rules = context.get("bottom_line_rules", "")
+        rag_context = context.get("rag_context", "")
+
+        # 如果没有 RAG 上下文，主动查询
+        if not rag_context:
+            try:
+                rag = RagClient(db_session=context.get("db"))
+                docs = rag.search(f"{contract_type} 法律风险 法律规定 违约责任", contract_type, top_k=5)
+                rag_context = "\n\n".join([d.get("content", "")[:400] for d in docs])
+            except Exception:
+                rag_context = ""
 
         system_prompt = load_prompt("risk_analysis")
 
@@ -32,6 +43,7 @@ class RiskAgent:
             f"原始合同文本：\n{original_text[:2000]}\n\n"
             f"对方修改后文本：\n{modified_text[:2000]}\n\n"
             f"文本差异（JSON）：\n{diff_text}\n\n"
+            f"参考法律依据：\n{rag_context if rag_context else '（无）'}\n\n"
             f"我方底线策略：\n{bottom_line_rules if bottom_line_rules else '（未配置特定底线策略）'}\n\n"
             f"请按以下JSON格式输出分析结果（纯JSON数组，不要包含其他文字）：\n"
             f'[\n'

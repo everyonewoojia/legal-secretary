@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as negotiationApi from '../api/negotiation'
+import { searchLawContext } from '../api/contract'
 
 export const useNegotiationStore = defineStore('negotiation', () => {
   const caseId = ref(null)
@@ -10,6 +11,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   const modifiedText = ref('')
   const loading = ref(false)
   const version = ref('V1')
+  const lawContext = ref('')
 
   const selectedRisk = computed(() => {
     if (!selectedRiskId.value) return null
@@ -32,10 +34,16 @@ export const useNegotiationStore = defineStore('negotiation', () => {
         formData.append('modified_text', modifiedText.value.trim())
       }
 
+      // 异步获取法律知识上下文（作为分析参考）
+      const ragQuery = modifiedText.value.trim().slice(0, 100) || '合同风险分析'
+      searchLawContext(ragQuery).then(contextStr => {
+        lawContext.value = contextStr // 直接接收拼接好的字符串
+      })
+
       const res = await negotiationApi.analyzeNegotiation(formData)
       if (res.code === 0) {
-        caseId.value = res.data.case_id
-        diffList.value = res.data.diff_list || []
+        caseId.value = res.data.case_id || 1
+        diffList.value = res.data.risks || res.data.changes || res.data.diff_list || []
         version.value = res.data.version || 'V2'
         if (diffList.value.length > 0) {
           selectedRiskId.value = diffList.value[0].id

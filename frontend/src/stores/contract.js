@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import * as contractApi from '../api/contract'
-import { chatStream } from '../api'
+import { chatStream, ragSearch } from '../api'
 
 export const useContractStore = defineStore('contract', () => {
   const contractType = ref('tech_service')
@@ -11,6 +11,7 @@ export const useContractStore = defineStore('contract', () => {
   const draftId = ref(null)
   const currentDraft = ref('')
   const generating = ref(false)
+  const ragContextStr = ref('')
 
   const contractTypeMap = {
     tech_service: '技术服务合同',
@@ -80,11 +81,22 @@ export const useContractStore = defineStore('contract', () => {
   async function generateContract() {
     generating.value = true
     try {
-      const res = await contractApi.generateContract(sessionId.value)
+      // 在生成前先获取法律知识上下文
+      const typeName = getContractLabel(contractType.value)
+      const slotValues = Object.values(slots.value).filter(Boolean).join(' ')
+      const ragQuery = `${typeName} ${slotValues.slice(0, 100)} 合同 法律 条款`
+      ragContextStr.value = await contractApi.searchLawContext(ragQuery, contractType.value)
+
+      const payload = {
+      collected_fields: slots.value, // 槽位数据给后端的 collected_fields
+      title: `${typeName}_草稿`
+    }
+
+      const res = await contractApi.generateContract(sessionId.value, payload)
       if (res.code === 0) {
         draftId.value = res.data.draft_id
         currentDraft.value = res.data.contract_text
-        messages.value.push({ role: 'agent', content: '✅ 合同已生成，请在右侧预览。' })
+        messages.value.push({ role: 'agent', content: '合同已生成，请在右侧预览。' })
       }
       return res
     } finally {
@@ -112,6 +124,7 @@ export const useContractStore = defineStore('contract', () => {
     draftId,
     currentDraft,
     generating,
+    ragContextStr,
     getContractLabel,
     startSession,
     sendMessage,

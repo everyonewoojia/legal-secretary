@@ -14,7 +14,7 @@
 
 | 分支 | 状态 | 说明 |
 |------|------|------|
-| `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复 |
+| `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义）+ RAG 检索与 Agent 集成调用链 |
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：合同模板初始化与 clauses 填充 |
@@ -170,6 +170,24 @@ legal-secretary/
 6. 谈判话术生成重构：话术生成统一收拢至 `NegotiationAgent`，由 `AgentOrchestrator.process_risk_negotiation()` 编排 RiskAgent + NegotiationAgent 的串联调用
 7. 视图层知识库：5 类合同 JSON 结构化模板、底线策略规则库、民法典合同编摘要
 8. 代码合并与修复：手动合并 feat-agent 分支，修复契约 JSON 文件中的尾部逗号等语法错误，放宽 faiss-cpu 版本约束
+
+## 已完成的工作 (2026-06-27) — RAG 检索与 Agent 集成调用链
+1. **知识库向量化导入脚本** (`scripts/ingest_knowledge_base.py`)：遍历 `knowledge_base/` 下 5 个模板 JSON + 5 个法律文档 MD，按策略分块（clauses/sections/risk_points/## 标题），写入 SQLite `LawArticle` 表（180 条记录）+ ChromaDB 同步
+2. **RAG 搜索 API 端点** (`POST /api/v1/rag/search`)：新增 `schemas/rag.py` 中 `RagSearchRequest/Response`，`routers/rag.py` 中 `/search` 端点，`RagService.search_all()` 三层搜索链（ChromaDB 向量 → SQLite keyword → 知识库磁盘文件 fallback）
+3. **Agent 层 LLM 入口桥接**：新建 `backend/app/core/llm.py` 代理 `ai_service.py`，修复 `agent/` 层对 `backend.app.core.llm` 的 5 处引用
+4. **Agent RAG 客户端**：新建 `agent/rag_client.py`，提供 `search()` / `search_legal_basis()` / `search_clause_template()` / `search_risk_rules()`，支持有 DB 和无 DB 两种模式
+5. **RAG 注入 Agent 调用链**：
+   - `AgentOrchestrator.process()` — 在 dialogue/generate 分流前执行 RAG 检索，填充 `session["rag_context"]`
+   - `AgentOrchestrator.process_risk_negotiation()` — 注入法律知识到 RiskAgent+NegotiationAgent 上下文
+   - `DialogueAgent.run()` — 在 LLM prompt 中加入法律知识，提升追问质量
+   - `ContractAgent.run()` — 主动 RAG 查询增强合同模板填充
+   - `RiskAgent.run()` — 注入法条依据提升风险识别准确率
+   - `NegotiationAgent._generate_single()` — 注入底线规则和法律依据到话术生成 prompt
+6. **后端服务层 RAG 增强**：
+   - `ContractService.ai_generate_contract()` — 改用 `search_all()` 做多字段语义检索
+   - `DialogueService.generate_contract()` — 接受并传递 RAG `law_context`
+   - `NegotiationService.ai_analyze_risks()` — 获取合同类型后执行 RAG 搜索，注入风险分析 prompt
+7. **前端 API 层改造**：`api/index.js` 中 `chatStream()` 尝试真实 SSE 端点 + mock fallback，`api/contract.js`/`api/negotiation.js` 所有函数 try real API + mock fallback，Store 层 (`contract.js`/`negotiation.js`) 异步调用 `ragSearch()` 获取法律上下文
 
 ## 已完成的工作 (feat-zhy / 张怀月 / ops-test)
 1. 合同模板初始化与 clauses 填充：在 `knowledge_base/templates/` 下新建 5 个完整合同模板 JSON 文件，保留旧版 stub 文件不做删除

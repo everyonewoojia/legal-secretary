@@ -105,13 +105,27 @@ class ContractService:
     async def ai_generate_contract(self, type_id: int, collected_fields: dict) -> str:
         rag = RagService(self.db)
         law_context_parts = []
+
+        # 对每个字段值做语义检索
         for val in collected_fields.values():
-            results = rag.vector_search(str(val), top_k=2)
+            results = rag.search_all(str(val), "", top_k=2)
             for r in results:
-                law_context_parts.append(f"[{r['source']}] {r['content']}")
+                content = r.get("content", "")
+                if content and content not in law_context_parts:
+                    law_context_parts.append(f"[{r.get('source', '知识库')}] {content[:300]}")
+
+        # 对合同类型做一次综合检索
+        type_name = {1: "技术服务合同", 2: "采购合同", 3: "劳动合同", 4: "合作协议", 5: "保密协议"}.get(type_id, "")
+        if type_name:
+            results = rag.search_all(type_name, "", top_k=3)
+            for r in results:
+                content = r.get("content", "")
+                if content and content not in law_context_parts:
+                    law_context_parts.append(f"[{r.get('source', '知识库')}] {content[:300]}")
+
         law_context = "\n\n".join(law_context_parts) if law_context_parts else ""
         dialog = DialogueService(type_id)
-        contract = await dialog.generate_contract(collected_fields)
+        contract = await dialog.generate_contract(collected_fields, law_context)
         return contract
 
     async def ai_generate_contract_stream(self, type_id: int, collected_fields: dict) -> AsyncGenerator[str, None]:

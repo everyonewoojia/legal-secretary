@@ -105,10 +105,11 @@ class DialogueService:
         return SYSTEM_PROMPT_TEMPLATE.format(contract_type=self.type_name, fields=fields_str)
 
     def build_generation_prompt(self, collected_fields: dict, law_context: str = "") -> str:
+        law_context = law_context or "（无相关法条引用）"
         return GENERATION_PROMPT_TEMPLATE.format(
             contract_type=self.type_name,
             fields_json=json.dumps(collected_fields, ensure_ascii=False, indent=2),
-            law_context=law_context or "（无相关法条引用）",
+            law_context=law_context,
         )
 
     async def chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
@@ -133,20 +134,23 @@ class DialogueService:
                 pass
         return None
 
-    async def generate_contract(self, collected_fields: dict) -> str:
+    async def generate_contract(self, collected_fields: dict, law_context: str = "") -> str:
         return await chat_once([
-            {"role": "system", "content": self.build_generation_prompt(collected_fields)},
+            {"role": "system", "content": self.build_generation_prompt(collected_fields, law_context)},
         ])
 
-    async def generate_contract_stream(self, collected_fields: dict) -> AsyncGenerator[str, None]:
-        prompt = self.build_generation_prompt(collected_fields)
+    async def generate_contract_stream(self, collected_fields: dict, law_context: str = "") -> AsyncGenerator[str, None]:
+        prompt = self.build_generation_prompt(collected_fields, law_context)
         async for chunk in chat_stream([{"role": "system", "content": prompt}]):
             yield chunk
 
 
-async def analyze_risks(original: str, modified: str) -> list[dict]:
+async def analyze_risks(original: str, modified: str, law_context: str = "") -> list[dict]:
+    prompt = RISK_ANALYSIS_PROMPT.format(original=original, modified=modified)
+    if law_context:
+        prompt += f"\n\n## 参考法律依据\n{law_context}"
     result = await chat_once_json([
-        {"role": "system", "content": RISK_ANALYSIS_PROMPT.format(original=original, modified=modified)},
+        {"role": "system", "content": prompt},
     ])
     if isinstance(result, list):
         return result

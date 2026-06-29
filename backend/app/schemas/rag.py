@@ -43,6 +43,25 @@ class TemplateUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class RagSearchRequest(BaseModel):
+    query: str = Field(..., min_length=2, max_length=500)
+    contract_type: str = Field("", max_length=32)
+    top_k: int = Field(5, ge=1, le=20)
+
+
+class RagSearchResult(BaseModel):
+    source: str
+    content: str
+    score: float = 0
+    metadata: dict = {}
+
+
+class RagSearchResponse(BaseModel):
+    query: str
+    total: int
+    chunks: list[RagSearchResult]
+
+
 class TemplateResponse(BaseModel):
     id: int
     name: str
