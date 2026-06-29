@@ -182,3 +182,39 @@
 3. **签约后**：定期复盘合同履行情况，关注条款执行中的潜在风险暴露
 4. **争议发生**：优先依据合同条款协商，保留书面沟通记录以作为证据
 5. **外部支持**：对重大复杂的合同，建议聘请执业律师参与谈判和审查
+
+---
+
+## 附录：与 bottom_line_rules.json 的对应关系
+
+本文档（Markdown 格式）与 `knowledge_base/clauses/bottom_line_rules.json`（JSON 格式）构成互补关系，**前者用于阅读展示，后者用于程序化处理**：
+
+| 维度 | `risk_review_rules.md` | `bottom_line_rules.json` |
+|------|------------------------|-------------------------|
+| 格式 | Markdown 自然语言 | 结构化 JSON |
+| 用途 | 人工阅读、培训展示、流程参考 | 被 RiskAgent / NegotiationAgent 程序化加载，进行底线判断 |
+| 覆盖范围 | 9 类风险 | 10 类风险（增加"交付义务过重"） |
+| 规则内容 | 风险描述 + 审查标准 + 三档话术 | id / name / description / applicable_contract_types / trigger_keywords / risk_level / review_points / bottom_line / recommended_response / negotiation_strategy |
+| 使用方式 | 人工查阅 | Agent 自动加载 + RAG 语义检索匹配 |
+| 更新策略 | 展示层以本文档为准 | 程序层以 JSON 为准，两者保持同步 |
+
+### 对应风险映射
+
+| `risk_review_rules.md` 规则 | `bottom_line_rules.json` id | 说明 |
+|----------------------------|----------------------------|------|
+| 规则一：管辖法院变更 | `jurisdiction_change` | 完全对应 |
+| 规则二：违约金比例过高 | `excessive_liquidated_damages` | 完全对应 |
+| 规则三：付款节点不明确 | `vague_payment_terms` | 完全对应 |
+| 规则四：验收标准模糊 | `vague_acceptance_standard` | 完全对应 |
+| 规则五：保密期限过短 | `short_confidentiality_period` | 完全对应 |
+| 规则六：单方解除权过宽 | `broad_unilateral_termination` | 完全对应 |
+| 规则七：责任限制不合理 | `unreasonable_liability_limitation` | 完全对应 |
+| 规则八：不可抗力范围异常 | `abnormal_force_majeure` | 完全对应 |
+| 规则九：知识产权归属不清 | `unclear_ip_ownership` | 完全对应 |
+| —（新增第 10 类） | `unfavorable_delivery_terms` | JSON 新增规则，Markdown 暂未展开 |
+
+### 后续用途
+
+- **RiskAgent**：加载 `bottom_line_rules.json`，对合同条款逐条匹配风险规则，输出风险等级和底线判断
+- **NegotiationAgent**：根据匹配到的风险规则，从 `negotiation_strategy` 中抽取三档话术供用户选择
+- **RAG 检索**：将 JSON 中每条规则的 `description`、`review_points`、`bottom_line` 字段向量化，支持语义检索匹配

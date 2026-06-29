@@ -48,5 +48,12 @@ temp/
 vector_store/
 knowledge_base/vectors/
 
+# FAISS vector index (large binary, regeneratable)
+knowledge_base/faiss_index.bin
+knowledge_base/faiss_id_map.json
+
+# Script output directories
+scripts/__pycache__/
+
 # Temp extracted files
 _*.txt

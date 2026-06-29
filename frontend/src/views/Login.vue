@@ -97,8 +97,8 @@ async function handleLogin() {
     } else {
       errorMsg.value = res.message
     }
-  } catch {
-    errorMsg.value = '登录请求失败，请重试'
+  } catch (e) {
+    errorMsg.value = e?.message || '登录请求失败，请重试'
   } finally {
     loading.value = false
   }

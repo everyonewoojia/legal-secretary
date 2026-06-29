@@ -1,0 +1,912 @@
+[
+  {
+    "id": 0,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 合作主体",
+    "text_preview": "[合作协议] 合作主体 甲方：{{甲方名称}} 统一社会信用代码：{{甲方统一社会信用代码}} 法定代表人：{{甲方法定代表人}} 地址：{{甲方地址}}  乙方：{{乙方名称}} 统一社会信用代码：{{乙方统一社会信用代码}} 法定代表人：{{乙方法定代表人}} 地址：{{乙方地址}}  （丙方）：{{丙方名称}} 风险提示：核实各合作方的法人主体资格和经营范围，确认签约代表有合法授权。注意合作..."
+  },
+  {
+    "id": 1,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 合作内容与目标",
+    "text_preview": "[合作协议] 合作内容与目标 1. 合作项目名称：{{合作项目名称}} 2. 合作目标：{{合作目标}} 3. 合作范围：{{合作范围}} 4. 合作模式：{{合作模式}} 5. 本协议不构成合伙人关系，各方独立承担民事责任 风险提示：合作范围应明确界定，避免与各方既有业务产生交叉或竞争。明确声明不构成合伙关系，防止被认定为事实合伙而承担连带责任。合作目标应具体可衡量，便于后续考核和收益分配。"
+  },
+  {
+    "id": 2,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 合作期限",
+    "text_preview": "[合作协议] 合作期限 1. 合作期限自{{合作开始日期}}起至{{合作结束日期}}止 2. 合作期满前{{续约提前通知天数}}日，任何一方均可书面提出续约意向，经各方协商一致后可续签 3. 合作期限届满或提前终止的，各方应进行清算和交接 4. 合作期间任何一方不得无故退出，确需提前退出的，应按本协议退出机制执行 风险提示：合作期限应根据项目周期合理设定，避免期限过长导致僵局或过短影响项目效益。建..."
+  },
+  {
+    "id": 3,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 各方投入",
+    "text_preview": "[合作协议] 各方投入 1. 甲方投入：    - 资金：人民币{{甲方投入资金}}元    - 资源：{{甲方投入资源}}    - 知识产权：{{甲方投入知识产权}}    - 其他：{{甲方其他投入}}  2. 乙方投入：    - 资金：人民币{{乙方投入资金}}元    - 资源：{{乙方投入资源}}    - 知识产权：{{乙方投入知识产权}}    - 其他：{{乙方其他投入}}  ..."
+  },
+  {
+    "id": 4,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 收益分配",
+    "text_preview": "[合作协议] 收益分配 1. 合作项目产生的收入按以下方式进行分配：{{收益分配方式}} 2. 分配比例：甲方{{甲方分配比例}}%，乙方{{乙方分配比例}}% 3. 分配周期：{{分配周期}} 4. 成本分摊方式：{{成本分摊方式}} 5. 亏损分担比例：甲方{{甲方亏损比例}}%，乙方{{乙方亏损比例}}% 风险提示：收益分配比例与投入比例不一定对等，应在协议中明确计算依据。成本分摊须有清晰的..."
+  },
+  {
+    "id": 5,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 决策机制",
+    "text_preview": "[合作协议] 决策机制 1. 各方共同设立合作项目组，负责合作事项的日常管理和执行 2. 项目组设负责人：由{{项目组负责人方}}方指定，任期为{{项目组负责人任期}} 3. 日常事务的决策方式：{{日常决策方式}} 4. 重大事项（包括但不限于变更合作范围、追加投资、提前终止、对外担保等）须经各方一致同意 5. 会议召集：项目组会议每{{会议频率}}召开一次，由{{会议召集方}}方负责召集 风险..."
+  },
+  {
+    "id": 6,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 财务管理",
+    "text_preview": "[合作协议] 财务管理 1. 各方应为合作项目设立共管账户或由{{账户管理方}}方设立专项账户 2. 财务由{{财务管理方}}方负责管理，按{{财务报告周期}}向其他各方提供财务报表 3. 各方有权随时查阅与合作项目相关的财务资料 4. 年度财务报告应经{{审计机构}}审计 5. 费用报销审批流程：{{费用报销流程}} 风险提示：共管账户需要双方印鉴或双人签字方能付款，可有效防止资金挪用。财务透明..."
+  },
+  {
+    "id": 7,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 知识产权",
+    "text_preview": "[合作协议] 知识产权 1. 合作前各方已有的知识产权归各自所有 2. 合作期间共同产出的知识产权归属：{{共同知识产权归属}} 3. 共同知识产权的行使规则：{{共同知识产权行使规则}} 4. 知识产权收益分配：{{知识产权收益分配}} 5. 一方在合作期满后使用共同知识产权的条件和方式：{{期满后知识产权使用规则}} 风险提示：知识产权条款是合作协议中最易产生争议的领域。建议区分“背景知识产权..."
+  },
+  {
+    "id": 8,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 退出机制",
+    "text_preview": "[合作协议] 退出机制 1. 任何一方退出合作需提前{{退出提前通知天数}}天书面通知其他各方 2. 退出条件：{{退出条件}} 3. 退出时的财产处理方式：{{退出财产处理方式}} 4. 退出方对其退出前已产生的合作债务仍应承担相应责任 5. 因一方退出导致合作无法继续的，其余各方有权协商是否继续合作 6. 退出方的投入份额处置：{{退出份额处置方式}} 风险提示：退出机制是合作协议的风控底线。..."
+  },
+  {
+    "id": 9,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 保密条款",
+    "text_preview": "[合作协议] 保密条款 1. 各方对合作过程中知悉的其他方的商业秘密、技术秘密和合作项目信息承担保密义务 2. 保密期限自本协议生效之日起{{保密期限}}年 3. 未经信息所有者书面同意，不得向合作项目之外的任何第三方披露 4. 合作项目组成员应签署相应的保密承诺书 5. 本保密条款不因本协议的终止或退出而失效 风险提示：合作各方的保密义务应在协议中明确，防止合作期间和退出后商业秘密泄露。建议要求..."
+  },
+  {
+    "id": 10,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 违约责任",
+    "text_preview": "[合作协议] 违约责任 1. 任何一方违反本协议约定，应向其他各方支付违约金人民币{{违约金金额}}元 2. 一方未按时足额投入约定资金或资源的，每逾期一日，按未投入金额的{{逾期投入日费率}}‰支付违约金 3. 因一方违约导致合作项目无法继续的，违约方应赔偿其他各方因此遭受的直接经济损失 4. 违约金不足以弥补损失的，守约方有权要求违约方赔偿超出部分 5. 违约方在合作项目中的权益处理：{{违约..."
+  },
+  {
+    "id": 11,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 争议解决",
+    "text_preview": "[合作协议] 争议解决 因本协议引起的或与本协议有关的任何争议，各方应首先通过友好协商解决；协商不成的，任何一方均可向{{管辖法院}}人民法院提起诉讼。 风险提示：合作协议涉及多方时，管辖地的选择更为敏感。建议约定在项目所在地或主要合作方所在地法院管辖。如涉及专业技术争议，可考虑约定仲裁，由具有行业背景的仲裁员审理。"
+  },
+  {
+    "id": 12,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_clause",
+    "title": "合作协议 - 附则",
+    "text_preview": "[合作协议] 附则 1. 本协议一式{{协议份数}}份，各方各执{{各方执份数}}份，具有同等法律效力 2. 本协议自各方法定代表人或授权代表签字并加盖公章之日起生效 3. 本协议的修改、补充须经各方协商一致，以书面形式作出 4. 本协议附件为本协议不可分割的组成部分 5. 未经其他各方书面同意，任何一方不得转让本协议项下的权利义务  （以下无正文）  甲方（盖章）：{{甲方盖章}} 法定代表人或..."
+  },
+  {
+    "id": 13,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_risk_point",
+    "title": "合作协议 - profit_split_vague",
+    "text_preview": "[合作协议] 风险类型：profit_split_vague 风险描述：收益分配方式和比例约定不明确，或未约定成本分摊规则，合作过程中容易因利益分配产生纠纷。 防范建议：明确约定收益的计算方法、分配比例、分配时间和支付方式，同时约定成本分摊原则。"
+  },
+  {
+    "id": 14,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_risk_point",
+    "title": "合作协议 - exit_missing",
+    "text_preview": "[合作协议] 风险类型：exit_missing 风险描述：未约定退出机制或退出条件过于严苛/宽松，导致一方退出时合作陷入僵局或财产处置困难。 防范建议：设置合理的退出条件、提前通知期和财产清算规则，特别约定知识产权和已投入资产的处置方式。"
+  },
+  {
+    "id": 15,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_risk_point",
+    "title": "合作协议 - ip_dispute",
+    "text_preview": "[合作协议] 风险类型：ip_dispute 风险描述：合作期间产出的知识产权归属未约定或约定不清，后期就使用权限、商业化、收益分配产生争议。 防范建议：区分合作前已有知识产权和合作期间共同产出的知识产权，明确共同知识产权的行使规则。"
+  },
+  {
+    "id": 16,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_risk_point",
+    "title": "合作协议 - decision_deadlock",
+    "text_preview": "[合作协议] 风险类型：decision_deadlock 风险描述：重大事项需一致同意的决策机制可能导致决策僵局，影响合作效率和项目推进。 防范建议：设置僵局破解机制，如引入第三方调解、轮流决定权或特定事项的多数决。"
+  },
+  {
+    "id": 17,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_risk_point",
+    "title": "合作协议 - investment_evaluation",
+    "text_preview": "[合作协议] 风险类型：investment_evaluation 风险描述：非货币投入（资源、技术、渠道等）的评估缺乏客观标准，投入价值认定容易产生分歧。 防范建议：非货币投入应由各方共同认可的第三方评估机构进行评估，或约定协商一致的评估方法。"
+  },
+  {
+    "id": 18,
+    "source_file": "knowledge_base/templates/cooperation_agreement.json",
+    "chunk_type": "template_generation_note",
+    "title": "合作协议 - 生成注意事项",
+    "text_preview": "[合作协议] 生成注意事项 生成合作协议时须注意区分合作与合伙的法律性质，避免被认定为事实合伙关系。投入评估、收益分配、退出机制是核心条款，须确保各项权利义务对等。如涉及知识产权许可，建议另附知识产权许可协议作为附件。"
+  },
+  {
+    "id": 19,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 合同主体",
+    "text_preview": "[劳动合同] 合同主体 用人单位（甲方）：{{用人单位名称}} 法定代表人：{{用人单位法定代表人}} 统一社会信用代码：{{用人单位统一社会信用代码}} 注册地址：{{用人单位注册地址}}  劳动者（乙方）：{{劳动者姓名}} 身份证号码：{{劳动者身份证号码}} 住址：{{劳动者住址}} 联系电话：{{劳动者联系电话}} 风险提示：核实劳动者的身份信息真实性，确认劳动者与其他用人单位不存在未解..."
+  },
+  {
+    "id": 20,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 合同期限",
+    "text_preview": "[劳动合同] 合同期限 1. 本合同期限类型为：{{合同期限类型}}（固定期限/无固定期限/以完成一定工作任务为期限） 2. 固定期限：自{{合同开始日期}}起至{{合同结束日期}}止 3. 试用期：自{{试用期开始日期}}起至{{试用期结束日期}}止，试用期包含在合同期内 4. 试用期工资为人民币{{试用期工资}}元/月，不低于同岗位最低档工资或合同约定工资的80%，且不低于当地最低工资标准 风..."
+  },
+  {
+    "id": 21,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 工作内容与地点",
+    "text_preview": "[劳动合同] 工作内容与地点 1. 乙方担任{{工作岗位}}岗位，岗位职责包括：{{岗位职责}} 2. 工作地点为：{{工作地点}} 3. 甲方可根据工作需要和乙方的能力表现，经双方协商一致后合理调整乙方的工作岗位和工作地点 4. 乙方同意，甲方在以下情形下可单方调整工作岗位：{{单方调岗情形}} 风险提示：工作内容和地点应明确具体，避免笼统描述。单方调岗权的设置须合法合理，过于宽泛的调岗条款可能..."
+  },
+  {
+    "id": 22,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 工作时间与休息休假",
+    "text_preview": "[劳动合同] 工作时间与休息休假 1. 乙方实行{{工时制度}}工时制（标准工时制/综合计算工时制/不定时工作制） 2. 标准工作时间为每周{{每周工作天数}}天，每日工作{{每日工作小时数}}小时，每周工作时间不超过40小时 3. 甲方因生产经营需要安排加班的，应依法支付加班工资或安排补休 4. 乙方依法享有法定节假日、带薪年休假、婚假、产假、丧假等休息休假权利 风险提示：实行综合计算工时制或不..."
+  },
+  {
+    "id": 23,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 劳动报酬",
+    "text_preview": "[劳动合同] 劳动报酬 1. 乙方月工资为人民币{{月工资}}元（税前），其中基本工资{{基本工资}}元，绩效工资{{绩效工资}}元 2. 工资发放日为每月{{工资发放日}}日，以银行转账方式支付至乙方指定账户 3. 甲方应按国家规定代扣代缴乙方的个人所得税和社会保险个人缴费部分 4. 加班工资计算基数：{{加班工资计算基数}} 5. 年终奖金：{{年终奖金约定}} 风险提示：工资结构应清晰明确，..."
+  },
+  {
+    "id": 24,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 社会保险与福利",
+    "text_preview": "[劳动合同] 社会保险与福利 1. 甲方应依法为乙方缴纳养老保险、医疗保险、失业保险、工伤保险和生育保险 2. 甲方应依法为乙方缴纳住房公积金 3. 社保和公积金的缴费基数：{{社保缴费基数}} 4. 甲方为乙方提供的其他福利待遇：{{其他福利待遇}} 风险提示：社保和公积金为法定的强制性义务，不得以任何形式（如现金补偿、自愿放弃承诺）替代或免除。缴费基数应按照实际工资足额缴纳，低缴将面临行政处罚..."
+  },
+  {
+    "id": 25,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 劳动保护与职业危害防护",
+    "text_preview": "[劳动合同] 劳动保护与职业危害防护 1. 甲方应为乙方提供符合国家规定的劳动安全卫生条件和必要的劳动防护用品 2. 对从事有职业危害作业的乙方，甲方应定期进行健康检查并建立健康档案 3. 甲方应依法对乙方进行安全生产教育和培训 4. 乙方在劳动过程中应严格遵守安全操作规程 5. 发生工伤事故时，甲方应依法承担工伤保险责任 风险提示：劳动保护是法定的雇主责任，尤其在高危行业和涉及职业危害的岗位，须..."
+  },
+  {
+    "id": 26,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 合同解除与终止",
+    "text_preview": "[劳动合同] 合同解除与终止 1. 双方解除或终止劳动合同应按照《劳动合同法》的相关规定执行 2. 甲方解除合同的情形：{{甲方解除情形}} 3. 乙方解除合同的情形：{{乙方解除情形}} 4. 经济补偿金的支付标准和方式按照《劳动合同法》第46条、第47条规定执行 5. 乙方应在离职时办理工作交接，甲方应在离职手续办结后{{离职结算天数}}日内结清工资和补偿金 风险提示：解除劳动合同的法定情形不..."
+  },
+  {
+    "id": 27,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 保密与竞业限制",
+    "text_preview": "[劳动合同] 保密与竞业限制 1. 乙方在任职期间及离职后应对工作中知悉的甲方商业秘密和保密信息承担保密义务 2. 保密信息范围包括：{{保密信息范围}} 3. 竞业限制期限：自离职之日起{{竞业限制期限}}个月 4. 竞业限制期间，甲方每月向乙方支付竞业限制补偿金人民币{{竞业限制补偿金}}元 5. 乙方违反竞业限制义务的，应向甲方支付违约金人民币{{竞业限制违约金}}元 风险提示：竞业限制仅适..."
+  },
+  {
+    "id": 28,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 培训与服务期",
+    "text_preview": "[劳动合同] 培训与服务期 1. 甲方为乙方提供专项培训费用进行专业技术培训的，双方可另行签订培训协议 2. 服务期自培训结束之日起{{服务期期限}}个月 3. 乙方在服务期内离职的，应按尚未履行的服务期比例退还培训费用 4. 培训费用的范围和计算方式：{{培训费用计算方式}} 风险提示：服务期只能与专项技术培训挂钩，不能用于普通入职培训或日常培训。培训费用须有明确的票据凭证支持。服务期的违约金不..."
+  },
+  {
+    "id": 29,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 争议解决",
+    "text_preview": "[劳动合同] 争议解决 因本合同发生的劳动争议，双方应首先友好协商解决；协商不成的，可向{{劳动争议仲裁委员会}}劳动争议仲裁委员会申请仲裁。对仲裁裁决不服的，可依法向人民法院提起诉讼。 风险提示：劳动争议适用仲裁前置程序，不能直接向法院起诉。仲裁时效为自知道或应当知道权利被侵害之日起1年内提出。劳动仲裁不收取费用，但须注意时效问题。"
+  },
+  {
+    "id": 30,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_clause",
+    "title": "劳动合同 - 附则",
+    "text_preview": "[劳动合同] 附则 1. 本合同一式两份，甲乙双方各执一份，具有同等法律效力 2. 本合同自甲乙双方签字或盖章之日起生效 3. 本合同的修改、补充须经双方协商一致，以书面形式确认 4. 甲方依法制定的规章制度作为本合同附件，与本合同具有同等约束力  （以下无正文）  甲方（盖章）：{{甲方盖章}} 法定代表人/授权代表（签字）：{{甲方签字}} 日期：{{甲方签署日期}}  乙方（签字/按手印）：..."
+  },
+  {
+    "id": 31,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "劳动合同 - probation_illegal",
+    "text_preview": "[劳动合同] 风险类型：probation_illegal 风险描述：试用期约定超过法定期限（合同期限三年以上试用期不超过6个月，一年以上不满三年不超过2个月），或试用期工资低于法定标准。 防范建议：严格按照《劳动合同法》第19条约定试用期期限，试用期工资不低于同岗位最低档工资的80%且不低于当地最低工资标准。"
+  },
+  {
+    "id": 32,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "劳动合同 - salary_structure",
+    "text_preview": "[劳动合同] 风险类型：salary_structure 风险描述：工资结构不清晰，基本工资与绩效工资比例不合理，可能导致加班费、经济补偿金计算基数争议。 防范建议：明确约定基本工资和绩效工资的具体数额，基本工资不宜过低，绩效工资的考核标准应公开透明。"
+  },
+  {
+    "id": 33,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "劳动合同 - work_hours_vague",
+    "text_preview": "[劳动合同] 风险类型：work_hours_vague 风险描述：工时制度约定不明确或未经审批擅自实行综合计算工时/不定时工作制，面临行政处罚和加班费索赔风险。 防范建议：实行特殊工时制度的，须经劳动行政部门审批；应在合同中明确工时制度类型，避免模糊表述。"
+  },
+  {
+    "id": 34,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "劳动合同 - noncompete_missing",
+    "text_preview": "[劳动合同] 风险类型：noncompete_missing 风险描述：未约定竞业限制条款或约定不完整，离职后无法约束核心员工进入竞争对手。 防范建议：对涉密岗位约定竞业限制，期限不超过2年，补偿金标准不低于法定下限（劳动合同解除前12个月平均工资的30%）。"
+  },
+  {
+    "id": 35,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "劳动合同 - termination_unequal",
+    "text_preview": "[劳动合同] 风险类型：termination_unequal 风险描述：合同解除条款约定不对等或违反法定解除条件，增加违法解除劳动合同的赔偿风险。 防范建议：解除条件应严格依照《劳动合同法》第36-41条，不得自行创设法定范围外的解除情形。"
+  },
+  {
+    "id": 36,
+    "source_file": "knowledge_base/templates/labor_contract.json",
+    "chunk_type": "template_generation_note",
+    "title": "劳动合同 - 生成注意事项",
+    "text_preview": "[劳动合同] 生成注意事项 生成劳动合同时须严格遵守《劳动合同法》的强制性规定，任何与法律冲突的条款均无效。试用期、竞业限制、服务期等特殊条款须使用单独的协议或补充条款。社保和公积金为法定义务，不得以任何形式替代或免除。"
+  },
+  {
+    "id": 37,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 协议主体",
+    "text_preview": "[保密协议] 协议主体 披露方（甲方）：{{甲方名称}} 统一社会信用代码：{{甲方统一社会信用代码}} 地址：{{甲方地址}}  接收方（乙方）：{{乙方名称}} 统一社会信用代码：{{乙方统一社会信用代码}} 地址：{{乙方地址}} 风险提示：确认保密协议为单方保密还是相互保密，双方主体身份须与营业执照一致。若为项目合作的附属协议，应在主合同中引用本协议。签约代表须有合法授权。"
+  },
+  {
+    "id": 38,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 保密信息范围",
+    "text_preview": "[保密协议] 保密信息范围 1. 本协议所称保密信息包括但不限于：{{保密信息具体范围}} 2. 保密信息可以书面、口头、电子或其他任何形式存在 3. 保密信息不包括以下内容：    a) 在披露时或披露前已为公众所知的信息    b) 接收方在披露前已合法持有的信息，且有书面记录证明    c) 接收方从有权披露的第三方合法获取的信息    d) 接收方独立开发且未使用披露方保密信息所获得的信息..."
+  },
+  {
+    "id": 39,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 保密义务",
+    "text_preview": "[保密协议] 保密义务 1. 接收方应对保密信息严格保密，采取不低于保护自身同类信息的谨慎程度 2. 未经披露方书面同意，接收方不得向任何第三方披露、传播、复制或使用保密信息 3. 接收方仅可在与保密信息直接相关的业务范围内使用保密信息 4. 接收方应限制其员工接触保密信息，仅限于需要知晓的员工，并确保该等员工遵守本协议 5. 接收方在发现保密信息泄露或可能泄露时，应立即通知披露方并采取一切必要措..."
+  },
+  {
+    "id": 40,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 保密期限",
+    "text_preview": "[保密协议] 保密期限 1. 保密义务期限自本协议生效之日起{{保密期限}}年 2. 保密义务不因双方合作关系的终止或本协议的解除而失效 3. 对于构成商业秘密的保密信息，保密义务持续至该信息失去商业秘密法律地位为止 风险提示：保密期限应合理设定（通常2-5年），过长的保密期限（如永久）可能被认定为不合理。核心商业秘密可约定保密义务持续至信息失去商业秘密地位，而非简单的时间限制。"
+  },
+  {
+    "id": 41,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 例外情形",
+    "text_preview": "[保密协议] 例外情形 以下情形下接收方可披露保密信息而不视为违约： 1. 法律法规、法院命令或政府机关要求披露的 2. 接收方为维护自身合法权益在诉讼或仲裁中合理披露的 3. 经披露方事先书面同意披露的  在上述情形下，接收方应在法律允许的范围内提前通知披露方，并将披露范围限制在最小必要限度内 风险提示：例外条款是保护接收方的重要手段，尤其在面临法律强制披露要求时。建议增加“提前通知”义务，使披..."
+  },
+  {
+    "id": 42,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 信息归还",
+    "text_preview": "[保密协议] 信息归还 1. 本协议终止或披露方提出书面要求时，接收方应在{{归还期限}}日内归还或销毁所有保密信息载体（包括原件和复制件） 2. 接收方应向披露方书面确认已完成销毁 3. 接收方因法律或合规要求需保留的档案副本不在此限，但仍应继续承担保密义务 4. 信息归还后，接收方不再持有任何形式的保密信息 风险提示：信息归还或销毁的时限应合理（通常15-30日），书面确认销毁是重要的合规证据..."
+  },
+  {
+    "id": 43,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 不授予知识产权许可",
+    "text_preview": "[保密协议] 不授予知识产权许可 1. 本协议不授予接收方任何关于保密信息的明示或暗示的知识产权许可 2. 保密信息的披露不构成披露方对其知识产权的转让或许可 3. 接收方不得基于保密信息申请或注册任何知识产权 4. 本协议中的任何内容均不限制披露方使用或披露其自身保密信息的权利 风险提示：保密协议中应明确声明不授予知识产权许可，防止接收方以保密信息为基础主张使用权或申请知识产权。此条款对保护披露..."
+  },
+  {
+    "id": 44,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 违约责任",
+    "text_preview": "[保密协议] 违约责任 1. 接收方违反本协议约定的保密义务，应向披露方支付违约金人民币{{违约金金额}}元 2. 违约金不足以弥补披露方损失的，披露方有权要求接收方赔偿全部实际损失（包括但不限于直接经济损失和维权合理费用） 3. 因接收方员工或代理人行为导致保密信息泄露的，视为接收方违约 4. 披露方有权就保密信息泄露申请临时禁令等法律救济措施 风险提示：违约金应合理且与保密信息的实际价值相当，..."
+  },
+  {
+    "id": 45,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 争议解决",
+    "text_preview": "[保密协议] 争议解决 因本协议引起的或与本协议有关的任何争议，双方应首先通过友好协商解决；协商不成的，任何一方均可向{{管辖法院}}人民法院提起诉讼。 风险提示：建议约定在披露方所在地法院管辖。保密信息的泄露往往给披露方造成严重损失，便利的管辖地有助于及时维权。如涉及跨国保密，应选择有执行力的仲裁机构。"
+  },
+  {
+    "id": 46,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_clause",
+    "title": "保密协议 - 附则",
+    "text_preview": "[保密协议] 附则 1. 本协议一式两份，双方各执一份，具有同等法律效力 2. 本协议自双方法定代表人或授权代表签字并加盖公章之日起生效 3. 本协议项下权利义务未经另一方书面同意不得转让 4. 本协议未尽事宜，双方可另行签订补充协议  （以下无正文）  披露方（甲方）（盖章）：{{甲方盖章}} 法定代表人或授权代表（签字）：{{甲方签字}} 日期：{{甲方签署日期}}  接收方（乙方）（盖章）：..."
+  },
+  {
+    "id": 47,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "保密协议 - scope_too_broad",
+    "text_preview": "[保密协议] 风险类型：scope_too_broad 风险描述：保密信息范围定义过于宽泛，可能导致本不属于商业秘密的常规信息也被主张保密义务，增加接收方合规成本。 防范建议：建议以具体列举方式明确保密信息范围（如特定技术文档、客户名单、财务数据等），避免使用笼统表述。"
+  },
+  {
+    "id": 48,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "保密协议 - term_unreasonable",
+    "text_preview": "[保密协议] 风险类型：term_unreasonable 风险描述：保密期限过长（如永久保密）可能被认定为不合理；过短则无法有效保护保密信息。 防范建议：建议约定合理的保密期限（通常2-5年），对核心商业秘密可约定保密义务持续至信息失去商业秘密地位。"
+  },
+  {
+    "id": 49,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "保密协议 - penalty_excessive",
+    "text_preview": "[保密协议] 风险类型：penalty_excessive 风险描述：约定的违约金过高，可能被法院酌减，或对中小企业造成不合理负担。 防范建议：违约金应合理且与保密信息的实际价值相当，建议同时约定实际损失赔偿条款作为补充救济。"
+  },
+  {
+    "id": 50,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "保密协议 - no_exception",
+    "text_preview": "[保密协议] 风险类型：no_exception 风险描述：未约定保密义务的例外情形，可能导致接收方在法律强制要求披露时陷入被动。 防范建议：应明确约定法律法规要求披露、法院命令等例外情形，并设定通知义务和披露范围限制。"
+  },
+  {
+    "id": 51,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "保密协议 - return_obligation_vague",
+    "text_preview": "[保密协议] 风险类型：return_obligation_vague 风险描述：协议终止后信息处理方式约定不明确，导致保密信息难以有效回收或销毁。 防范建议：明确信息归还/销毁的时限、方式和书面确认义务，对无法归还的信息约定继续保密义务。"
+  },
+  {
+    "id": 52,
+    "source_file": "knowledge_base/templates/nda_contract.json",
+    "chunk_type": "template_generation_note",
+    "title": "保密协议 - 生成注意事项",
+    "text_preview": "[保密协议] 生成注意事项 生成保密协议时，应平衡披露方和接收方的利益，既要保护保密信息的安全，也要保持合理的商业灵活性。注意区分单方保密和相互保密两种场景。建议在协议中明确保密信息的标记方式（书面信息须标注「保密」字样，口头信息须事后书面确认）。"
+  },
+  {
+    "id": 53,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 合同主体",
+    "text_preview": "[采购合同] 合同主体 采购方（甲方）：{{甲方名称}} 统一社会信用代码：{{甲方统一社会信用代码}} 法定代表人：{{甲方法定代表人}} 地址：{{甲方地址}}  销售方（乙方）：{{乙方名称}} 统一社会信用代码：{{乙方统一社会信用代码}} 法定代表人：{{乙方法定代表人}} 地址：{{乙方地址}} 风险提示：核实供应商的营业执照和经营范围，确认其具备生产或销售采购标的物的资质。如涉及进口..."
+  },
+  {
+    "id": 54,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 采购标的",
+    "text_preview": "[采购合同] 采购标的 甲方向乙方采购以下产品：  | 序号 | 产品名称 | 规格型号 | 技术参数 | 单位 | 数量 | 单价（元） | 金额（元） | |------|----------|----------|----------|------|------|------------|------------| | 1 | {{产品名称一}} | {{规格型号一}} | {{技术参数一}..."
+  },
+  {
+    "id": 55,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 质量与技术标准",
+    "text_preview": "[采购合同] 质量与技术标准 1. 产品质量标准：{{质量标准}} 2. 技术参数要求：{{技术参数要求}} 3. 产品应附有合格证、质量保证书及相关技术资料 4. 包装标准：{{包装标准}} 5. 如需第三方检测，检测机构为：{{检测机构}}，检测费用由{{检测费用承担方}}承担 风险提示：质量标准应引用具体的国家标准（GB）、行业标准或企业标准编号。避免使用“优质”、“良好”等主观表述。特殊产..."
+  },
+  {
+    "id": 56,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 交货与运输",
+    "text_preview": "[采购合同] 交货与运输 1. 交货日期：{{交货日期}}前 2. 交货地点：{{交货地点}} 3. 运输方式：{{运输方式}}，运费由{{运费承担方}}承担 4. 货物风险自{{风险转移节点}}起转移至甲方 5. 乙方应在发货后{{发货通知时限}}小时内通知甲方，提供物流单号及预计到货时间 6. 迟延交货责任：每迟延一日，乙方应按迟延交付货物金额的{{迟延交货日费率}}‰向甲方支付违约金 风险提..."
+  },
+  {
+    "id": 57,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 验收",
+    "text_preview": "[采购合同] 验收 1. 甲方应在收到货物后{{数量验收期限}}个工作日内完成数量验收和外观验收 2. 甲方应在{{质量验收期限}}个工作日内完成质量验收 3. 验收标准：{{验收标准}} 4. 验收不合格的，甲方有权要求乙方在{{换货期限}}日内更换或补足，由此产生的费用由乙方承担 5. 甲方无正当理由逾期未验收的，视为验收通过，但不免除乙方产品质量保证责任 6. 隐蔽瑕疵不受验收期限限制，甲方..."
+  },
+  {
+    "id": 58,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 付款方式",
+    "text_preview": "[采购合同] 付款方式 1. 合同总金额：人民币{{合同总金额}}元（大写：{{合同总金额大写}}） 2. 付款方式：{{付款方式}} 3. 付款节点：    - 合同签订后{{签约付款天数}}个工作日内支付{{签约付款比例}}%（人民币{{签约付款金额}}元）    - 货物验收合格后{{验收付款天数}}个工作日内支付{{验收付款比例}}%（人民币{{验收付款金额}}元）    - 质保期满后{..."
+  },
+  {
+    "id": 59,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 质保与售后服务",
+    "text_preview": "[采购合同] 质保与售后服务 1. 质保期自验收合格之日起{{质保期限}}个月 2. 质保期内因产品自身质量问题导致的故障，乙方应在接到通知后{{响应时限}}小时内响应，{{维修完成时限}}日内免费维修或更换 3. 质保期外，乙方应提供有偿维修服务，收费标准为：{{维修收费标准}} 4. 乙方应保证{{配件供应年限}}年内持续供应维修配件 5. 质保期内产品经两次维修仍不能正常使用的，甲方有权要求..."
+  },
+  {
+    "id": 60,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 违约责任",
+    "text_preview": "[采购合同] 违约责任 1. 乙方逾期交货的，每逾期一日，按合同总金额的{{逾期交货日费率}}‰向甲方支付违约金 2. 甲方逾期付款的，每逾期一日，按逾期金额的{{逾期付款日费率}}‰向乙方支付违约金 3. 产品质量不符合约定的，甲方有权要求退货、换货或降价处理，并要求乙方承担合同总金额{{质量违约比例}}%的违约金 4. 单方解除合同的，违约方应向守约方支付合同总金额{{解约违约金比例}}%的违..."
+  },
+  {
+    "id": 61,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 保密条款",
+    "text_preview": "[采购合同] 保密条款 1. 双方应对在履行本合同过程中知悉的对方商业秘密（包括但不限于产品配方、客户信息、采购价格、技术资料等）承担保密义务 2. 保密信息范围包括：{{保密信息范围}} 3. 保密期限自本合同生效之日起{{保密期限}}年 4. 未经信息披露方书面同意，信息接收方不得向任何第三方披露保密信息 5. 本保密条款不因本合同的终止或解除而失效 风险提示：采购合同中可能涉及甲方的重要商业..."
+  },
+  {
+    "id": 62,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 争议解决",
+    "text_preview": "[采购合同] 争议解决 因本合同引起的或与本合同有关的任何争议，双方应首先通过友好协商解决；协商不成的，任何一方均可向{{管辖法院}}人民法院提起诉讼。 风险提示：建议约定在甲方所在地法院管辖。如合同涉及跨省交易，对方可能要求在乙方所在地或中立第三方仲裁，需综合评估维权成本和便利性。"
+  },
+  {
+    "id": 63,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_clause",
+    "title": "采购合同 - 附则",
+    "text_preview": "[采购合同] 附则 1. 本合同一式{{合同份数}}份，甲乙双方各执{{甲方执份数}}份，具有同等法律效力 2. 本合同自双方法定代表人或授权代表签字并加盖公章之日起生效 3. 本合同附件包括：{{附件清单}}，为本合同不可分割的组成部分 4. 任何一方未经对方书面同意，不得转让本合同项下的权利义务  （以下无正文）  甲方（盖章）：{{甲方盖章}} 法定代表人或授权代表（签字）：{{甲方签字}}..."
+  },
+  {
+    "id": 64,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "采购合同 - specification_vague",
+    "text_preview": "[采购合同] 风险类型：specification_vague 风险描述：产品规格、技术参数描述不完整或不准确，可能导致交付产品与需求不符。 防范建议：建议以附件形式列明详细技术规格书，内容包括型号、参数、材质、工艺标准等关键指标。"
+  },
+  {
+    "id": 65,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "采购合同 - delivery_delay",
+    "text_preview": "[采购合同] 风险类型：delivery_delay 风险描述：未约定明确的逾期交货违约金或违约金过低，导致乙方缺乏按时交货的履约压力。 防范建议：约定每日违约金比例（建议0.1%-0.5%），并设置累计上限。对关键节点可设置单方解约权。"
+  },
+  {
+    "id": 66,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "采购合同 - acceptance_vague",
+    "text_preview": "[采购合同] 风险类型：acceptance_vague 风险描述：验收标准和程序不明确，为日后产品质量争议埋下隐患。 防范建议：列明验收依据的标准编号、检测方法、合格判定指标，约定不合格品的处理流程和时限。"
+  },
+  {
+    "id": 67,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "采购合同 - warranty_short",
+    "text_preview": "[采购合同] 风险类型：warranty_short 风险描述：质保期过短或售后服务响应时间过长，影响产品使用保障。 防范建议：根据产品类型合理约定质保期（建议12-36个月），明确响应时限和维修替换条件。"
+  },
+  {
+    "id": 68,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "采购合同 - price_adjustment",
+    "text_preview": "[采购合同] 风险类型：price_adjustment 风险描述：长期框架采购合同中未约定价格调整机制，面临原材料价格波动风险。 防范建议：对长期合同可约定价格调整公式或定期议价机制，锁定价格波动幅度上限。"
+  },
+  {
+    "id": 69,
+    "source_file": "knowledge_base/templates/purchase_contract.json",
+    "chunk_type": "template_generation_note",
+    "title": "采购合同 - 生成注意事项",
+    "text_preview": "[采购合同] 生成注意事项 生成采购合同时，需特别关注产品清单的完整性、验收标准是否可操作、质保条款是否与产品性质匹配。涉及进口设备的，应附加国际贸易术语（Incoterms）和海关合规条款。"
+  },
+  {
+    "id": 70,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 合同主体",
+    "text_preview": "[技术服务合同] 合同主体 甲方（委托方）：{{甲方名称}} 统一社会信用代码：{{甲方统一社会信用代码}} 法定代表人：{{甲方法定代表人}} 地址：{{甲方地址}}  乙方（受托方）：{{乙方名称}} 统一社会信用代码：{{乙方统一社会信用代码}} 法定代表人：{{乙方法定代表人}} 地址：{{乙方地址}} 风险提示：核实双方主体资格与签约权限，确认营业执照在有效期内，签约代表须有合法授权。如..."
+  },
+  {
+    "id": 71,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 服务内容与要求",
+    "text_preview": "[技术服务合同] 服务内容与要求 甲方委托乙方就{{项目名称}}项目提供技术服务。  具体服务内容包括： 1. {{服务内容一}} 2. {{服务内容二}} 3. {{服务内容三}}  服务成果交付标准：{{服务交付标准}} 技术指标要求：{{技术指标要求}} 风险提示：服务内容描述应具体、可量化，避免使用“等”、“包括但不限于”等模糊表述。交付标准和技术指标应明确可验证，防止后期验收争议。"
+  },
+  {
+    "id": 72,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 服务期限",
+    "text_preview": "[技术服务合同] 服务期限 本合同服务期限自{{开始日期}}起至{{结束日期}}止。  服务阶段及时间节点： - 阶段一（{{阶段一名称}}）：{{阶段一截止日期}}前完成 - 阶段二（{{阶段二名称}}）：{{阶段二截止日期}}前完成 - 阶段三（{{阶段三名称}}）：{{阶段三截止日期}}前完成 风险提示：服务期限应明确起止日期，分阶段交付需设置合理的时间间隔。甲方应注意各阶段成果的验收时限，..."
+  },
+  {
+    "id": 73,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 服务费用与支付",
+    "text_preview": "[技术服务合同] 服务费用与支付 合同总金额为人民币{{合同总金额}}元（大写：{{合同总金额大写}}）。  支付方式：{{支付方式}}  支付节点： 1. 合同签订后{{签约付款天数}}个工作日内，支付合同总金额的{{签约付款比例}}%，即人民币{{签约付款金额}}元 2. 中期验收合格后{{中期付款天数}}个工作日内，支付合同总金额的{{中期付款比例}}%，即人民币{{中期付款金额}}元 3...."
+  },
+  {
+    "id": 74,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 验收标准",
+    "text_preview": "[技术服务合同] 验收标准 1. 验收依据：本合同约定的服务内容、技术指标及交付标准 2. 验收方式：{{验收方式}} 3. 验收期限：甲方应在收到乙方交付成果后{{验收期限}}个工作日内完成验收 4. 验收不合格处理：    - 甲方应出具书面整改意见    - 乙方应在{{整改期限}}个工作日内完成整改并重新提交    - 再次验收仍不合格的，甲方有权按合同约定追究违约责任 5. 甲方无正当理..."
+  },
+  {
+    "id": 75,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 知识产权",
+    "text_preview": "[技术服务合同] 知识产权 1. 乙方在履行本合同过程中产出的技术成果（包括但不限于源代码、技术文档、设计方案、研究报告等）的知识产权归属于{{知识产权归属}} 2. 乙方保证其向甲方提供的技术服务不侵犯任何第三方的知识产权 3. 甲方提供的背景资料、业务数据、商业秘密等，其知识产权仍归甲方所有 4. 如涉及第三方组件或开源代码的使用，乙方应在交付物清单中明确标注并遵守相应的许可协议 风险提示：知..."
+  },
+  {
+    "id": 76,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 保密条款",
+    "text_preview": "[技术服务合同] 保密条款 1. 双方应对在履行本合同过程中知悉的对方商业秘密、技术秘密及其他保密信息承担保密义务 2. 保密信息范围包括：{{保密信息范围}} 3. 保密期限自本合同生效之日起{{保密期限}}年 4. 未经信息披露方书面同意，信息接收方不得向任何第三方披露保密信息，法律法规另有规定的除外 5. 本保密条款不因本合同的终止或解除而失效 风险提示：保密信息范围应具体列举，避免笼统描述..."
+  },
+  {
+    "id": 77,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 违约责任",
+    "text_preview": "[技术服务合同] 违约责任 1. 任何一方违反本合同约定，应向对方支付合同总金额{{违约金比例}}%的违约金 2. 乙方逾期交付服务成果的，每逾期一日，按合同总金额的{{逾期日费率}}‰向甲方支付违约金 3. 甲方逾期支付服务费用的，每逾期一日，按逾期金额的{{逾期付款日费率}}‰向乙方支付违约金 4. 任一方违约金总额不超过合同总金额的{{违约金上限比例}}% 5. 一方违约给对方造成损失的，违..."
+  },
+  {
+    "id": 78,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 争议解决",
+    "text_preview": "[技术服务合同] 争议解决 因本合同引起的或与本合同有关的任何争议，双方应首先通过友好协商解决；协商不成的，任何一方均可向{{管辖法院}}人民法院提起诉讼。 风险提示：建议约定在甲方所在地人民法院管辖，降低维权成本。如对方坚持在乙方所在地或仲裁机构解决，需评估对方的履约能力和自身维权便利性。"
+  },
+  {
+    "id": 79,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_clause",
+    "title": "技术服务合同 - 附则",
+    "text_preview": "[技术服务合同] 附则 1. 本合同一式{{合同份数}}份，甲乙双方各执{{甲方执份数}}份，具有同等法律效力 2. 本合同自双方法定代表人或授权代表签字并加盖公章之日起生效 3. 本合同的任何修改、补充须以书面形式作出，经双方签字盖章后生效 4. 本合同附件为本合同不可分割的组成部分，与本合同具有同等法律效力  （以下无正文）  甲方（盖章）：{{甲方盖章}} 法定代表人或授权代表（签字）：{{..."
+  },
+  {
+    "id": 80,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "技术服务合同 - jurisdiction",
+    "text_preview": "[技术服务合同] 风险类型：jurisdiction 风险描述：对方可能提议将管辖法院约定在对方所在地或第三方仲裁机构，增加甲方维权成本。 防范建议：建议约定在甲方所在地人民法院管辖；如对方坚持仲裁，可协商选择对双方均便利的中立仲裁机构。"
+  },
+  {
+    "id": 81,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "技术服务合同 - penalty_high",
+    "text_preview": "[技术服务合同] 风险类型：penalty_high 风险描述：对方可能设置过高的违约金比例（如超过合同总金额的30%）或不对等的违约金计算方式。 防范建议：违约金比例建议控制在合同总金额的10%-30%之间，避免过高被法院酌减。双方违约金标准应对等。"
+  },
+  {
+    "id": 82,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "技术服务合同 - scope_vague",
+    "text_preview": "[技术服务合同] 风险类型：scope_vague 风险描述：服务内容和验收标准描述过于模糊，导致交付后双方对成果是否合格产生争议。 防范建议：应在合同中明确列出服务内容清单、技术指标、交付物清单和可量化的验收标准。"
+  },
+  {
+    "id": 83,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "技术服务合同 - payment_milestone",
+    "text_preview": "[技术服务合同] 风险类型：payment_milestone 风险描述：付款节点过于集中在最终验收后，甲方在服务过程中缺乏制约手段。 防范建议：建议设置分阶段付款节点（如签约、中期、终验），保留不低于10%的尾款至最终验收后支付。"
+  },
+  {
+    "id": 84,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_risk_point",
+    "title": "技术服务合同 - ip_ownership",
+    "text_preview": "[技术服务合同] 风险类型：ip_ownership 风险描述：技术成果的知识产权归属未明确约定，导致后期使用权和商业化权益争议。 防范建议：应明确约定交付成果的知识产权归属；如需双方共有，应约定行使规则和收益分配。"
+  },
+  {
+    "id": 85,
+    "source_file": "knowledge_base/templates/technical_service_contract.json",
+    "chunk_type": "template_generation_note",
+    "title": "技术服务合同 - 生成注意事项",
+    "text_preview": "[技术服务合同] 生成注意事项 生成技术服务合同时，应重点确认服务内容的颗粒度、验收标准是否可量化、知识产权归属是否明确。如涉及第三方组件或开源代码，需附加合规条款。"
+  },
+  {
+    "id": 86,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 管辖法院变更",
+    "text_preview": "规则：管辖法院变更（风险等级：high） 风险描述：对方在合同草案中将管辖法院约定在对方所在地，或将诉讼方式改为对甲方不利的仲裁机构，增加甲方维权成本和举证难度。 审查要点： - 约定在甲方所在地人民法院为最优方案 - 约定在合同签订地/履行地为可接受方案 - 约定在乙方所在地为高风险方案 - 约定在中立第三方仲裁机构为折中方案（须明确仲裁机构全称） 底线：不接受约定在对方所在地且无替代争议解决机..."
+  },
+  {
+    "id": 87,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 违约金比例过高",
+    "text_preview": "规则：违约金比例过高（风险等级：high） 风险描述：对方设置过高的违约金比例（如超过合同总金额的 30%），或双方违约金标准不对等，导致违约成本失衡。 审查要点： - 单方违约金比例不应超过合同总金额的 30%（参考《民法典合同编司法解释》酌减标准） - 双方违约金标准须对等 - 每日逾期违约金比例通常为 0.1%~0.5% - 违约金总额应有上限 底线：双方违约金标准须对等；单方违约金比例超过..."
+  },
+  {
+    "id": 88,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 付款节点不明确",
+    "text_preview": "规则：付款节点不明确（风险等级：high） 风险描述：付款节点约定为纯时间节点而非履约节点，或预付款比例过高、尾款比例过低，导致甲方在服务/产品未达标时已支付大部分款项，缺乏履约制约手段。 审查要点： - 预付款比例通常不超过合同总金额的 30% - 各付款节点应与可验证的交付成果或验收节点挂钩 - 尾款（质保金/验收款）比例不低于 10% - 避免纯时间节点的付款约定 - 明确付款前需提交的交付..."
+  },
+  {
+    "id": 89,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 验收标准模糊",
+    "text_preview": "规则：验收标准模糊（风险等级：medium） 风险描述：合同对验收标准、验收时限、验收不合格的处理方式未作约定或描述模糊，导致交付后双方对成果是否合格产生争议。 审查要点： - 验收标准应量化、可操作，避免'满意''优良'等主观表述 - 明确验收期限和验收方式 - 约定验收不合格的整改流程和时限 - 约定多次验收不合格的违约处理和合同解除权 - 隐蔽瑕疵不受验收期限限制 底线：不接受无明确验收标准..."
+  },
+  {
+    "id": 90,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 保密期限过短",
+    "text_preview": "规则：保密期限过短（风险等级：medium） 风险描述：对方提出的保密期限过短（如合同终止后保密义务即时解除），或未区分一般保密信息与商业秘密的不同保密期限，导致商业秘密泄露风险。 审查要点： - 一般保密信息的保密期限通常为 2-5 年 - 商业秘密的保密义务持续至信息失去商业秘密地位 - 保密条款不因合同终止或解除而失效 - 接收方对自身法律或合规要求需保留的副本享有例外 底线：保密期限不低于..."
+  },
+  {
+    "id": 91,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 单方解除权过宽",
+    "text_preview": "规则：单方解除权过宽（风险等级：high） 风险描述：合同赋予一方过宽的单方解除权（如'甲方可随时以任何理由解除合同'），或任何一方均可无条件解除合同，导致交易关系不稳定。 审查要点： - 单方解除权应有合理的前提条件（如根本违约、经催告仍不履行等） - 解除权须对等或有正当事由 - 解除合同后应约定清算规则和损失赔偿方式 - 解除权约定不得违反《民法典》第 562~567 条的法定解除情形 底线..."
+  },
+  {
+    "id": 92,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 责任限制不合理",
+    "text_preview": "规则：责任限制不合理（风险等级：high） 风险描述：对方在合同中设置过于严苛的责任限制条款，如排除间接损失赔偿、设定责任赔偿上限过低（如仅赔偿合同金额的 10%），导致一方在重大违约时仅承担象征性责任。 审查要点： - 责任限制条款须公平合理，不排除故意或重大过失行为 - 责任上限过低（低于合同金额的 50%）一般不可接受 - 间接损失排除条款须审慎对待，涉及人身损害和知识产权侵权的不得排除 -..."
+  },
+  {
+    "id": 93,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 不可抗力范围异常",
+    "text_preview": "规则：不可抗力范围异常（风险等级：medium） 风险描述：对方将不可抗力范围扩展至常规商业风险（如供应商延迟、技术困难、市场变化等），或约定不可抗力持续期间过长则自动解除合同且不承担任何责任。 审查要点： - 不可抗力应限于不能预见、不能避免且不能克服的客观情况（《民法典》第 180 条） - 常规商业风险（价格上涨、汇率波动、审批延迟等）不应纳入不可抗力 - 不可抗力通知时限和证明要求应明确 ..."
+  },
+  {
+    "id": 94,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 知识产权归属不清",
+    "text_preview": "规则：知识产权归属不清（风险等级：high） 风险描述：合同未约定技术成果、交付物或合作期间共同产出知识产权的归属，或约定模糊，导致后期在知识产权使用、商业化、收益分配方面产生重大争议。 审查要点： - 应区分'背景知识产权'（合作前各方已有）和'前景知识产权'（合作期间产出） - 背景知识产权归各自所有，前景知识产权的归属须明确约定 - 如约定共同所有，须明确行使规则（许可、转让、收益分配等） ..."
+  },
+  {
+    "id": 95,
+    "source_file": "knowledge_base/clauses/bottom_line_rules.json",
+    "chunk_type": "bottom_line_rule",
+    "title": "底线规则 - 交付义务过重或期限不合理",
+    "text_preview": "规则：交付义务过重或期限不合理（风险等级：medium） 风险描述：合同规定的交付时间过短、交付方式苛严、交付标准不切实际，或交付延迟的违约责任远超合理范围，导致一方无法实际履行或承担过重风险。 审查要点： - 交付期限应具有合理的可行性，考虑行业常规交付周期 - 交付标准应与合同价款和技术条件相匹配 - 交付方式应明确（线上/线下、一次性/分批等） - 交付延迟的违约条款应合理，避免天价罚则 -..."
+  },
+  {
+    "id": 96,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "保密法律知识摘要 — 商业秘密与保密义务",
+    "text_preview": "# 保密法律知识摘要 — 商业秘密与保密义务  > **声明**: 本文档仅作为实训 Demo 知识库素材，不替代专业律师意见。商业秘密保护方案的设计与执行须由执业律师完成。  ---"
+  },
+  {
+    "id": 97,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "适用场景",
+    "text_preview": "## 适用场景  保密协议（NDA）起草与审查、商业秘密保护方案设计、保密条款谈判、违反保密义务的责任追究。适用于各类涉及商业秘密和技术秘密披露的商业合作场景。"
+  },
+  {
+    "id": 98,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "核心法律要点",
+    "text_preview": "## 核心法律要点  ### 1. 商业秘密的法定构成（《反不正当竞争法》第 9 条） 商业秘密是指不为公众所知悉、具有商业价值并经权利人采取相应保密措施的技术信息、经营信息等商业信息。构成要件： - **秘密性**：不为其所属领域的相关人员普遍知悉和容易获得。 - **价值性**：具有现实的或潜在的商业价值，能为权利人带来竞争优势。 - **保密性**：权利人采取了合理的保密措施（如签订保密协议..."
+  },
+  {
+    "id": 99,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "常见合同风险",
+    "text_preview": "## 常见合同风险  | 风险点 | 说明 | 防范建议 | |--------|------|----------| | 保密范围过宽 | \"所有信息\"等笼统定义 | 具体列举保密信息类别和范围 | | 未约定例外情形 | 接收方无法区分需保密信息 | 明确例外情形并举证责任 | | 保密期限不合理 | 永久保密或期限过短 | 区分一般保密信息和商业秘密分别设定期限 | | 违约金过高 | 违约..."
+  },
+  {
+    "id": 100,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "可用于 Prompt / RAG 的摘要文本",
+    "text_preview": "## 可用于 Prompt / RAG 的摘要文本  > 商业秘密的法定构成要件为秘密性、价值性和保密性。保密义务可来源于法律规定、合同约定或诚信原则。违约与侵权竞合时权利人可选择有利救济路径，情节严重的可主张惩罚性赔偿。保密协议中应明确保密信息范围、期限、例外情形和违约救济。公共领域信息、独立开发信息、第三方合法来源信息为法定例外。"
+  },
+  {
+    "id": 101,
+    "source_file": "knowledge_base/legal_docs/confidentiality_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "注意事项",
+    "text_preview": "## 注意事项  - 如涉及国家秘密，须遵守《保守国家秘密法》，不受保密协议的自由约定范围限制。 - 保密信息的最佳实践：书面信息标注保密标记、口头信息于披露后 30 日内书面确认、限制知悉范围至\"需要知晓\"的最小范围。 - 保密协议可作为独立协议或主合同附件。作为附件时应列明在合同附件清单中，避免争议。 - 商业秘密侵权诉讼中，权利人须举证证明已采取合理保密措施，因此保密协议的签署和日常保密制度..."
+  },
+  {
+    "id": 102,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "合同法知识摘要 — 合同通用规则",
+    "text_preview": "# 合同法知识摘要 — 合同通用规则  > **声明**: 本文档仅作为实训 Demo 知识库素材，不替代专业律师意见。实际合同审查与纠纷处理须由执业律师完成。  ---"
+  },
+  {
+    "id": 103,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "适用场景",
+    "text_preview": "## 适用场景  各类民事合同的订立、履行、变更、解除与违约救济。涵盖《中华人民共和国民法典》合同编（第三编）的核心规则，适用于技术服务合同、采购合同、合作协议等双务合同的通用审查。"
+  },
+  {
+    "id": 104,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "核心法律要点",
+    "text_preview": "## 核心法律要点  ### 1. 合同订立（第 469~501 条） - 合同可采用书面、口头或其他形式。书面形式包括合同书、信件、电报、传真等可以有形表现所载内容的形式。 - 要约与承诺：要约内容须具体确定，承诺应在要约确定的期限内到达，承诺生效时合同成立。 - 格式条款：提供方应遵循公平原则确定权利义务，并采取合理方式提示对方注意免除或者减轻其责任等与对方有重大利害关系的条款。未提示的，对方..."
+  },
+  {
+    "id": 105,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "常见合同风险",
+    "text_preview": "## 常见合同风险  | 风险点 | 说明 | 防范建议 | |--------|------|----------| | 格式条款未经提示 | 未加粗、未签字确认 | 对关键条款作加粗、下划线或单独签章确认 | | 违约金约定失衡 | 一方违约金过高 | 双方违约金标准对等，不超过损失 30% | | 管辖约定不公 | 约定在对方所在地 | 争取约定在甲方所在地或中立仲裁 | | 送达地址缺失 ..."
+  },
+  {
+    "id": 106,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "可用于 Prompt / RAG 的摘要文本",
+    "text_preview": "## 可用于 Prompt / RAG 的摘要文本  > 合同依法成立后对双方具有约束力。违约责任以继续履行和赔偿损失为原则，违约金以实际损失为基础，过高可请求酌减。管辖法院应在合同中明确约定，格式条款提供方须履行提示说明义务。合同解除后的清算规则须在合同中细化。送达地址条款可有效降低诉讼程序成本。"
+  },
+  {
+    "id": 107,
+    "source_file": "knowledge_base/legal_docs/contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "注意事项",
+    "text_preview": "## 注意事项  - 民法典合同编自 2021 年 1 月 1 日起施行，同时废止了原《合同法》《担保法》等九部法律。 - 涉外合同涉及法律适用问题时，须遵守《中华人民共和国涉外民事关系法律适用法》。 - 电子合同与纸质合同具有同等法律效力，但须确保电子签名的可靠性。 - 本文档仅覆盖合同编通则部分，典型合同（买卖、技术、委托等）另有专门规则。"
+  },
+  {
+    "id": 108,
+    "source_file": "knowledge_base/legal_docs/dispute_resolution_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "争议解决知识摘要 — 管辖、仲裁与诉讼",
+    "text_preview": "# 争议解决知识摘要 — 管辖、仲裁与诉讼  > **声明**: 本文档仅作为实训 Demo 知识库素材，不替代专业律师意见。具体案件的法律策略须由执业律师根据事实情况制定。  ---"
+  },
+  {
+    "id": 109,
+    "source_file": "knowledge_base/legal_docs/dispute_resolution_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "核心法律要点",
+    "text_preview": "## 核心法律要点  ### 1. 诉讼管辖（《民事诉讼法》第 22~36 条） - **级别管辖**：基层人民法院管辖第一审民事案件（法律另有规定的除外）；中级人民法院管辖重大涉外案件、本辖区有重大影响的案件、专利纠纷等。 - **地域管辖**：合同纠纷的诉讼由被告住所地或合同履行地人民法院管辖。 - **协议管辖**：合同当事人可以书面协议选择被告住所地、合同履行地、合同签订地、原告住所地、标..."
+  },
+  {
+    "id": 110,
+    "source_file": "knowledge_base/legal_docs/dispute_resolution_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "常见合同风险",
+    "text_preview": "## 常见合同风险  | 风险点 | 说明 | 防范建议 | |--------|------|----------| | 管辖约定不明 | \"由当地法院解决\"等模糊表述 | 明确指定具体人民法院全称 | | 仲裁机构缺失 | 仅约定仲裁规则未约定机构 | 仲裁协议须明确指定具体的仲裁机构 | | 放弃诉讼权利 | 约定\"不得向法院起诉\" | 仲裁协议不排除必要的财产保全申请权 | | 送达地址缺..."
+  },
+  {
+    "id": 111,
+    "source_file": "knowledge_base/legal_docs/dispute_resolution_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "可用于 Prompt / RAG 的摘要文本",
+    "text_preview": "## 可用于 Prompt / RAG 的摘要文本  > 合同争议可约定诉讼或仲裁两种方式。协议管辖可选择与争议有实际联系的地点，不得违反级别和专属管辖。仲裁一裁终局、保密性强但费用较高，适用于专业性强或涉密的争议。劳动仲裁为劳动争议的前置程序。诉讼时效三年，自知道权利受损之日起计算。合同应明确约定送达地址，以减少公告送达的诉讼周期。"
+  },
+  {
+    "id": 112,
+    "source_file": "knowledge_base/legal_docs/dispute_resolution_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "注意事项",
+    "text_preview": "## 注意事项  - 中国加入《纽约公约》，外国仲裁裁决可在国内申请承认与执行，而外国法院判决的执行须依据双边司法协助条约或对等原则。 - 涉及消费者权益的格式合同中，限制消费者选择法院的条款可能被认定为无效。 - 网络购物合同在消费者所在地法院管辖有特殊保护规则。 - 本文档仅涵盖国内民商事争议解决，涉外争议解决另有法律适用规则。"
+  },
+  {
+    "id": 113,
+    "source_file": "knowledge_base/legal_docs/labor_contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "劳动法知识摘要 — 劳动合同",
+    "text_preview": "# 劳动法知识摘要 — 劳动合同  > **声明**: 本文档仅作为实训 Demo 知识库素材，不替代专业律师意见。实际用工管理与劳动争议处理须由执业律师完成。  ---"
+  },
+  {
+    "id": 114,
+    "source_file": "knowledge_base/legal_docs/labor_contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "核心法律要点",
+    "text_preview": "## 核心法律要点  ### 1. 劳动合同订立（《劳动合同法》第 7~22 条） - 用人单位自用工之日起即与劳动者建立劳动关系。应当自用工之日起一个月内订立书面劳动合同。 - 超过一个月不满一年未签书面合同的，应每月向劳动者支付二倍工资。 - 三种合同期限类型：固定期限、无固定期限、以完成一定工作任务为期限。 - 在同一用人单位连续工作满十年或连续订立两次固定期限合同且劳动者无过错，续订时应订..."
+  },
+  {
+    "id": 115,
+    "source_file": "knowledge_base/legal_docs/labor_contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "常见合同风险",
+    "text_preview": "## 常见合同风险  | 风险点 | 说明 | 防范建议 | |--------|------|----------| | 试用期违法 | 试用期超过法定上限或约定二次试用期 | 严格按合同期限对应设置试用期 | | 工资结构不清 | 基本工资过低，绩效工资占比过高 | 明确基本工资和绩效工资数额 | | 社保免缴约定 | 签订\"自愿放弃社保\"承诺书 | 任何形式下的社保免缴约定均无效 | | 竞..."
+  },
+  {
+    "id": 116,
+    "source_file": "knowledge_base/legal_docs/labor_contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "可用于 Prompt / RAG 的摘要文本",
+    "text_preview": "## 可用于 Prompt / RAG 的摘要文本  > 劳动合同须在用工之日起一个月内以书面形式订立。试用期与合同期限挂钩，最长不超过六个月。工资不得低于当地最低工资标准，加班费按 150%/200%/300% 计算。社保为强制性义务，不得以任何形式免除。解除合同须区分过失性、无过失性和劳动者被迫解除三类情形，经济补偿按工龄计算。竞业限制仅适用于高级管理人员和涉密人员，期限不超过两年。"
+  },
+  {
+    "id": 117,
+    "source_file": "knowledge_base/legal_docs/labor_contract_law_summary.md",
+    "chunk_type": "legal_doc_section",
+    "title": "注意事项",
+    "text_preview": "## 注意事项  - 劳务合同（如退休返聘、在校生实习）不适用《劳动合同法》，适用《民法典》。 - 企业裁减人员 20 人以上或占职工总数 10% 以上的，须提前 30 日向工会或全体职工说明情况并报告劳动行政部门。 - 各地对最低工资标准、社保缴费基数等存在差异，须以当地政策为准。"
+  },
+  {
+    "id": 118,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "概述",
+    "text_preview": "## 概述  本文档整理合同谈判过程中最常见的 9 类法律风险审查规则，覆盖管辖、违约金、付款、验收、保密、解约、责任限制、不可抗力、知识产权等核心条款。每条规则包含风险描述、审查标准和谈判建议，可直接用于 AI 谈判分析 Agent 的风险识别与话术生成。  ---"
+  },
+  {
+    "id": 119,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则一：管辖法院变更",
+    "text_preview": "## 规则一：管辖法院变更  ### 风险描述 对方在合同草案中将管辖法院约定在对方所在地，或将诉讼方式改为对甲方不利的仲裁机构，增加甲方维权成本和举证难度。  ### 审查标准 - 约定在甲方所在地人民法院为最优方案 - 约定在合同签订地/履行地为可接受方案 - 约定在乙方所在地为高风险方案 - 约定在中立第三方仲裁机构为折中方案（须明确仲裁机构全称）  ### 谈判建议 - **强硬话术**：..."
+  },
+  {
+    "id": 120,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则二：违约金比例过高",
+    "text_preview": "## 规则二：违约金比例过高  ### 风险描述 对方设置过高的违约金比例（如超过合同总金额的 30%），或双方违约金标准不对等（如甲方逾期付款违约金远高于乙方逾期交货违约金）。  ### 审查标准 - 单方违约金比例不应超过合同总金额的 30%（参考《民法典合同编司法解释》酌减标准） - 双方违约金标准须对等 - 每日逾期违约金比例通常为 0.1%~0.5% - 违约金总额应有上限  ### 谈..."
+  },
+  {
+    "id": 121,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则三：付款节点不明确",
+    "text_preview": "## 规则三：付款节点不明确  ### 风险描述 付款节点约定为纯时间节点而非履约节点，或预付款比例过高、尾款比例过低，导致甲方在服务/产品未达标时已支付大部分款项，缺乏履约制约手段。  ### 审查标准 - 预付款比例通常不超过合同总金额的 30% - 各付款节点应与可验证的交付成果或验收节点挂钩 - 尾款（质保金）比例不低于 10% - 避免纯时间节点的付款约定  ### 谈判建议 - **强..."
+  },
+  {
+    "id": 122,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则四：验收标准模糊",
+    "text_preview": "## 规则四：验收标准模糊  ### 风险描述 合同对验收标准、验收时限、验收不合格的处理方式未作约定或描述模糊，导致交付后双方对成果是否合格产生争议。  ### 审查标准 - 验收标准应量化、可操作，避免\"满意\"\"优良\"等主观表述 - 明确验收期限和验收方式 - 约定验收不合格的整改流程和时限 - 约定多次验收不合格的违约处理和合同解除权 - 隐蔽瑕疵不受验收期限限制  ### 谈判建议 - *..."
+  },
+  {
+    "id": 123,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则五：保密期限过短",
+    "text_preview": "## 规则五：保密期限过短  ### 风险描述 对方提出的保密期限过短（如合同终止后保密义务即时解除），或未区分一般保密信息与商业秘密的不同保密期限。  ### 审查标准 - 一般保密信息的保密期限通常为 2-5 年 - 商业秘密的保密义务持续至信息失去商业秘密地位 - 保密条款不因合同终止或解除而失效 - 接收方对自身法律或合规要求需保留的副本享有例外  ### 谈判建议 - **强硬话术**：..."
+  },
+  {
+    "id": 124,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则六：单方解除权过宽",
+    "text_preview": "## 规则六：单方解除权过宽  ### 风险描述 合同赋予一方过宽的单方解除权（如\"甲方可随时以任何理由解除合同\"），或任何一方均可无条件解除合同，导致交易关系不稳定。  ### 审查标准 - 单方解除权应有合理的前提条件（如根本违约、经催告仍不履行等） - 解除权须对等或正当事由 - 解除合同后应约定清算规则和损失赔偿方式 - 解除权约定不得违反《民法典》第 562~567 条的法定解除情形  ..."
+  },
+  {
+    "id": 125,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则七：责任限制不合理",
+    "text_preview": "## 规则七：责任限制不合理  ### 风险描述 对方在合同中设置过于严苛的责任限制条款，如排除间接损失赔偿、设定责任赔偿上限过低（如仅赔偿合同金额的 10%），导致一方在重大违约时仅承担象征性责任。  ### 审查标准 - 责任限制条款须公平合理，不排除故意或重大过失行为 - 责任上限过低（低于合同金额的 50%）一般不可接受 - 间接损失排除条款须审慎对待，涉及人身损害和知识产权侵权的不得排除..."
+  },
+  {
+    "id": 126,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则八：不可抗力范围异常",
+    "text_preview": "## 规则八：不可抗力范围异常  ### 风险描述 对方将不可抗力范围扩展至常规商业风险（如供应商延迟、技术困难、市场变化等），或约定不可抗力持续期间过长则自动解除合同且不承担任何责任。  ### 审查标准 - 不可抗力应限于不能预见、不能避免且不能克服的客观情况（《民法典》第 180 条） - 常规商业风险（价格上涨、汇率波动、审批延迟等）不应纳入不可抗力 - 不可抗力通知时限和证明要求应明确 ..."
+  },
+  {
+    "id": 127,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "规则九：知识产权归属不清",
+    "text_preview": "## 规则九：知识产权归属不清  ### 风险描述 合同未约定技术成果、交付物或合作期间共同产出知识产权的归属，或约定模糊，导致后期在知识产权使用、商业化、收益分配方面产生重大争议。  ### 审查标准 - 应区分\"背景知识产权\"（合作前各方已有）和\"前景知识产权\"（合作期间产出） - 背景知识产权归各自所有，前景知识产权的归属须明确约定 - 如约定共同所有，须明确行使规则（许可、转让、收益分配等..."
+  },
+  {
+    "id": 128,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "附：谈判风险审查流程要点",
+    "text_preview": "## 附：谈判风险审查流程要点  1. **签约前**：逐条审查上述 9 类风险点，标注风险等级（高/中/低） 2. **谈判中**：针对高风险条款准备强硬话术和折中方案，明确底线 3. **签约后**：定期复盘合同履行情况，关注条款执行中的潜在风险暴露 4. **争议发生**：优先依据合同条款协商，保留书面沟通记录以作为证据 5. **外部支持**：对重大复杂的合同，建议聘请执业律师参与谈判和审..."
+  },
+  {
+    "id": 129,
+    "source_file": "knowledge_base/legal_docs/risk_review_rules.md",
+    "chunk_type": "legal_doc_section",
+    "title": "附录：与 bottom_line_rules.json 的对应关系",
+    "text_preview": "## 附录：与 bottom_line_rules.json 的对应关系  本文档（Markdown 格式）与 `knowledge_base/clauses/bottom_line_rules.json`（JSON 格式）构成互补关系，**前者用于阅读展示，后者用于程序化处理**：  | 维度 | `risk_review_rules.md` | `bottom_line_rules.json`..."
+  }
+]

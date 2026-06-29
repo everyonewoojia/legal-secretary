@@ -88,7 +88,7 @@
               v-for="item in store.diffList"
               :key="item.id"
               :class="['diff-item', { active: store.selectedRiskId === item.id }]"
-              @click="store.selectRisk(item.id)"
+              @click="onSelectRisk(item.id)"
             >
               <div class="diff-item-header">
                 <span class="diff-clause">{{ item.clause_title }}</span>
@@ -183,7 +183,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNegotiationStore } from '../stores/negotiation'
-import { exportReport as exportReportApi } from '../api/negotiation'
+import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -249,14 +249,26 @@ async function copyAdvice() {
   }
 }
 
+async function onSelectRisk(id) {
+  store.selectRisk(id)
+  if (id) store.loadCounterArgument(id)
+}
+
 async function exportReport() {
   if (!store.caseId) return
   try {
-    const res = await exportReportApi(store.caseId)
-    if (res.code === 0 && res.data?.download_url) {
-      window.open(res.data.download_url, '_blank')
+    const res = await contractApi.download(store.caseId)
+    if (res.code === 0 && res.data?.content) {
+      const blob = new Blob([res.data.content], { type: 'text/plain;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `谈判分析报告_${store.caseId}.txt`
+      a.click()
+      URL.revokeObjectURL(url)
+      ElMessage.success('报告已下载')
     } else {
-      ElMessage.warning('导出报告失败')
+      ElMessage.warning('导出失败')
     }
   } catch {
     ElMessage.error('导出请求失败')

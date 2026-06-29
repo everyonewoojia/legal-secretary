@@ -1,17 +1,65 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as contractApi from '../api/contract'
-import { chatStream, ragSearch } from '../api'
+import { contractApi } from '../api/contract'
+import { chatStream, generateStream } from '../api'
+
+const SLOT_KEYWORDS = {
+  '甲方': ['甲方', '委托方', '买方', '采购方'],
+  '乙方': ['乙方', '受托方', '服务方', '卖方', '销售方'],
+  '合同金额': ['金额', '总价', '合同额', '报价', '总金额'],
+  '交付物': ['交付物', '交付内容', '开发内容', '服务内容', '交付'],
+  '付款方式': ['付款', '支付', '一次性', '分期', '分阶段', '分次'],
+  '交付期限': ['期限', '时间', '天', '工作日', '周', '月', '交付时间'],
+  '违约金比例': ['违约金', '违约', '比例', '%', '百分之'],
+}
+
+const SLOT_KEYS = Object.keys(SLOT_KEYWORDS)
+const SLOT_QUESTIONS = {
+  '甲方': '请问甲方',
+  '乙方': '请问乙方',
+  '合同金额': '合同总金额',
+  '交付物': '交付物',
+  '付款方式': '付款方式',
+  '交付期限': '期限',
+  '违约金比例': '违约金',
+}
+
+function detectSlot(text, messages) {
+  if (SLOT_KEYS.some(k => text.startsWith(`${k}：`) || text.startsWith(`${k}:`))) {
+    return null
+  }
+  for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+    if (keywords.some(kw => text.includes(kw))) {
+      return slot
+    }
+  }
+  if (messages && messages.length) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.role === 'agent' || m.role === 'assistant') {
+        for (const [slot, qText] of Object.entries(SLOT_QUESTIONS)) {
+          if (m.content.includes(qText)) {
+            return slot
+          }
+        }
+        break
+      }
+    }
+  }
+  return null
+}
 
 export const useContractStore = defineStore('contract', () => {
-  const contractType = ref('tech_service')
-  const sessionId = ref(null)
+  const contractTypes = ref([])
+  const typeId = ref(null)
+  const contractCode = ref('tech_service')
   const messages = ref([])
   const slots = ref({})
   const draftId = ref(null)
   const currentDraft = ref('')
   const generating = ref(false)
-  const ragContextStr = ref('')
+  const typesLoaded = ref(false)
+  const sessions = ref({})
 
   const contractTypeMap = {
     tech_service: '技术服务合同',
@@ -25,44 +73,86 @@ export const useContractStore = defineStore('contract', () => {
     return contractTypeMap[type] || type
   }
 
-  async function startSession(type) {
-    contractType.value = type
-    const res = await contractApi.createSession(type)
-    if (res.code === 0) {
-      sessionId.value = res.data.session_id
-      slots.value = res.data.slots || {}
-      const content = res.data.next_question || '您好，请告诉我合同相关信息。'
-      messages.value = [{ role: 'agent', content }]
+  async function fetchTypes() {
+    if (typesLoaded.value) return
+    try {
+      const res = await contractApi.getTypes()
+      if (res.code === 0 && res.data?.length) {
+        contractTypes.value = res.data
+        typesLoaded.value = true
+      }
+    } catch {
+      contractTypes.value = Object.entries(contractTypeMap).map(([code, name], i) => ({
+        id: i + 1,
+        code,
+        name,
+        description: '',
+        sort_order: i + 1,
+      }))
+      typesLoaded.value = true
+    }
+  }
+
+  function getTypeId(code) {
+    const t = contractTypes.value.find((c) => c.code === code)
+    return t ? t.id : 1
+  }
+
+  function getTypeCode(id) {
+    const t = contractTypes.value.find((c) => c.id === id)
+    return t ? t.code : 'tech_service'
+  }
+
+  async function startSession(code) {
+    await fetchTypes()
+    const prev = contractCode.value
+    if (prev && prev !== code && messages.value.length) {
+      sessions.value[prev] = {
+        messages: messages.value.map((m) => ({ ...m })),
+        slots: { ...slots.value },
+        draftId: draftId.value,
+        currentDraft: currentDraft.value,
+      }
+    }
+    contractCode.value = code
+    typeId.value = getTypeId(code)
+    const saved = sessions.value[code]
+    if (saved) {
+      messages.value = saved.messages
+      slots.value = saved.slots
+      draftId.value = saved.draftId
+      currentDraft.value = saved.currentDraft
+    } else {
+      messages.value = [{ role: 'agent', content: '您好！我是法务小秘的合同助手。请告诉我合同的基本信息，例如甲方/乙方的名称，以及您希望起草的合同涉及的主要内容。' }]
+      slots.value = {}
       draftId.value = null
       currentDraft.value = ''
     }
-    return res
   }
 
   function sendMessage(text) {
     return new Promise((resolve, reject) => {
-      const userMsg = { role: 'user', content: text }
+      const slotKey = detectSlot(text, messages.value)
+      const enrichedText = slotKey ? `${slotKey}：${text}` : text
+
+      const userMsg = { role: 'user', content: enrichedText }
       const aiMsg = { role: 'agent', content: '', loading: true }
       messages.value.push(userMsg, aiMsg)
 
       const lastAi = messages.value[messages.value.length - 1]
 
       chatStream(
-        sessionId.value,
-        text,
+        typeId.value,
+        enrichedText,
         (chunk) => {
-          if (chunk.startsWith('{')) {
-            try {
-              const parsed = JSON.parse(chunk)
-              if (parsed.content) lastAi.content += parsed.content
-              if (parsed.slots) {
-                slots.value = { ...slots.value, ...parsed.slots }
-              }
-              return
-            } catch {
+          if (typeof chunk === 'object' && chunk.content !== undefined) {
+            lastAi.content += chunk.content
+            if (chunk.slots) {
+              slots.value = { ...slots.value, ...chunk.slots }
             }
+          } else if (typeof chunk === 'string') {
+            lastAi.content += chunk
           }
-          lastAi.content += chunk
         },
         () => {
           lastAi.loading = false
@@ -74,6 +164,7 @@ export const useContractStore = defineStore('contract', () => {
           reject(new Error(err))
         },
         () => messages.value,
+        slotKey,
       )
     })
   }
@@ -81,26 +172,29 @@ export const useContractStore = defineStore('contract', () => {
   async function generateContract() {
     generating.value = true
     try {
-      // 在生成前先获取法律知识上下文
-      const typeName = getContractLabel(contractType.value)
-      const slotValues = Object.values(slots.value).filter(Boolean).join(' ')
-      const ragQuery = `${typeName} ${slotValues.slice(0, 100)} 合同 法律 条款`
-      ragContextStr.value = await contractApi.searchLawContext(ragQuery, contractType.value)
-
-      const payload = {
-      collected_fields: slots.value, // 槽位数据给后端的 collected_fields
-      title: `${typeName}_草稿`
-    }
-
-      const res = await contractApi.generateContract(sessionId.value, payload)
-      if (res.code === 0) {
-        draftId.value = res.data.draft_id
-        currentDraft.value = res.data.contract_text
-        messages.value.push({ role: 'agent', content: '合同已生成，请在右侧预览。' })
-      }
-      return res
+      const title = contractTypeMap[contractCode.value] || '合同'
+      return await new Promise((resolve, reject) => {
+        generateStream(
+          typeId.value,
+          slots.value,
+          title,
+          (chunk) => {
+            currentDraft.value += chunk
+          },
+          (id) => {
+            draftId.value = id
+            messages.value.push({ role: 'agent', content: '✅ 合同已生成，请在右侧预览。' })
+            generating.value = false
+            resolve({ code: 0, data: { draft_id: id, contract_text: currentDraft.value } })
+          },
+          (err) => {
+            generating.value = false
+            reject(new Error(err || '合同生成失败'))
+          },
+        )
+      })
     } finally {
-      generating.value = false
+      if (generating.value) generating.value = false
     }
   }
 
@@ -109,16 +203,19 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   function clearSession() {
-    sessionId.value = null
+    typeId.value = null
+    contractCode.value = 'tech_service'
     messages.value = []
     slots.value = {}
     draftId.value = null
     currentDraft.value = ''
+    sessions.value = {}
   }
 
   return {
-    contractType,
-    sessionId,
+    contractTypes,
+    typeId,
+    contractCode,
     messages,
     slots,
     draftId,
@@ -131,5 +228,7 @@ export const useContractStore = defineStore('contract', () => {
     generateContract,
     updateSlots,
     clearSession,
+    fetchTypes,
+    detectSlot,
   }
 })

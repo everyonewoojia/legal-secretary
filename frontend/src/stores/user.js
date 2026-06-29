@@ -1,14 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import {
-  mockLogin,
-  mockRegister,
-  mockGetUserList,
-  mockToggleUserStatus,
-  mockChangeUserRole,
-  mockUpdateProfile,
-  mockChangePassword,
-} from '../api/mock/authMock'
+import { authApi, userApi, adminApi } from '../api/auth'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
@@ -19,27 +11,47 @@ export const useUserStore = defineStore('user', () => {
   const isAdmin = computed(() => role.value === 'admin')
 
   function persist() {
-    if (token.value && userInfo.value) {
+    if (token.value) {
       localStorage.setItem('token', token.value)
-      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
     } else {
       localStorage.removeItem('token')
+    }
+    if (userInfo.value) {
+      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+    } else {
       localStorage.removeItem('userInfo')
     }
   }
 
+  function normalizeUser(data) {
+    return { ...data, username: data.nickname || data.phone }
+  }
+
   async function login(phone, password) {
-    const res = await mockLogin(phone, password)
+    const res = await authApi.login(phone, password)
     if (res.code === 0) {
-      token.value = res.data.token
-      userInfo.value = res.data.user
+      token.value = res.data.access_token
       persist()
+      const profileRes = await userApi.getProfile()
+      if (profileRes.code === 0) {
+        userInfo.value = normalizeUser(profileRes.data)
+        persist()
+      }
     }
     return res
   }
 
   async function register(data) {
-    const res = await mockRegister(data)
+    const res = await authApi.register(data)
+    if (res.code === 0) {
+      token.value = res.data.token.access_token
+      persist()
+      const profileRes = await userApi.getProfile()
+      if (profileRes.code === 0) {
+        userInfo.value = normalizeUser(profileRes.data)
+        persist()
+      }
+    }
     return res
   }
 
@@ -55,33 +67,47 @@ export const useUserStore = defineStore('user', () => {
     return isLoggedIn.value
   }
 
-  async function fetchUserList() {
-    return await mockGetUserList()
+  async function fetchUserList(page = 1, pageSize = 20) {
+    const res = await adminApi.getUsers(page, pageSize)
+    if (res.code === 0) {
+      return res.data.items.map((u) => ({
+        id: u.id,
+        phone: u.phone,
+        username: u.nickname || u.phone,
+        nickname: u.nickname,
+        role: u.role,
+        status: u.is_active ? 'active' : 'disabled',
+        is_active: u.is_active,
+        created_at: u.created_at,
+      }))
+    }
+    return []
   }
 
   async function toggleUserStatus(userId) {
-    return await mockToggleUserStatus(userId)
+    return await adminApi.toggleUserActive(userId)
   }
 
   async function changeUserRole(userId, newRole) {
-    return await mockChangeUserRole(userId, newRole)
+    return await adminApi.changeUserRole(userId, newRole)
   }
 
   async function updateProfile(data) {
-    const userId = userInfo.value?.id
-    if (!userId) return { code: 1, message: '未登录' }
-    const res = await mockUpdateProfile(userId, data)
+    const payload = { ...data }
+    if (payload.username !== undefined) {
+      payload.nickname = payload.username
+      delete payload.username
+    }
+    const res = await userApi.updateProfile(payload)
     if (res.code === 0) {
-      userInfo.value = res.data.user
+      userInfo.value = normalizeUser(res.data)
       persist()
     }
     return res
   }
 
   async function changePassword(currentPassword, newPassword) {
-    const userId = userInfo.value?.id
-    if (!userId) return { code: 1, message: '未登录' }
-    return await mockChangePassword(userId, currentPassword, newPassword)
+    return await userApi.changePassword(currentPassword, newPassword)
   }
 
   return {

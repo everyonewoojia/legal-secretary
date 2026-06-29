@@ -1,38 +1,29 @@
 import http from './index'
-import {
-  mockCreateSession,
-  mockGenerateContract,
-  mockExportDraft,
-} from './mock/contractMock'
 
-export async function createSession(contractType) {
-  try {
-    const res = await http.post('/contract/session', { contract_type: contractType })
-    if (res?.code === 0) return res
-  } catch {
-    // fallback
-  }
-  return mockCreateSession(contractType)
-}
+export const contractApi = {
+  getTypes: () => http.get('/contracts/types'),
 
-export async function generateContract(sessionId,payload) {
-  try {
-    const res = await http.post(`/contract/generate/${sessionId}`, payload)
-    if (res?.code === 0) return res
-  } catch {
-    // fallback
-  }
-  return mockGenerateContract(sessionId)
-}
+  chat: (typeId, message, history = []) =>
+    http.post(`/contracts/chat/${typeId}`, { message, history }),
 
-export async function exportDraft(draftId, format = 'docx') {
-  try {
-    const res = await http.get(`/contract/${draftId}/download?format=${format}`)
-    if (res?.code === 0) return res
-  } catch {
-    // fallback
-  }
-  return mockExportDraft(draftId)
+  generate: (typeId, collectedFields, title = '') =>
+    http.post(`/contracts/generate/${typeId}`, { collected_fields: collectedFields, title }),
+
+  create: (typeId, title = '', content = '') =>
+    http.post('/contracts/', { type_id: typeId, title, content }),
+
+  list: (status) => http.get('/contracts/', { params: { status } }),
+
+  get: (id) => http.get(`/contracts/${id}`),
+
+  delete: (id) => http.delete(`/contracts/${id}`),
+
+  download: (id, fmt = 'docx') =>
+    http.get(`/contracts/${id}/download`, { params: { fmt } }),
+
+  getVersions: (id) => http.get(`/contracts/${id}/versions`),
+
+  getRisks: (id) => http.get(`/contracts/${id}/risks`),
 }
 
 export async function fetchContractTypes() {

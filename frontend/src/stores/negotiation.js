@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import * as negotiationApi from '../api/negotiation'
-import { searchLawContext } from '../api/contract'
+import { negotiationApi } from '../api/negotiation'
+import { contractApi } from '../api/contract'
 
 export const useNegotiationStore = defineStore('negotiation', () => {
+  const contractId = ref(null)
   const caseId = ref(null)
   const diffList = ref([])
   const selectedRiskId = ref(null)
@@ -22,40 +23,83 @@ export const useNegotiationStore = defineStore('negotiation', () => {
     selectedRiskId.value = id
   }
 
+  async function loadCounterArgument(riskId) {
+    try {
+      const res = await negotiationApi.counterArgument(riskId)
+      if (res.code === 0 && res.data) {
+        const item = diffList.value.find((i) => i.id === riskId)
+        if (item) {
+          const parts = []
+          if (res.data.plan_a) parts.push('【强硬方案】' + res.data.plan_a)
+          if (res.data.plan_b) parts.push('【折中方案】' + res.data.plan_b)
+          item.advice = parts.join('\n\n')
+        }
+      }
+    } catch {}
+  }
+
+  function mapRiskItem(item) {
+    return {
+      id: item.id,
+      clause_title: item.clause_location || item.clause_title || '',
+      risk_level: item.risk_level || 'low',
+      risk_desc: item.description || item.risk_desc || '',
+      legal_basis: item.legal_basis || '',
+      acceptable_bottom_line: item.acceptable_bottom_line || '',
+      advice: item.advice || item.suggestion || '',
+    }
+  }
+
   async function submitAnalysis() {
     loading.value = true
     try {
-      const formData = new FormData()
+      let cid = contractId.value
+
+      if (!cid) {
+        const content = '（原始合同文本，待对比分析）'
+        const createRes = await contractApi.create(1, '谈判分析合同', content)
+        if (createRes.code !== 0) return createRes
+        cid = createRes.data.id
+        contractId.value = cid
+      }
 
       if (fileList.value.length > 0) {
-        fileList.value.forEach((f) => formData.append('file', f.raw))
-      }
-      if (modifiedText.value.trim()) {
-        formData.append('modified_text', modifiedText.value.trim())
+        for (const f of fileList.value) {
+          await negotiationApi.upload(cid, f.raw)
+        }
+      } else if (modifiedText.value) {
+        const blob = new Blob([modifiedText.value], { type: 'text/plain' })
+        const file = new File([blob], 'modified_text.txt', { type: 'text/plain' })
+        await negotiationApi.upload(cid, file)
       }
 
-      // 异步获取法律知识上下文（作为分析参考）
-      const ragQuery = modifiedText.value.trim().slice(0, 100) || '合同风险分析'
-      searchLawContext(ragQuery).then(contextStr => {
-        lawContext.value = contextStr // 直接接收拼接好的字符串
-      })
+      await negotiationApi.getDiff(cid)
 
-      const res = await negotiationApi.analyzeNegotiation(formData)
-      if (res.code === 0) {
-        caseId.value = res.data.case_id || 1
-        diffList.value = res.data.risks || res.data.changes || res.data.diff_list || []
-        version.value = res.data.version || 'V2'
-        if (diffList.value.length > 0) {
-          selectedRiskId.value = diffList.value[0].id
+      const analyzeRes = await negotiationApi.aiAnalyze(cid)
+      if (analyzeRes.code !== 0) return analyzeRes
+
+      const risksRes = await negotiationApi.getRisks(cid)
+      if (risksRes.code === 0) {
+        const items = (risksRes.data || []).map(mapRiskItem)
+        diffList.value = items
+        version.value = 'V2'
+        if (items.length > 0) {
+          selectedRiskId.value = items[0].id
+          loadCounterArgument(items[0].id)
         }
       }
-      return res
+
+      caseId.value = cid
+      return { code: 0, data: { diff_list: diffList.value, case_id: cid, version: version.value } }
+    } catch (e) {
+      return { code: 1, message: e.message || '分析失败' }
     } finally {
       loading.value = false
     }
   }
 
   function resetAnalysis() {
+    contractId.value = null
     caseId.value = null
     diffList.value = []
     selectedRiskId.value = null
@@ -65,6 +109,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   }
 
   return {
+    contractId,
     caseId,
     diffList,
     selectedRiskId,
@@ -76,5 +121,6 @@ export const useNegotiationStore = defineStore('negotiation', () => {
     selectRisk,
     submitAnalysis,
     resetAnalysis,
+    loadCounterArgument,
   }
 })
