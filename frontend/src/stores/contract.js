@@ -3,6 +3,52 @@ import { ref } from 'vue'
 import { contractApi } from '../api/contract'
 import { chatStream, generateStream } from '../api'
 
+const SLOT_KEYWORDS = {
+  '甲方': ['甲方', '委托方', '买方', '采购方'],
+  '乙方': ['乙方', '受托方', '服务方', '卖方', '销售方'],
+  '合同金额': ['金额', '总价', '合同额', '报价', '总金额'],
+  '交付物': ['交付物', '交付内容', '开发内容', '服务内容', '交付'],
+  '付款方式': ['付款', '支付', '一次性', '分期', '分阶段', '分次'],
+  '交付期限': ['期限', '时间', '天', '工作日', '周', '月', '交付时间'],
+  '违约金比例': ['违约金', '违约', '比例', '%', '百分之'],
+}
+
+const SLOT_KEYS = Object.keys(SLOT_KEYWORDS)
+const SLOT_QUESTIONS = {
+  '甲方': '请问甲方',
+  '乙方': '请问乙方',
+  '合同金额': '合同总金额',
+  '交付物': '交付物',
+  '付款方式': '付款方式',
+  '交付期限': '期限',
+  '违约金比例': '违约金',
+}
+
+function detectSlot(text, messages) {
+  if (SLOT_KEYS.some(k => text.startsWith(`${k}：`) || text.startsWith(`${k}:`))) {
+    return null
+  }
+  for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+    if (keywords.some(kw => text.includes(kw))) {
+      return slot
+    }
+  }
+  if (messages && messages.length) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.role === 'agent' || m.role === 'assistant') {
+        for (const [slot, qText] of Object.entries(SLOT_QUESTIONS)) {
+          if (m.content.includes(qText)) {
+            return slot
+          }
+        }
+        break
+      }
+    }
+  }
+  return null
+}
+
 export const useContractStore = defineStore('contract', () => {
   const contractTypes = ref([])
   const typeId = ref(null)
@@ -86,7 +132,10 @@ export const useContractStore = defineStore('contract', () => {
 
   function sendMessage(text) {
     return new Promise((resolve, reject) => {
-      const userMsg = { role: 'user', content: text }
+      const slotKey = detectSlot(text, messages.value)
+      const enrichedText = slotKey ? `${slotKey}：${text}` : text
+
+      const userMsg = { role: 'user', content: enrichedText }
       const aiMsg = { role: 'agent', content: '', loading: true }
       messages.value.push(userMsg, aiMsg)
 
@@ -94,7 +143,7 @@ export const useContractStore = defineStore('contract', () => {
 
       chatStream(
         typeId.value,
-        text,
+        enrichedText,
         (chunk) => {
           if (typeof chunk === 'object' && chunk.content !== undefined) {
             lastAi.content += chunk.content
@@ -115,6 +164,7 @@ export const useContractStore = defineStore('contract', () => {
           reject(new Error(err))
         },
         () => messages.value,
+        slotKey,
       )
     })
   }
@@ -178,5 +228,6 @@ export const useContractStore = defineStore('contract', () => {
     updateSlots,
     clearSession,
     fetchTypes,
+    detectSlot,
   }
 })

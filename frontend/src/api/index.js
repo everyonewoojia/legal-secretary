@@ -11,6 +11,12 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (res) => res.data,
   (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      window.location.href = '/login'
+      return
+    }
     const body = err.response?.data
     const msg = body?.message || body?.detail || err.message || '请求失败'
     return Promise.reject(new Error(msg))
@@ -34,6 +40,12 @@ async function sseFetch(path, body, onChunk, onDone, onError) {
     })
 
     if (!res.ok) {
+      if (res.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        window.location.href = '/login'
+        return
+      }
       const errBody = await res.text()
       let msg = '请求失败'
       try {
@@ -91,11 +103,13 @@ async function sseFetch(path, body, onChunk, onDone, onError) {
   }
 }
 
-export function chatStream(typeId, message, onChunk, onDone, onError, getMessages) {
+export function chatStream(typeId, message, onChunk, onDone, onError, getMessages, slotKey) {
   const history = getMessages ? getMessages().filter((m) => m.role !== 'system').map((m) => ({ role: m.role, content: m.content })) : []
+  const body = { message, history }
+  if (slotKey) body.slotKey = slotKey
   return sseFetch(
     `/contracts/chat/${typeId}`,
-    { message, history },
+    body,
     onChunk,
     onDone,
     onError,

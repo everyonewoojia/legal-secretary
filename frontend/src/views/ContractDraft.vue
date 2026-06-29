@@ -73,17 +73,21 @@
 
         <div class="input-area">
           <div class="quick-actions" v-if="store.typeId">
+            <span class="hint-label">提示：</span>
             <el-button size="small" @click="quickFill('甲方：')">甲方</el-button>
             <el-button size="small" @click="quickFill('乙方：')">乙方</el-button>
             <el-button size="small" @click="quickFill('合同金额：')">金额</el-button>
             <el-button size="small" @click="quickFill('交付物：')">交付物</el-button>
+            <el-button size="small" @click="quickFill('付款方式：')">付款方式</el-button>
+            <el-button size="small" @click="quickFill('交付期限：')">交付期限</el-button>
+            <el-button size="small" @click="quickFill('违约金比例：')">违约金比例</el-button>
           </div>
           <div class="input-row">
             <el-input
               v-model="inputMsg"
               type="textarea"
               :rows="2"
-              placeholder="请输入合同要素信息…"
+              placeholder="请输入您的回答…（例如：深圳某某科技公司、一次性、50万）"
               :disabled="!store.typeId"
               @keyup.enter.prevent="send"
             />
@@ -201,7 +205,15 @@ async function send() {
 }
 
 function quickFill(template) {
-  inputMsg.value = template
+  const current = inputMsg.value.trim()
+  if (current.includes(template.replace('：', ''))) {
+    return
+  }
+  if (current) {
+    inputMsg.value = current + '，' + template
+  } else {
+    inputMsg.value = template
+  }
 }
 
 async function generate() {
@@ -478,9 +490,20 @@ if (!store.messages.length) {
 
 .quick-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
   flex-wrap: wrap;
+  align-items: center;
+}
+.quick-actions .hint-label {
+  font-size: 12px;
+  color: #909399;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+.quick-actions .el-button {
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .input-row {

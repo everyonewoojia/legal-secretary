@@ -247,17 +247,19 @@ FIELD_QUESTIONS = {
     "保密期限": "请问保密期限约定为几年比较合适？",
 }
 
+QUESTION_TO_FIELD = {v: k for k, v in FIELD_QUESTIONS.items()}
+
 FIELD_LIST = ["甲方", "乙方", "合同金额", "交付物", "付款节点", "验收标准", "违约责任", "保密期限"]
 
 SLOT_EXTRACTION_MAP = {
-    "甲方": re.compile(r"(?:甲方|委托方|购买方|采购方|买方|我们|我公司|我方)[：:是叫]\s*([^\n，,。.]+)"),
-    "乙方": re.compile(r"(?:乙方|受托方|销售方|卖方|对方|贵司|你们)[：:是叫]\s*([^\n，,。.]+)"),
-    "合同金额": re.compile(r"(?:合同)?(?:金额|总价|价款|费用)[：:是叫]\s*([0-9，,.\d]+[万亿元]*)"),
-    "交付物": re.compile(r"(?:交付物|服务内容|服务范围|工作内容|项目内容|开发内容|货物名称)[：:是叫]\s*([^\n，,。.]+)"),
-    "付款节点": re.compile(r"(?:付款|支付)(?:方式|节点|条件|比例)[：:是叫]\s*([^\n，,。.]+)"),
-    "验收标准": re.compile(r"(?:验收|交付)(?:标准|方式|条件|指标)[：:是叫]\s*([^\n，,。.]+)"),
-    "违约责任": re.compile(r"(?:违约|赔偿)(?:责任|条款|金比例)[：:是叫]\s*([^\n，,。.]+)"),
-    "保密期限": re.compile(r"(?:保密|保密期限)[：:是叫]\s*([^\n，,。.]+)"),
+    "甲方": re.compile(r"(?:甲方|委托方|购买方|采购方|买方|我们|我公司|我方)[：:是叫]?\s*([^\n，,。.]+)"),
+    "乙方": re.compile(r"(?:乙方|受托方|销售方|卖方|对方|贵司|你们)[：:是叫]?\s*([^\n，,。.]+)"),
+    "合同金额": re.compile(r"(?:合同)?(?:金额|总价|价款|费用)[：:是叫]?\s*([0-9，,.\d]+[万亿元]*)"),
+    "交付物": re.compile(r"(?:交付物|服务内容|服务范围|工作内容|项目内容|开发内容|货物名称|交付|提供)[：:是叫]?\s*([^\n，,。.]+)"),
+    "付款节点": re.compile(r"(?:付款|支付)(?:方式|节点|条件|比例)[：:是叫]?\s*([^\n，,。.]+)"),
+    "验收标准": re.compile(r"(?:验收|交付)(?:标准|方式|条件|指标)[：:是叫]?\s*([^\n，,。.]+)"),
+    "违约责任": re.compile(r"(?:违约|赔偿)(?:责任|条款|金比例)[：:是叫]?\s*([^\n，,。.]+)"),
+    "保密期限": re.compile(r"(?:保密|保密期限)[：:是叫]?\s*([^\n，,。.]+)"),
 }
 
 MOCK_RISK_ITEMS = [
@@ -322,6 +324,20 @@ def _extract_slots(text: str) -> dict:
     return slots
 
 
+def _infer_field_from_context(messages: list[dict]) -> str | None:
+    """Look at the last AI message to infer which field the user is answering."""
+    for m in reversed(messages[:-1]):
+        if m["role"] in ("assistant", "agent"):
+            for q_text, field in QUESTION_TO_FIELD.items():
+                if q_text in m.get("content", ""):
+                    return field
+            for field in FIELD_LIST:
+                if f"请问{field}" in m.get("content", ""):
+                    return field
+            break
+    return None
+
+
 def _mock_chat(messages: list[dict]) -> str:
     last = messages[-1]["content"] if messages else ""
 
@@ -338,6 +354,12 @@ def _mock_chat(messages: list[dict]) -> str:
 
     all_slots = _all_slots_from_messages(messages)
     last_slots = _extract_slots(last)
+
+    if not last_slots:
+        inferred = _infer_field_from_context(messages)
+        if inferred and inferred not in all_slots:
+            all_slots[inferred] = last.strip()
+            last_slots[inferred] = last.strip()
 
     filled_set = set(all_slots.keys())
     missing = [f for f in FIELD_LIST if f not in filled_set]
@@ -357,6 +379,8 @@ def _mock_chat(messages: list[dict]) -> str:
     else:
         reply = "所有合同信息已收集完成！您可以点击「生成合同」按钮来生成合同初稿。"
 
+    if all_slots:
+        return json.dumps({"content": reply, "slots": all_slots}, ensure_ascii=False)
     return reply
 
 
@@ -375,18 +399,6 @@ def _all_slots_from_messages(messages: list[dict], from_system: bool = False) ->
                 except (json.JSONDecodeError, AttributeError):
                     pass
     return all_slots
-    match = re.search(r"##\s*收集的要素\s*\n(\{.+?\})", text, re.DOTALL)
-    if not match:
-        match = re.search(r"\{\s*\"[^\"}]+\"\s*:\s*\"[^\"}]+\"\s*[},]", text)
-    if match:
-        try:
-            raw = match.group(1) if match.lastindex else match.group(0)
-            data = json.loads(raw)
-            if isinstance(data, dict):
-                return {k: str(v).strip('"') for k, v in data.items()}
-        except (json.JSONDecodeError, AttributeError):
-            pass
-    return {}
 
 
 def _fill_placeholders(text: str, slots: dict) -> str:
@@ -443,7 +455,14 @@ def _mock_counter_argument() -> str:
     }, ensure_ascii=False)
 
 
-async def _mock_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
+async def _mock_stream(messages: list[dict]):
     text = _mock_chat(messages)
+    try:
+        data = json.loads(text)
+        if isinstance(data, dict) and "content" in data:
+            yield data
+            return
+    except (json.JSONDecodeError, TypeError):
+        pass
     for char in text:
         yield char
