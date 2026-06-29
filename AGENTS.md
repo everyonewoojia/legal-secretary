@@ -18,7 +18,7 @@
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
-| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：基础测试体系搭建（tests/），覆盖模板结构、底线规则、索引清单、元数据、脚本基础验证 |
+| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
 
 ## 目录结构
 ```
@@ -252,6 +252,18 @@ legal-secretary/
 4. 更新 `docs/ops_test_midterm_report.md` — 新增 2.7 节（基础测试体系）和 v4.0 版本记录
 5. 所有修改未涉及 backend、frontend、agent 目录，未修改知识库正文和模板内容，未执行 git 操作
 
+## 已完成的工作 (feat-zhy / 第七轮 / 联调前接口一致性分析)
+1. 完成全链路接口一致性分析，检查后端实际路由（`backend/app/routers/*.py`、`backend/app/main.py`、`backend/app/routers/api.py`）、前端 API 调用（`frontend/src/api/`、`frontend/src/stores/`、`frontend/src/views/`）、api-contracts 契约三方之间的一致性
+2. 发现 **5 个高优先级问题**（RAG 搜索路径不存在、合同 session 模型不兼容、生成入参不匹配、下载格式不匹配、注册字段名不一致）、**6 个中优先级问题**、**3 个低优先级问题**
+3. 新增 `docs/pre_integration_api_check.md` — 联调前接口一致性检查报告，含后端路由表、前端 Mock 状态、分级问题清单、建议修复方向和归属
+4. 新增 `docs/integration_todo.md` — 按 6 个模块（认证/用户/合同/谈判/RAG/管理）列出联调前待办，含当前状态、阻塞问题、前端/后端/文档待改、验收标准
+5. 新增 `docs/bug_list.md` — Bug 记录表模板和初始 11 条 Bug（B-001 ~ B-011），含编号/模块/复现步骤/优先级/负责人/状态
+6. 确认以下事实：
+   - 前端当前全部使用 Mock数据，无真实 HTTP 调用
+   - api-contracts 是 Agent 进程内调用契约，不是前端 HTTP API 契约
+   - 合同起草前后端模型差异最大，需要前端 store 重写
+7. 所有修改未涉及 backend、frontend、agent 业务代码，未执行 git 操作
+
 ## 已完成的工作 (feat-jzx / 后端集成 & 结构优化 · 2026-06-26)
 1. **后端 FastAPI 完整实现** — 37+ API 端点，覆盖 6 组路由（auth/users/contracts/negotiation/rag/admin），含 JWT 认证、请求校验、统一响应格式
 2. **9 个 ORM 模型** — User / Contract / ContractVersion / ContractType / ContractTemplate / RiskAssessment / LawArticle / AuditLog / ApiKeyConfig，含完整关系映射与索引
@@ -289,6 +301,11 @@ legal-secretary/
 - [x] 补全基础测试（`tests/` 目录 — 模板结构、底线规则、索引清单、元数据、脚本基础结构验证已覆盖）
 - [ ] 补全后端 Service 层和 API 层测试（需等 backend 模块稳定后补充）
 - [ ] 补全前端组件测试（需等 frontend 模块稳定后补充）
-- [ ] 构建 FAISS 向量索引（知识库数据已就绪）
+- [x] 构建 FAISS 向量索引（`knowledge_base/faiss_index.bin` 已构建）
 - [ ] 增强合同预览的 Markdown 渲染样式
 - [ ] 移动端适配
+- [ ] 前端从 Mock 切换为真实 HTTP 调用（见 `docs/integration_todo.md` 按模块推进）
+- [ ] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
+- [ ] 谈判分析流程确认（多步流程 vs. 合并端点）
+- [ ] 合同下载方案确认（文件流 vs. 文本下载）
+- [ ] api-contracts 目录定位说明更新
