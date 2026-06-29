@@ -221,7 +221,6 @@ export const useContractStore = defineStore('contract', () => {
     draftId,
     currentDraft,
     generating,
-    ragContextStr,
     getContractLabel,
     startSession,
     sendMessage,

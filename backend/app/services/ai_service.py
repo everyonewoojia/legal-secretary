@@ -460,7 +460,9 @@ async def _mock_stream(messages: list[dict]):
     try:
         data = json.loads(text)
         if isinstance(data, dict) and "content" in data:
-            yield data
+            content_text = data["content"]
+            for char in content_text:
+                yield char
             return
     except (json.JSONDecodeError, TypeError):
         pass

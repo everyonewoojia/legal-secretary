@@ -114,7 +114,12 @@ class DialogueService:
 
     async def chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
         system_prompt = self.build_system_prompt()
-        full_messages = [{"role": "system", "content": system_prompt}, *messages]
+        # DashScope API 只接受 system/assistant/user/tool/function，映射 agent -> assistant
+        mapped = [
+            {"role": "assistant" if m["role"] == "agent" else m["role"], "content": m["content"]}
+            for m in messages
+        ]
+        full_messages = [{"role": "system", "content": system_prompt}, *mapped]
         async for chunk in chat_stream(full_messages):
             yield chunk
 
