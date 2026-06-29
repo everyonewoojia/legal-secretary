@@ -337,6 +337,16 @@ legal-secretary/
    - 合同起草前后端模型差异最大，需要前端 store 重写
 7. 所有修改未涉及 backend、frontend、agent 业务代码，未执行 git 操作
 
+## 已完成的工作 (2026-06-29 / ingest 脚本健壮性修复)
+1. 修复 `scripts/ingest_knowledge_base.py` 中 `chunk_template_json()` 对 JSON 顶层为 list 的兼容性（原代码假设 `json.load(f)` 返回 dict 后直接调用 `.get()`，但 `index_metadata.json` 等文件顶层是 list 导致 `AttributeError: 'list' object has no attribute 'get'`）
+2. 新增 `_extract_item_chunks()` 内部函数，从单个 dict item 提取 clauses/sections/risk_points 生成 chunk，被 dict 模式和 list 模式复用
+3. 专用 `chunk_bottom_line_rules()` 处理 `bottom_line_rules.json`，兼容 dict（含 rules 字段）和 list 两种顶层结构，提取 name/description/risk_level/trigger_keywords/bottom_line/recommended_response/negotiation_strategy 生成 10 条规则 chunk
+4. `SKIP_FILES` 白名单过滤 `index.json`、`index_metadata.json`、`faiss_index.bin`，避免误导入
+5. 重构执行顺序：先 `collect_all_chunks()` 全量收集（不涉及数据库），chunk 数量为 0 时直接 `sys.exit(1)` 终止，只有成功收集后才清空旧记录 + 写入新记录，防止中途失败导致数据库被清空
+6. 新增 `tests/test_ingest_knowledge_base.py`，8 项测试覆盖：Markdown 分块、JSON dict/list/非 dict/list 三类结构、bottom_line_rules dict/list/空规则、`_extract_item_chunks` 内部函数
+7. 实际运行 `PYTHONPATH=backend python scripts/ingest_knowledge_base.py` 正常通过，191 个 chunk 成功写入
+8. 所有修改未涉及 backend/frontend/agent 业务代码，未修改 knowledge_base 模板和法律知识库内容，未执行 git 操作
+
 ## 已完成的工作 (2026-06-29 / feat-agent / Bug 修复: DashScope role 映射 + mock 流式 dict 修复 + SSE fallback)
 1. **修复 DashScope role 拒绝错误** — DashScope 不接受 `role: "agent"`，在 `DialogueService.chat()` 中映射 `agent` → `assistant` 后发送 LLM API，消除 400 BadRequest
 2. **修复 mock 流式 yield dict 导致 `[object Object]`** — `_mock_stream` 在 JSON 格式返回时 yield 了整个 dict，改为 yield `data["content"]` 字符流，使 SSE 渲染正常
