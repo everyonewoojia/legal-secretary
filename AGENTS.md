@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
-| `feat-wlf` (前端) | 已联调 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术/上下文槽位推断），全端点手动测试通过，前后端联调完成 |
+| `feat-wlf` (前端) | 已优化 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock；设计优化（共享组件 AppHeader / Element Plus 图标 / marked 渲染 / Admin 分页 / 过渡动画），修复生成合同内容堆积 Bug |
 | `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -25,20 +25,17 @@
 legal-secretary/
 ├── frontend/                     # Vue 3 前端项目
 │   ├── src/
-│   │   ├── api/                  # axios 实例 + 模块化 API 封装 + 模拟接口
+│   │   ├── api/                  # axios 实例 + 模块化 API 封装
 │   │   │   ├── index.js          # axios 实例 + SSE 流式聊天 (chatStream)，默认导出 http
 │   │   │   ├── contract.js       # 合同 API：createSession / generateContract / exportDraft / analyze
-│   │   │   ├── negotiation.js    # 谈判 API：analyzeNegotiation / exportReport
-│   │   │   └── mock/
-│   │   │       └── authMock.js   # 登录/注册/用户管理的模拟接口
-│   │   ├── components/           # 公共组件
+│   │   │   └── negotiation.js    # 谈判 API：analyzeNegotiation / exportReport
+│   │   ├── components/           # 公共组件（AppHeader.vue）
 │   │   ├── views/
 │   │   │   ├── Home.vue          # 首页（功能入口卡片）
 │   │   │   ├── Login.vue         # 登录页面（手机号+密码）
 │   │   │   ├── Register.vue      # 注册页面（手机号+验证码）
 │   │   │   ├── ContractDraft.vue # 合同起草（三栏布局：类型选择 + SSE 对话 + 预览）
-│   │   │   ├── NegotiationAnalyze.vue # 谈判分析（两栏：差异列表 + 风险详情）
-│   │   │   ├── Negotiate.vue     # 旧版谈判分析（已废弃）
+│   │   │   ├── NegotiationAnalyze.vue # 谈判辅助（两栏：差异列表 + 风险详情）
 │   │   │   ├── Profile.vue       # 个人中心（信息编辑/修改密码）
 │   │   │   └── Admin.vue         # 后台管理（用户列表/禁用/改角色）
 │   │   ├── stores/
@@ -380,6 +377,17 @@ legal-secretary/
 6. **清理死代码**：移除 `_all_slots_from_messages` 函数后的死代码（原 unreachable 280-310 行）
 7. **SSH 远程推送**：生成 SSH Key 并配置，解决网络 HTTPS 阻塞问题，成功推送至远程
 
+## 已完成的工作 (2026-06-29 / 前端设计优化 & Bug 修复)
+1. **导航文本统一"谈判辅助"**：App.vue/Home.vue/ContractDraft.vue/Admin.vue 中所有"谈判分析"/"风险审查" → "谈判辅助"
+2. **创建共享 AppHeader 组件**：提取 ContractDraft/NegotiationAnalyze/Admin 三页面重复的白色子导航为 `src/components/AppHeader.vue`
+3. **Element Plus 图标替换**：Login.vue/Register.vue/Admin.vue/App.vue 中手写 SVG → `@element-plus/icons-vue`（Iphone/Lock/User/ArrowDown）
+4. **Markdown 合同预览**：ContractDraft.vue 引入 `marked` 库，`<pre>` 纯文本 → `v-html` 渲染带样式的 Markdown
+5. **Admin 用户列表分页**：添加 `el-pagination`，store 返回分页数据（items + total）
+6. **删除废弃 Negotiate.vue**：249 行旧版代码，已被 NegotiationAnalyze.vue 替代
+7. **页面过渡动画**：App.vue 添加 `router-view` fade 切换动画
+8. **修复生成合同堆积 Bug**：`stores/contract.js:generateContract()` 开头添加 `currentDraft.value = ''`，防止重复点击追加旧内容
+9. **移除了 `src/api/mock/` 目录**：死 mock 文件（authMock/contractMock/negotiationMock）已无引用并删除
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|
@@ -387,7 +395,7 @@ legal-secretary/
 | `/register` | 注册 | 游客 |
 | `/` | 首页 | 需登录 |
 | `/draft` | 合同起草 | 需登录 |
-| `/negotiate` | 谈判分析 | 需登录 |
+| `/negotiate` | 谈判辅助 | 需登录 |
 | `/profile` | 个人中心 | 需登录 |
 | `/admin` | 后台管理 | 需 admin 角色 |
 
@@ -395,17 +403,22 @@ legal-secretary/
 - 项目在 WSL (Ubuntu) 下开发，Node.js 需用 **Linux 版**（Windows 版会因 UNC 路径问题导致 Vite 报错）
 - Linux Node.js 安装在 `~/.local/node/bin`，已加入 `.bashrc` 的 PATH
 - 启动前端: `cd ~/projects/legal-secretary/frontend && npm run dev`
-- 启动后端: `cd ~/projects/legal-secretary && uvicorn backend.app.main:app --reload --port 8000`
+- 启动后端: `cd ~/projects/legal-secretary && PYTHONPATH=backend python3 -m uvicorn app.main:app --reload --port 8000`
 - 前端代理配置：`vite.config.js` 中 `/api` → `http://localhost:8000`
 - 需配置 `.env` 文件（参考 `.env.example`），填入 `LLM_API_KEY`（阿里云 DashScope）
 
 ## 待办/后续可做
-- [ ] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
-- [ ] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
+- [x] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
+- [x] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
 - [x] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
 - [x] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
 - [x] 谈判分析流程确认（多步流程 vs. 合并端点）
 - [x] 合同下载方案确认（文件流 vs. 文本下载）
-- [ ] 增强合同预览的 Markdown 渲染样式
+- [x] 增强合同预览的 Markdown 渲染样式（已使用 marked）
+- [x] 删除废弃 Mock 文件和 Negotiate.vue
+- [x] 创建共享 AppHeader 组件
+- [x] 替换内联 SVG 为 Element Plus 图标
+- [x] Admin 用户列表分页
+- [x] 添加页面过渡动画
 - [ ] 移动端适配
 - [ ] api-contracts 目录定位说明更新
