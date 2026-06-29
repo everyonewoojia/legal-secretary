@@ -337,6 +337,25 @@ legal-secretary/
    - 合同起草前后端模型差异最大，需要前端 store 重写
 7. 所有修改未涉及 backend、frontend、agent 业务代码，未执行 git 操作
 
+## 已完成的工作 (2026-06-29 / ingest 脚本健壮性修复)
+1. 修复 `scripts/ingest_knowledge_base.py` 中 `chunk_template_json()` 对 JSON 顶层为 list 的兼容性（原代码假设 `json.load(f)` 返回 dict 后直接调用 `.get()`，但 `index_metadata.json` 等文件顶层是 list 导致 `AttributeError: 'list' object has no attribute 'get'`）
+2. 新增 `_extract_item_chunks()` 内部函数，从单个 dict item 提取 clauses/sections/risk_points 生成 chunk，被 dict 模式和 list 模式复用
+3. 专用 `chunk_bottom_line_rules()` 处理 `bottom_line_rules.json`，兼容 dict（含 rules 字段）和 list 两种顶层结构，提取 name/description/risk_level/trigger_keywords/bottom_line/recommended_response/negotiation_strategy 生成 10 条规则 chunk
+4. `SKIP_FILES` 白名单过滤 `index.json`、`index_metadata.json`、`faiss_index.bin`，避免误导入
+5. 重构执行顺序：先 `collect_all_chunks()` 全量收集（不涉及数据库），chunk 数量为 0 时直接 `sys.exit(1)` 终止，只有成功收集后才清空旧记录 + 写入新记录，防止中途失败导致数据库被清空
+6. 新增 `tests/test_ingest_knowledge_base.py`，8 项测试覆盖：Markdown 分块、JSON dict/list/非 dict/list 三类结构、bottom_line_rules dict/list/空规则、`_extract_item_chunks` 内部函数
+7. 实际运行 `PYTHONPATH=backend python scripts/ingest_knowledge_base.py` 正常通过，191 个 chunk 成功写入
+8. 所有修改未涉及 backend/frontend/agent 业务代码，未修改 knowledge_base 模板和法律知识库内容，未执行 git 操作
+
+## 已完成的工作 (2026-06-29 / 最终检查修复: Agent 模板映射 + README + 依赖补全)
+1. **修复 P1**: `agent/contract_agent.py` — 新增 `TEMPLATE_FILE_MAP` 将 `tech_service` → `technical_service_contract.json` 等 5 类合同代码映射到实际文件名。`_load_template` 改为使用映射查找，找不到时抛出清晰 `FileNotFoundError`（含支持的类型列表），不再静默返回空列表
+2. **修复 M6**: 追加 `faiss-cpu>=1.7.0` 到 `requirements.txt`
+3. **修复 P3**: 重写 `README.md` — 更新启动命令为 `PYTHONPATH=backend python -m uvicorn ...`；增加知识库初始化步骤说明；删除所有过期 API 路径（`/contract/session`、`/contract/generate` 等），按 Swagger 实际对照重写完整 API 表；增加安全注意事项章节；更新项目目录结构
+4. 更新 `docs/bug_list.md` — 新增 B-012（Agent 模板名）和 B-013（faiss-cpu 缺失）标记已修复；各 Bug 补充负责人建议和状态
+5. 更新 `docs/integration_todo.md` — 新增"最终收尾待办"章节，分后端/前端/ops-test/文档列明剩余事项并标注已完成的标记
+6. 新增 `tests/test_agent_contract.py` — 验证 `TEMPLATE_FILE_MAP` 中的 5 类映射文件真实存在，验证未知类型抛出异常
+7. 所有修改未涉及 frontend、backend 业务代码，未执行 git 操作
+
 ## 已完成的工作 (2026-06-29 / feat-agent / Bug 修复: DashScope role 映射 + mock 流式 dict 修复 + SSE fallback)
 1. **修复 DashScope role 拒绝错误** — DashScope 不接受 `role: "agent"`，在 `DialogueService.chat()` 中映射 `agent` → `assistant` 后发送 LLM API，消除 400 BadRequest
 2. **修复 mock 流式 yield dict 导致 `[object Object]`** — `_mock_stream` 在 JSON 格式返回时 yield 了整个 dict，改为 yield `data["content"]` 字符流，使 SSE 渲染正常

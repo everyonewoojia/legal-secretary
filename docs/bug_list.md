@@ -34,17 +34,19 @@
 
 | 编号 | 模块 | 问题描述 | 复现步骤 | 实际结果 | 预期结果 | 优先级 | 负责人 | 状态 | 备注 |
 |------|------|---------|---------|---------|---------|--------|--------|------|------|
-| B-001 | RAG | 前端 `POST /api/v1/rag/search` 路径后端不存在 | 前端调用 `rag.search()` | 404 Not Found | 返回搜索结果 | P0 | 待定 | 待修复 | 需确认使用 GET /rag/laws 还是新增 POST /rag/search |
-| B-002 | 合同 | 前端 `chatStream()` 全部用 Mock，未对接真实 SSE 端点 | 在合同起草页面发送消息 | 使用 Mock 数据回复 | 从后端 `POST /contracts/chat/{type_id}` 流式获取回复 | P0 | 待定 | 待修复 | 需同时改 api/contract.js 和 stores/contract.js |
-| B-003 | 合同 | 前端 `generateContract(sessionId)` 后端无对应端点 | 点击"生成合同"按钮 | 调用 Mock | 调用 `POST /contracts/generate/{type_id}` 生成合同 | P0 | 待定 | 待修复 | 后端用 type_id + collected_fields，前端需适配 |
-| B-004 | 用户 | 前端注册传入 `username`，后端需要 `nickname` | 填写注册表单提交 | `username` 被忽略，`nickname` 留空 | 填写的昵称正确保存到后端 | P0 | 待定 | 待修复 | 前端表单字段名改为 nickname |
-| B-005 | 合同 | 合同下载前端期望 download_url，后端返回 content/title/format | 点击"下载"按钮 | `window.open('#')` 打开空白标签 | 成功下载合同文件 | P0 | 待定 | 待修复 | 需前后端确认方案 |
-| B-006 | 用户 | 用户列表前端用纯数组，后端返回 `{items, total}` | Admin.vue 调用 `fetchUserList()` | 类型错误或 undefined | 正确填充用户列表 | P1 | 待定 | 待修复 | 前端 store 需要取 `res.data.items` |
-| B-007 | 用户 | 用户状态字段 `status` vs `is_active` | Admin.vue 显示用户状态 | 状态显示错误或不对应 | 正确显示"正常"/"禁用" | P1 | 待定 | 待修复 | 前端改为判断 `row.is_active` |
-| B-008 | 认证 | 用户信息字段 `username` vs `nickname` | Profile.vue 显示用户昵称 | 昵称字段为空或 undefined | 正确显示用户昵称 | P1 | 待定 | 待修复 | 前端 `userInfo.username` 改为 `userInfo.nickname` |
-| B-009 | 谈判 | 谈判分析需要多步流程（upload/diff/analyze/risks），前端期望一步完成 | 上传文件点击"开始分析" | 调用 Mock 返回模拟数据 | 调用后端 API 完成分析 | P1 | 待定 | 待修复 | 需确认：前端适配多步 or 后端新增合并端点 |
-| B-010 | 认证 | 后端有两个 `/change-password` 端点（auth 无认证 + users 有认证） | — | 功能重复，可能存在安全风险 | 只保留一个有认证的端点 | P2 | 待定 | 待修复 | 建议删除 `auth/change-password`（无认证版本）|
-| B-011 | 文档 | AGENTS.md 记录的 `/api/v1/contract/session` 端点不存在 | — | 文档与实际不符 | 更新文档 | P3 | 待定 | 待修复 | 后端合同路由为 `/contracts`（复数），无 session 端点 |
+| B-001 | RAG | 前端 `POST /api/v1/rag/search` 路径后端不存在 | 前端调用 `rag.search()` | 404 Not Found | 返回搜索结果 | P0 | 魏麟凤(前端) | 已分配给前端 | 前端改为 GET /rag/laws |
+| B-002 | 合同 | 前端合同起草 session 模型与后端 type_id 模型不兼容 | 合同起草页面交互 | 使用 Mock | 真实 SSE + 生成 | P0 | 魏麟凤(前端) | 已分配给前端 | 需重写 stores/contract.js |
+| B-003 | 合同 | 前端 `generateContract(sessionId)` 后端无对应端点 | 点击生成合同 | 调用 Mock | 真实调用 | P0 | 魏麟凤(前端) | 已分配给前端 | 后端接口已就绪 |
+| B-004 | 用户 | 前端注册传入 `username`，后端需要 `nickname` | 注册表单提交 | username 被忽略 | 昵称正确保存 | P0 | 魏麟凤(前端) | 已分配给前端 | 改为 nickname |
+| B-005 | 合同 | 合同下载前端期望 download_url vs 后端返回 content | 点击下载按钮 | 打开空白标签 | 成功下载文件 | P0 | 姬卓希/魏麟凤 | 待修复 | 需前后端确认方案 |
+| B-006 | 用户 | 用户列表纯数组 vs 后端 `{items, total}` | Admin.vue 加载 | 类型错误 | 正确填充列表 | P1 | 魏麟凤(前端) | 已分配给前端 | store 需取 res.data.items |
+| B-007 | 用户 | 状态字段 `status` vs `is_active` | 显示用户状态 | 状态显示错误 | 正确显示 | P1 | 魏麟凤(前端) | 已分配给前端 | 改为判断 row.is_active |
+| B-008 | 认证 | 用户信息字段 `username` vs `nickname` | Profile.vue 显示 | 昵称为空 | 正确显示 | P1 | 魏麟凤(前端) | 已分配给前端 | 改为 userInfo.nickname |
+| B-009 | 谈判 | 谈判分析需要多步流程 vs 前端期望一步 | 点击分析按钮 | 调用 Mock | 调用后端 API | P1 | 魏麟凤(前端) | 已分配给前端 | 前后端确认方案 |
+| B-010 | 认证 | 两个 change-password 端点冗余 + auth_service 空实现 | — | 功能重复且密码改不了 | 保留有认证端点且正确实现 | P2 | 姬卓希(后端) | 已分配给后端 | 后方可分别修复 |
+| B-011 | 文档 | AGENTS.md/README 记录错误路径 | — | 文档与后端不符 | 更新文档 | P3 | 张怀月(ops-test) | 已修复 | 本轮 README 已重写 |
+| B-012 | Agent | agent/contract_agent.py 引用的模板文件名不存在 | 生成合同时 | 找不到模板文件 | 正确加载模板 | P1 | 张怀月(ops-test) | 已修复 | 本轮已添加 TEMPLATE_FILE_MAP |
+| B-013 | 依赖 | requirements.txt 缺少 faiss-cpu | 运行 build_vector_index.py | 运行时检查 | 直接安装 | P3 | 张怀月(ops-test) | 已修复 | 本轮已追加 |
 
 ---
 

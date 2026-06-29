@@ -219,3 +219,36 @@
 4. **合同起草**（最复杂，前后端模型差异最大）
 5. **RAG 知识库**（路径调整即可）
 6. **谈判风险审查**（流程差异大，需确认方案后执行）
+
+---
+
+## 七、最终收尾待办
+
+### 后端（姬卓希）
+- [ ] **P2 bug**: 实现 `AuthService.change_password()` 密码修改逻辑（当前为 `pass` 空实现）
+- [ ] **M4/config**: 评估 `SECRET_KEY` 默认值风险（`config.py:10`），建议删除默认值
+- [ ] **M3/rag**: 修复 `rag_engine.py` 的 `ilike` 通配符边界问题（改用 `contains()`）
+- [ ] **M2/rag**: 修复 `rag_service.py` 的 `search_all` 分类过滤逻辑
+
+### 前端（魏麟凤）
+- [ ] **B-002/B-003**: 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
+- [ ] **B-004**: 注册字段名 `username` → `nickname`
+- [ ] **B-006/B-007/B-008**: 用户管理字段映射适配
+- [ ] **P5**: 移除 `api/index.js` 中的静默 Mock 回退
+- [ ] **P4**: 修复合同类型选择字段名不匹配（`value` vs `code`）
+- [ ] **M1**: Store 空 `catch {}` 至少添加 `console.warn`
+- [ ] **B-001**: 前端 `rag.search()` 路径改为 `GET /rag/laws`
+
+### ops-test（张怀月）
+- [x] **P1**: 修复 `agent/contract_agent.py` 模板文件名映射
+- [x] **M6**: 追加 `faiss-cpu` 到 `requirements.txt`
+- [x] **P3**: 重写 README API 表 + 启动说明
+- [ ] 确认 5 类 Agent 模板映射全部对应
+- [ ] 确认 `scripts/ingest_knowledge_base.py` 可正常运行
+- [ ] 更新 `docs/ops_test_midterm_report.md` 最终版
+- [ ] 清理 `legal_secretary.db` 等运行产物
+
+### 文档
+- [x] **P3**: README 同步（API 表、启动方式、安全说明、知识库初始化）
+- [ ] 更新 `knowledge_base/index.json` 的 `vector_index.status` 为"已构建"
+- [ ] 更新 `api-contracts/index.json` 中 `negotiation_reply` 的接入状态
