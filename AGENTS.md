@@ -368,7 +368,7 @@ legal-secretary/
 6. **AI 开发规范** — 新增 `.opencode/constraints.md`，定义全栈联调契约、进度同步、垃圾文件防护规则
 7. **AGENTS.md 同步改版** — 项目概况、完整目录树、API 端点表、路由表、分支状态看板、多人工作日志
 
-## 已完成的工作 (2026-06-29 / 前后端联调完成 & Bug 修复)
+## 已完成的工作 (feat-wlf) (2026-06-29 / 前后端联调完成 & Bug 修复)
 1. **前后端联调完成**：前端所有 API 调用（登录/合同起草对话/生成/谈判分析/管理后台）走真实后端 `/api/v1/*` 端点，SSE 流式对话+流式合同生成走通
 2. **修复裸值槽位推断 Bug**：`_mock_chat` 新增 `_infer_field_from_context`，当用户输入无前缀（如"456"→乙方）时回溯上一条 AI 消息匹配提问内容，自动推断字段
 3. **前端的 `detectSlot` 增加上下文感知**：新增 `SLOT_QUESTIONS` 映射，结合 `messages` 历史匹配最后一条 AI 提问自动推断槽位，显示 `"乙方：456"` 格式消息
@@ -377,7 +377,7 @@ legal-secretary/
 6. **清理死代码**：移除 `_all_slots_from_messages` 函数后的死代码（原 unreachable 280-310 行）
 7. **SSH 远程推送**：生成 SSH Key 并配置，解决网络 HTTPS 阻塞问题，成功推送至远程
 
-## 已完成的工作 (2026-06-29 / 前端设计优化 & Bug 修复)
+## 已完成的工作 (feat-wlf) (2026-06-29 / 前端设计优化 & Bug 修复)
 1. **导航文本统一"谈判辅助"**：App.vue/Home.vue/ContractDraft.vue/Admin.vue 中所有"谈判分析"/"风险审查" → "谈判辅助"
 2. **创建共享 AppHeader 组件**：提取 ContractDraft/NegotiationAnalyze/Admin 三页面重复的白色子导航为 `src/components/AppHeader.vue`
 3. **Element Plus 图标替换**：Login.vue/Register.vue/Admin.vue/App.vue 中手写 SVG → `@element-plus/icons-vue`（Iphone/Lock/User/ArrowDown）
