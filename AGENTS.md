@@ -18,7 +18,7 @@
 | `feat-wlf` (前端) | 已完成 | 完整前端 8 个页面、3 个 Pinia store、路由守卫、模拟数据层，已合入 master |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
-| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：合同模板初始化与 clauses 填充 |
+| `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：基础测试体系搭建（tests/），覆盖模板结构、底线规则、索引清单、元数据、脚本基础验证 |
 
 ## 目录结构
 ```
@@ -239,6 +239,19 @@ legal-secretary/
 6. 更新 `docs/ops_test_midterm_report.md` — 增加 2.6 节（FAISS 向量索引构建）
 7. 所有修改未涉及 backend、frontend、agent 目录
 
+## 已完成的工作 (feat-zhy / 第六轮 / 基础测试体系)
+1. 新建 `tests/` 目录及其 6 个测试文件，覆盖我负责模块的关键文件结构验证：
+   - `tests/conftest.py` — pytest 共享 fixture（project_root / knowledge_base_dir / templates_dir / legal_docs_dir / clauses_dir / scripts_dir + load_json 辅助函数）
+   - `tests/test_templates_schema.py` — 5 个模板 JSON 的结构字段完整性校验（字段存在性、clauses 非空、clause 字段完整、variables 为数组、risk_tips 非空），使用 @pytest.mark.parametrize 参数化
+   - `tests/test_bottom_line_rules.py` — 底线策略规则库验证（规则数量 >= 10、11 个必填字段、risk_level 枚举约束、negotiation_strategy 三档话术结构、demo_disclaimer 含实训字样）
+   - `tests/test_index_manifest.py` — index.json 源文件存在性验证（自动兼容 sources/files/items 等不同顶层字段名、path 文件真实存在、vectorized 为布尔值）
+   - `tests/test_vector_scripts.py` — 脚本存在性和基础结构验证（main 入口、faiss/sentence_transformers 引用），不下载 Hugging Face 模型，不重构索引
+   - `tests/test_metadata_basic.py` — index_metadata.json 元数据格式验证（顶层兼容 list/dict、可追溯字段、合法 chunk_type）
+2. 新建 `pyproject.toml` — 配置 pytest 发现规则（`testpaths = ["tests"]`, `python_files = ["test_*.py"]`, `addopts = "-q"`）
+3. 修改 `requirements.txt` — 追加 `pytest>=8.0.0`、`pytest-cov>=5.0.0`，未删除已有依赖
+4. 更新 `docs/ops_test_midterm_report.md` — 新增 2.7 节（基础测试体系）和 v4.0 版本记录
+5. 所有修改未涉及 backend、frontend、agent 目录，未修改知识库正文和模板内容，未执行 git 操作
+
 ## 已完成的工作 (feat-jzx / 后端集成 & 结构优化 · 2026-06-26)
 1. **后端 FastAPI 完整实现** — 37+ API 端点，覆盖 6 组路由（auth/users/contracts/negotiation/rag/admin），含 JWT 认证、请求校验、统一响应格式
 2. **9 个 ORM 模型** — User / Contract / ContractVersion / ContractType / ContractTemplate / RiskAssessment / LawArticle / AuditLog / ApiKeyConfig，含完整关系映射与索引
@@ -273,7 +286,9 @@ legal-secretary/
 - [ ] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
 - [ ] 实现真正的 DOCX/PDF 导出（当前 download 端点仅返回 JSON）
 - [ ] 实现 `utils/file_parser.py` 的 PDF 解析（当前抛 NotImplementedError）
-- [ ] 补全测试（`tests/` 目录为空）
+- [x] 补全基础测试（`tests/` 目录 — 模板结构、底线规则、索引清单、元数据、脚本基础结构验证已覆盖）
+- [ ] 补全后端 Service 层和 API 层测试（需等 backend 模块稳定后补充）
+- [ ] 补全前端组件测试（需等 frontend 模块稳定后补充）
 - [ ] 构建 FAISS 向量索引（知识库数据已就绪）
 - [ ] 增强合同预览的 Markdown 渲染样式
 - [ ] 移动端适配
