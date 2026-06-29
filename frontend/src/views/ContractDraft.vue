@@ -30,7 +30,7 @@
             <button
               v-for="t in contractTypes"
               :key="t.value"
-              :class="['type-btn', { active: store.contractType === t.value }]"
+              :class="['type-btn', { active: store.contractCode === t.value }]"
               @click="onTypeChange(t.value)"
             >
               {{ t.label }}
@@ -51,7 +51,7 @@
 
       <main class="chat-area">
         <div class="chat-header">
-          <span class="chat-type-label">{{ store.getContractLabel(store.contractType) }}</span>
+          <span class="chat-type-label">{{ store.getContractLabel(store.contractCode) }}</span>
         </div>
 
         <div class="messages" ref="msgBox">
@@ -72,26 +72,30 @@
         </div>
 
         <div class="input-area">
-          <div class="quick-actions" v-if="store.sessionId">
+          <div class="quick-actions" v-if="store.typeId">
+            <span class="hint-label">提示：</span>
             <el-button size="small" @click="quickFill('甲方：')">甲方</el-button>
             <el-button size="small" @click="quickFill('乙方：')">乙方</el-button>
             <el-button size="small" @click="quickFill('合同金额：')">金额</el-button>
             <el-button size="small" @click="quickFill('交付物：')">交付物</el-button>
+            <el-button size="small" @click="quickFill('付款方式：')">付款方式</el-button>
+            <el-button size="small" @click="quickFill('交付期限：')">交付期限</el-button>
+            <el-button size="small" @click="quickFill('违约金比例：')">违约金比例</el-button>
           </div>
           <div class="input-row">
             <el-input
               v-model="inputMsg"
               type="textarea"
               :rows="2"
-              placeholder="请输入合同要素信息…"
-              :disabled="!store.sessionId"
+              placeholder="请输入您的回答…（例如：深圳某某科技公司、一次性、50万）"
+              :disabled="!store.typeId"
               @keyup.enter.prevent="send"
             />
             <div class="input-actions">
               <el-button
                 type="primary"
                 :loading="sending"
-                :disabled="!store.sessionId || !inputMsg.trim()"
+                :disabled="!store.typeId || !inputMsg.trim()"
                 @click="send"
               >
                 发送
@@ -103,7 +107,7 @@
 
       <aside class="sidebar-right" v-show="showPreview">
         <div class="preview-header">
-          <h3 class="preview-title">《{{ store.getContractLabel(store.contractType) }}》</h3>
+          <h3 class="preview-title">《{{ store.getContractLabel(store.contractCode) }}》</h3>
         </div>
         <div class="preview-body">
           <pre v-if="store.currentDraft" class="contract-text">{{ store.currentDraft }}</pre>
@@ -113,7 +117,7 @@
           <el-button
             type="primary"
             :loading="store.generating"
-            :disabled="!store.sessionId"
+            :disabled="!store.typeId"
             @click="generate"
           >
             生成合同
@@ -139,7 +143,7 @@
         type="primary"
         size="large"
         :loading="store.generating"
-        :disabled="!store.sessionId || !store.messages.length || sending"
+        :disabled="!store.typeId || !store.messages.length || sending"
         @click="generate"
         round
       >
@@ -153,7 +157,7 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useContractStore } from '../stores/contract'
-import { exportDraft } from '../api/contract'
+import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -176,7 +180,6 @@ const showPreview = computed(() => !!store.draftId || store.generating)
 
 async function onTypeChange(type) {
   errorMsg.value = ''
-  store.clearSession()
   try {
     await store.startSession(type)
   } catch (e) {
@@ -187,7 +190,7 @@ async function onTypeChange(type) {
 
 async function send() {
   const text = inputMsg.value.trim()
-  if (!text || !store.sessionId) return
+  if (!text || !store.typeId) return
   inputMsg.value = ''
   sending.value = true
   errorMsg.value = ''
@@ -202,7 +205,15 @@ async function send() {
 }
 
 function quickFill(template) {
-  inputMsg.value = template
+  const current = inputMsg.value.trim()
+  if (current.includes(template.replace('：', ''))) {
+    return
+  }
+  if (current) {
+    inputMsg.value = current + '，' + template
+  } else {
+    inputMsg.value = template
+  }
 }
 
 async function generate() {
@@ -227,9 +238,17 @@ async function regenerate() {
 async function exportDoc() {
   if (!store.draftId) return
   try {
-    const res = await exportDraft(store.draftId)
+    const res = await contractApi.download(store.draftId)
     if (res.code === 0 && res.data?.download_url) {
       window.open(res.data.download_url, '_blank')
+    } else if (res.code === 0 && res.data?.content) {
+      const blob = new Blob([res.data.content], { type: 'text/plain;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${res.data.title || '合同'}.${res.data.format || 'docx'}`
+      a.click()
+      URL.revokeObjectURL(url)
     } else {
       ElMessage.warning('导出失败')
     }
@@ -248,8 +267,8 @@ watch(
   },
 )
 
-if (!store.sessionId) {
-  store.startSession(store.contractType)
+if (!store.messages.length) {
+  store.startSession(store.contractCode)
 }
 </script>
 
@@ -471,9 +490,20 @@ if (!store.sessionId) {
 
 .quick-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
   flex-wrap: wrap;
+  align-items: center;
+}
+.quick-actions .hint-label {
+  font-size: 12px;
+  color: #909399;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+.quick-actions .el-button {
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .input-row {

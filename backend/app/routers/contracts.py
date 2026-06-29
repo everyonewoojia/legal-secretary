@@ -43,7 +43,10 @@ async def chat_stream(
 
     async def generate():
         async for chunk in svc.ai_chat_stream(type_id, messages):
-            yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
+            if isinstance(chunk, dict):
+                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+            else:
+                yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
