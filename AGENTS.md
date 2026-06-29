@@ -347,6 +347,15 @@ legal-secretary/
 7. 实际运行 `PYTHONPATH=backend python scripts/ingest_knowledge_base.py` 正常通过，191 个 chunk 成功写入
 8. 所有修改未涉及 backend/frontend/agent 业务代码，未修改 knowledge_base 模板和法律知识库内容，未执行 git 操作
 
+## 已完成的工作 (2026-06-29 / 最终检查修复: Agent 模板映射 + README + 依赖补全)
+1. **修复 P1**: `agent/contract_agent.py` — 新增 `TEMPLATE_FILE_MAP` 将 `tech_service` → `technical_service_contract.json` 等 5 类合同代码映射到实际文件名。`_load_template` 改为使用映射查找，找不到时抛出清晰 `FileNotFoundError`（含支持的类型列表），不再静默返回空列表
+2. **修复 M6**: 追加 `faiss-cpu>=1.7.0` 到 `requirements.txt`
+3. **修复 P3**: 重写 `README.md` — 更新启动命令为 `PYTHONPATH=backend python -m uvicorn ...`；增加知识库初始化步骤说明；删除所有过期 API 路径（`/contract/session`、`/contract/generate` 等），按 Swagger 实际对照重写完整 API 表；增加安全注意事项章节；更新项目目录结构
+4. 更新 `docs/bug_list.md` — 新增 B-012（Agent 模板名）和 B-013（faiss-cpu 缺失）标记已修复；各 Bug 补充负责人建议和状态
+5. 更新 `docs/integration_todo.md` — 新增"最终收尾待办"章节，分后端/前端/ops-test/文档列明剩余事项并标注已完成的标记
+6. 新增 `tests/test_agent_contract.py` — 验证 `TEMPLATE_FILE_MAP` 中的 5 类映射文件真实存在，验证未知类型抛出异常
+7. 所有修改未涉及 frontend、backend 业务代码，未执行 git 操作
+
 ## 已完成的工作 (2026-06-29 / feat-agent / Bug 修复: DashScope role 映射 + mock 流式 dict 修复 + SSE fallback)
 1. **修复 DashScope role 拒绝错误** — DashScope 不接受 `role: "agent"`，在 `DialogueService.chat()` 中映射 `agent` → `assistant` 后发送 LLM API，消除 400 BadRequest
 2. **修复 mock 流式 yield dict 导致 `[object Object]`** — `_mock_stream` 在 JSON 格式返回时 yield 了整个 dict，改为 yield `data["content"]` 字符流，使 SSE 渲染正常
