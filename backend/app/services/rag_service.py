@@ -95,3 +95,100 @@ class RagService:
         self.db.delete(tmpl)
         self.db.commit()
         return True
+
+    def search_all(self, query: str, contract_type: str = "", top_k: int = 5) -> list[dict]:
+        """统一的 RAG 搜索入口：向量检索 + keyword fallback + 知识库文件 fallback"""
+        results = self.vector_search(query, top_k)
+        if results:
+            return results
+
+        # ChromaDB fallback: keyword on LawArticle
+        category_filter = f"|{contract_type}" if contract_type else None
+        q = self.db.query(LawArticle).filter(LawArticle.content.ilike(f"%{query}%"))
+        if category_filter:
+            q = q.filter(LawArticle.category.ilike(f"%{category_filter}"))
+        articles = q.limit(top_k).all()
+        if articles:
+            return [
+                {
+                    "source": a.source,
+                    "content": a.content[:500],
+                    "score": 0.5,
+                    "metadata": {"category": a.category},
+                }
+                for a in articles
+            ]
+
+        # Final fallback: search knowledge_base files on disk
+        return self._kb_file_search(query, contract_type, top_k)
+
+    def _kb_file_search(self, query: str, contract_type: str, top_k: int) -> list[dict]:
+        """直接在 knowledge_base 磁盘文件中对 clauses[].content 做关键词匹配"""
+        import glob as g, json as j, os
+
+        kb_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "knowledge_base")
+        results = []
+
+        # 模板文件
+        tmpl_pattern = os.path.join(kb_dir, "templates", "*.json")
+        for fp in g.glob(tmpl_pattern):
+            try:
+                with open(fp, "r", encoding="utf-8") as f:
+                    data = j.load(f)
+            except (j.JSONDecodeError, IOError):
+                continue
+            ct = data.get("contract_type", "")
+            if contract_type and ct != contract_type:
+                continue
+            for clause in data.get("clauses", []):
+                content = clause.get("content", "")
+                if query.lower() in content.lower():
+                    results.append({
+                        "source": f"templates/{os.path.basename(fp)}",
+                        "content": content[:500],
+                        "score": 0.6,
+                        "metadata": {
+                            "clause_title": clause.get("title", ""),
+                            "contract_type": ct,
+                        },
+                    })
+                    if len(results) >= top_k:
+                        return results
+
+            for section in data.get("sections", []):
+                content = section.get("content_template", "")
+                if query.lower() in content.lower():
+                    results.append({
+                        "source": f"templates/{os.path.basename(fp)}",
+                        "content": f"【{section.get('title', '')}】\n{content[:500]}",
+                        "score": 0.5,
+                        "metadata": {
+                            "section_title": section.get("title", ""),
+                            "contract_type": ct,
+                        },
+                    })
+                    if len(results) >= top_k:
+                        return results
+
+        # 法律文档
+        doc_pattern = os.path.join(kb_dir, "legal_docs", "*.md")
+        for fp in g.glob(doc_pattern):
+            try:
+                with open(fp, "r", encoding="utf-8") as f:
+                    text = f.read()
+            except IOError:
+                continue
+            import re
+            blocks = re.split(r"\n(?=## )", text)
+            for block in blocks:
+                if query.lower() in block.lower():
+                    results.append({
+                        "source": f"legal_docs/{os.path.basename(fp)}",
+                        "content": block[:500],
+                        "score": 0.4,
+                        "metadata": {"type": "legal_doc"},
+                    })
+                    if len(results) >= top_k:
+                        return results
+
+        return results

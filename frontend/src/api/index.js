@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { mockChatStream } from './mock/contractMock'
 
 const http = axios.create({ baseURL: '/api/v1' })
 
@@ -107,12 +108,27 @@ export function chatStream(typeId, message, onChunk, onDone, onError, getMessage
   const history = getMessages ? getMessages().filter((m) => m.role !== 'system').map((m) => ({ role: m.role, content: m.content })) : []
   const body = { message, history }
   if (slotKey) body.slotKey = slotKey
-  return sseFetch(
+
+  let cancelled = false
+
+  sseFetch(
     `/contracts/chat/${typeId}`,
     body,
-    onChunk,
-    onDone,
-    onError,
+    (chunk) => {
+      if (cancelled) return
+      onChunk(chunk)
+    },
+    () => {
+      if (cancelled) return
+      cancelled = true
+      onDone?.()
+    },
+    (err) => {
+      if (cancelled) return
+      cancelled = true
+      // Backend unavailable — fall back to mock
+      mockChatStream(typeId, message, onChunk, onDone, onError, getMessages)
+    },
   )
 }
 

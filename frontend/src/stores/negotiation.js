@@ -12,6 +12,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   const modifiedText = ref('')
   const loading = ref(false)
   const version = ref('V1')
+  const lawContext = ref('')
 
   const selectedRisk = computed(() => {
     if (!selectedRiskId.value) return null

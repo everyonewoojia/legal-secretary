@@ -5,6 +5,7 @@ import re
 
 from backend.app.core.llm import llm_complete, llm_stream
 from agent.prompts import load_prompt
+from agent.rag_client import RagClient
 
 
 class DialogueAgent:
@@ -17,21 +18,33 @@ class DialogueAgent:
             return {"intent": "complete", "slots": slots, "reply": None}
 
         current_field = missing[0]
+        rag_context = session.get("rag_context", "")
+
+        # 如果当前会话没有 RAG 上下文，尝试通过 RagClient 补充
+        if not rag_context:
+            try:
+                rag = RagClient(db_session=session.get("db"))
+                docs = rag.search(f"{contract_type} {current_field} 法律", contract_type, top_k=2)
+                rag_context = "\n\n".join([d.get("content", "")[:300] for d in docs])
+            except Exception:
+                rag_context = ""
+
         system_prompt = load_prompt("dialogue_system")
 
         user_prompt = (
             f"当前合同类型：{contract_type}\n"
             f"已收集的合同要素：{json.dumps(slots, ensure_ascii=False)}\n"
             f"用户最新输入：{message}\n\n"
+            f"参考法律知识：\n{rag_context if rag_context else '（无）'}\n\n"
             f"请执行以下任务（输出 JSON）：\n"
             f"1. 从用户输入中提取与「{current_field}」相关的信息\n"
             f"2. 如果信息明确，将提取值填入该字段\n"
             f"3. 判断下一个需要询问的缺失字段\n"
-            f"4. 生成一个自然的追问问题\n\n"
+            f"4. 生成一个自然的追问问题，可结合参考法律知识给出提示\n\n"
             f"输出格式：{{\n"
             f'  "extracted": {{ "{current_field}": "提取的值或null" }},\n'
             f'  "next_field": "下一个字段名或null",\n'
-            f'  "question": "对用户的追问",\n'
+            f'  "question": "对用户的追问（含法律提示）",\n'
             f'  "is_complete": false\n'
             f"}}"
         )

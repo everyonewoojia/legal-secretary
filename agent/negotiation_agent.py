@@ -3,6 +3,7 @@
 import json
 
 from backend.app.core.llm import llm_complete
+from agent.rag_client import RagClient
 
 
 class NegotiationAgent:
@@ -19,12 +20,26 @@ class NegotiationAgent:
         company_position = context.get("position", "维护我方合法权益")
         bottom_line = context.get("bottom_line_rules", "")
 
+        # 查询法律知识库，为话术生成提供法律依据
+        rag_context = context.get("rag_context", "")
+        if not rag_context:
+            try:
+                rag = RagClient(db_session=context.get("db"))
+                docs = rag.search_risk_rules(contract_type)
+                if not docs:
+                    docs = rag.search(f"{contract_type} 谈判 风险 法律依据", contract_type, top_k=3)
+                rag_context = docs
+            except Exception:
+                rag_context = ""
+
         if not risk_items:
             return {"intent": "no_risk", "reply": None}
 
         replies = []
         for item in risk_items:
-            reply = await self._generate_single(item, contract_type, company_position, bottom_line)
+            reply = await self._generate_single(
+                item, contract_type, company_position, bottom_line, rag_context,
+            )
             replies.append(reply)
 
         return {"intent": "negotiation_replies", "replies": replies}
@@ -35,6 +50,7 @@ class NegotiationAgent:
         contract_type: str,
         position: str,
         bottom_line: str,
+        rag_context: str = "",
     ) -> dict:
         prompt = (
             f"合同类型：{contract_type}\n"
@@ -45,6 +61,7 @@ class NegotiationAgent:
             f"法律依据：{risk_item.get('legal_basis', '无')}\n"
             f"原条款：{risk_item.get('original', '无')}\n"
             f"对方修改为：{risk_item.get('modified', '无')}\n"
+            f"法律知识参考：\n{rag_context if rag_context else '（无）'}\n\n"
             f"我方底线策略：{bottom_line}\n\n"
             f"请严格按照以下JSON格式输出谈判话术（务必使用纯英文键名，不要包含其他文字）：\n"
             f"{{\n"
