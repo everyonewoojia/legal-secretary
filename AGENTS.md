@@ -15,7 +15,8 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复 |
-| `feat-wlf` (前端) | 调试完成 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术），全端点手动测试通过 |
+| `feat-wlf` (前端) | 已联调 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术/上下文槽位推断），全端点手动测试通过，前后端联调完成 |
+| `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -328,6 +329,15 @@ legal-secretary/
 6. **AI 开发规范** — 新增 `.opencode/constraints.md`，定义全栈联调契约、进度同步、垃圾文件防护规则
 7. **AGENTS.md 同步改版** — 项目概况、完整目录树、API 端点表、路由表、分支状态看板、多人工作日志
 
+## 已完成的工作 (2026-06-29 / 前后端联调完成 & Bug 修复)
+1. **前后端联调完成**：前端所有 API 调用（登录/合同起草对话/生成/谈判分析/管理后台）走真实后端 `/api/v1/*` 端点，SSE 流式对话+流式合同生成走通
+2. **修复裸值槽位推断 Bug**：`_mock_chat` 新增 `_infer_field_from_context`，当用户输入无前缀（如"456"→乙方）时回溯上一条 AI 消息匹配提问内容，自动推断字段
+3. **前端的 `detectSlot` 增加上下文感知**：新增 `SLOT_QUESTIONS` 映射，结合 `messages` 历史匹配最后一条 AI 提问自动推断槽位，显示 `"乙方：456"` 格式消息
+4. **`ACCESS_TOKEN_EXPIRE_MINUTES` 改为 7 天**：修复 token 过期后聊天可用但生成合同返回 401 的问题
+5. **前端 401 自动处理**：axios 拦截器 + `sseFetch` 检测 401 时清 token 并跳转 `/login`
+6. **清理死代码**：移除 `_all_slots_from_messages` 函数后的死代码（原 unreachable 280-310 行）
+7. **SSH 远程推送**：生成 SSH Key 并配置，解决网络 HTTPS 阻塞问题，成功推送至远程
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|
@@ -350,17 +360,10 @@ legal-secretary/
 ## 待办/后续可做
 - [ ] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
 - [ ] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
-- [ ] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
-- [ ] 实现真正的 DOCX/PDF 导出（当前 download 端点仅返回 JSON）
-- [ ] 实现 `utils/file_parser.py` 的 PDF 解析（当前抛 NotImplementedError）
-- [x] 补全基础测试（`tests/` 目录 — 模板结构、底线规则、索引清单、元数据、脚本基础结构验证已覆盖）
-- [ ] 补全后端 Service 层和 API 层测试（需等 backend 模块稳定后补充）
-- [ ] 补全前端组件测试（需等 frontend 模块稳定后补充）
-- [x] 构建 FAISS 向量索引（`knowledge_base/faiss_index.bin` 已构建）
+- [x] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
+- [x] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
+- [x] 谈判分析流程确认（多步流程 vs. 合并端点）
+- [x] 合同下载方案确认（文件流 vs. 文本下载）
 - [ ] 增强合同预览的 Markdown 渲染样式
 - [ ] 移动端适配
-- [ ] 前端从 Mock 切换为真实 HTTP 调用（见 `docs/integration_todo.md` 按模块推进）
-- [ ] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
-- [ ] 谈判分析流程确认（多步流程 vs. 合并端点）
-- [ ] 合同下载方案确认（文件流 vs. 文本下载）
 - [ ] api-contracts 目录定位说明更新
