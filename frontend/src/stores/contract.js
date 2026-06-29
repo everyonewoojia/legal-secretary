@@ -24,9 +24,21 @@ const SLOT_QUESTIONS = {
   '违约金比例': '违约金',
 }
 
+function extractSlotValue(text, slotKey) {
+  for (const prefix of [`${slotKey}：`, `${slotKey}:`, ...SLOT_KEYWORDS[slotKey]]) {
+    const idx = text.indexOf(prefix)
+    if (idx !== -1) {
+      return text.substring(idx + prefix.length).trim()
+    }
+  }
+  return null
+}
+
 function detectSlot(text, messages) {
-  if (SLOT_KEYS.some(k => text.startsWith(`${k}：`) || text.startsWith(`${k}:`))) {
-    return null
+  for (const k of SLOT_KEYS) {
+    if (text.startsWith(`${k}：`) || text.startsWith(`${k}:`)) {
+      return k
+    }
   }
   for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
     if (keywords.some(kw => text.includes(kw))) {
@@ -133,7 +145,8 @@ export const useContractStore = defineStore('contract', () => {
   function sendMessage(text) {
     return new Promise((resolve, reject) => {
       const slotKey = detectSlot(text, messages.value)
-      const enrichedText = slotKey ? `${slotKey}：${text}` : text
+      const hasPrefix = slotKey && (text.startsWith(`${slotKey}：`) || text.startsWith(`${slotKey}:`))
+      const enrichedText = hasPrefix ? text : slotKey ? `${slotKey}：${text}` : text
 
       const userMsg = { role: 'user', content: enrichedText }
       const aiMsg = { role: 'agent', content: '', loading: true }
@@ -141,16 +154,27 @@ export const useContractStore = defineStore('contract', () => {
 
       const lastAi = messages.value[messages.value.length - 1]
 
+      let slotUpdated = false
       chatStream(
         typeId.value,
         enrichedText,
         (chunk) => {
           if (typeof chunk === 'object' && chunk.content !== undefined) {
+            if (!slotUpdated && slotKey && chunk.content.trim()) {
+              const cleanVal = extractSlotValue(text, slotKey) || text
+              slots.value = { ...slots.value, [slotKey]: cleanVal }
+              slotUpdated = true
+            }
             lastAi.content += chunk.content
             if (chunk.slots) {
               slots.value = { ...slots.value, ...chunk.slots }
             }
           } else if (typeof chunk === 'string') {
+            if (!slotUpdated && slotKey && chunk.trim()) {
+              const cleanVal = extractSlotValue(text, slotKey) || text
+              slots.value = { ...slots.value, [slotKey]: cleanVal }
+              slotUpdated = true
+            }
             lastAi.content += chunk
           }
         },
@@ -170,6 +194,7 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   async function generateContract() {
+    if (generating.value) return { code: -1, message: '正在生成中' }
     currentDraft.value = ''
     generating.value = true
     try {

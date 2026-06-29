@@ -378,6 +378,7 @@ legal-secretary/
 7. **SSH 远程推送**：生成 SSH Key 并配置，解决网络 HTTPS 阻塞问题，成功推送至远程
 
 ## 已完成的工作 (feat-wlf) (2026-06-29 / 前端设计优化 & Bug 修复)
+### 第一轮
 1. **导航文本统一"谈判辅助"**：App.vue/Home.vue/ContractDraft.vue/Admin.vue 中所有"谈判分析"/"风险审查" → "谈判辅助"
 2. **创建共享 AppHeader 组件**：提取 ContractDraft/NegotiationAnalyze/Admin 三页面重复的白色子导航为 `src/components/AppHeader.vue`
 3. **Element Plus 图标替换**：Login.vue/Register.vue/Admin.vue/App.vue 中手写 SVG → `@element-plus/icons-vue`（Iphone/Lock/User/ArrowDown）
@@ -387,6 +388,18 @@ legal-secretary/
 7. **页面过渡动画**：App.vue 添加 `router-view` fade 切换动画
 8. **修复生成合同堆积 Bug**：`stores/contract.js:generateContract()` 开头添加 `currentDraft.value = ''`，防止重复点击追加旧内容
 9. **移除了 `src/api/mock/` 目录**：死 mock 文件（authMock/contractMock/negotiationMock）已无引用并删除
+
+### 第二轮 — 视觉统一设计 & 品牌一致性 + 后端确定性生成
+1. **新建 BrandPanel.vue 共享组件**：gradient 背景、痛点气泡、能力列表、吉祥物插图、slogan，Login & Register 双页面复用
+2. **Login.vue 双栏布局重写**：55% BrandPanel + 45% 表单卡片；卡片顶装饰条；标题 28px/700 + 副标题 15px/400；装饰线；breathe-glow 按钮动画；演示账号快速填充标签；登录成功跳转 `/`；响应式隐藏品牌面板
+3. **Register.vue 匹配 Login 设计**：双栏 BrandPanel 布局，5 字段（手机/用户名/密码/确认/验证码），60s 倒计时，注册成功跳转 `/login`
+4. **Home.vue 渐变背景 + 品牌卡片**：`#F0F5FF→#FFFFFF` 背景；28px/700 Hero 标题 + dot-line 装饰；440px 特征卡片（16px 圆角、36px padding、蓝色阴影）；hover -6px 上浮效果；图标 `#EFF6FF` 背景框；卡片底部渐变线；CSS 几何装饰（circle + square）；fade-in 动画；响应式堆叠
+5. **ContractDraft.vue 三栏动态 flex + 视觉升级**：移除 AppHeader（App.vue 全局导航）；三栏 flex 布局（sidebar/chat/preview 动态 flex 比例）；展开折叠按钮；AI 笑脸头像 + 用户头像；状态指示点；气泡消息（角色区分圆角）；打字动画点；快捷回复 chips；SVG 发送图标；40px 紧凑 header；52px 输入框；bubble 风格要素展示（`#EFF6FF` bg、`#BFDBFE` 边框、slide-in 动画）；要素计数进度；14px 统一预览字体；serif 合同文档样式；白色卡片 800px max-width + box-shadow；`preprocessContract()` 结构化 Markdown 渲染；操作按钮一致高度/宽度
+6. **修复快速回复前缀重复 Bug**：`sendMessage` 检测 `hasPrefix` 后不再重复添加 `${slotKey}：`，解决点击"甲方："后输入框内容变成"甲方：甲方：1"
+7. **修复合同预览及时显示**：`previewVisible` 改为 `generate()` 首行设置（不 await）；预览区空态区分"合同生成中..." + 动画加载点；`v-if` → `v-show` 避免首次挂载 flex 布局抢占
+8. **修复槽位更新时机**：`slotUpdated` 标记 + `extractSlotValue` 辅助函数；槽位在 AI 首个 chunk 到达时更新（非用户发送时），同步气泡与 AI 确认
+9. **后端 `chat_stream` 增加 `temperature` 参数**：`generate_contract_stream` 传入 `temperature=0.0` 确保合同生成确定性；对话 SSE 保留默认温度保自然感
+10. **后端的 CONTRACT_TEMPLATES 统一化**：共享 `_COMMON_PREAMBLE`，5 类合同按统一条款顺序（合同标的 → 价款 → 权利义务 → 违约责任 → 保密 → 争议解决），简化格式
 
 ## 路由表
 | 路径 | 页面 | 访问权限 |
