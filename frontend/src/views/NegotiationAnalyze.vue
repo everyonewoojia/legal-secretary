@@ -1,16 +1,10 @@
 <template>
   <div class="negotiate-page">
-    <el-header class="header" height="56px">
-      <div class="header-left">
-        <span class="brand">法务小秘</span>
-        <el-tag type="warning" size="small">谈判辅助</el-tag>
-      </div>
-      <div class="header-nav">
-        <el-button text @click="router.push('/')">首页</el-button>
-        <el-button text @click="router.push('/draft')">合同起草</el-button>
-        <el-button text @click="router.push('/admin')">后台管理</el-button>
-      </div>
-    </el-header>
+    <AppHeader tag="谈判辅助" tag-type="warning">
+      <el-button text @click="router.push('/')">首页</el-button>
+      <el-button text @click="router.push('/draft')">合同起草</el-button>
+      <el-button text @click="router.push('/admin')">后台管理</el-button>
+    </AppHeader>
 
     <el-alert
       v-if="errorMsg"
@@ -185,6 +179,7 @@ import { useRouter } from 'vue-router'
 import { useNegotiationStore } from '../stores/negotiation'
 import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
+import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
 const store = useNegotiationStore()
@@ -290,33 +285,6 @@ async function exportReport() {
   background: #f0f2f5;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
-  height: 56px;
-  flex-shrink: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.header-nav {
-  display: flex;
-  gap: 4px;
-}
 
 .main-body {
   flex: 1;

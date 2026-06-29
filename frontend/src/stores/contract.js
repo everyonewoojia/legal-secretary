@@ -170,6 +170,7 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   async function generateContract() {
+    currentDraft.value = ''
     generating.value = true
     try {
       const title = contractTypeMap[contractCode.value] || '合同'

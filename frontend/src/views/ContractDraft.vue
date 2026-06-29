@@ -1,16 +1,10 @@
 <template>
   <div class="draft-page">
-    <el-header class="header" height="56px">
-      <div class="header-left">
-        <span class="brand">法务小秘</span>
-        <el-tag type="success" size="small">合同起草</el-tag>
-      </div>
-      <div class="header-nav">
-        <el-button text @click="router.push('/')">首页</el-button>
-        <el-button text @click="router.push('/negotiate')">风险审查</el-button>
-        <el-button text @click="router.push('/admin')">后台管理</el-button>
-      </div>
-    </el-header>
+    <AppHeader tag="合同起草" tag-type="success">
+      <el-button text @click="router.push('/')">首页</el-button>
+      <el-button text @click="router.push('/negotiate')">谈判辅助</el-button>
+      <el-button text @click="router.push('/admin')">后台管理</el-button>
+    </AppHeader>
 
     <el-alert
       v-if="errorMsg"
@@ -110,7 +104,7 @@
           <h3 class="preview-title">《{{ store.getContractLabel(store.contractCode) }}》</h3>
         </div>
         <div class="preview-body">
-          <pre v-if="store.currentDraft" class="contract-text">{{ store.currentDraft }}</pre>
+          <div v-if="store.currentDraft" class="contract-text" v-html="renderedDraft" />
           <el-empty v-else description="点击下方按钮生成合同" />
         </div>
         <div class="preview-actions">
@@ -159,9 +153,16 @@ import { useRouter } from 'vue-router'
 import { useContractStore } from '../stores/contract'
 import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
+import { marked } from 'marked'
+import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
 const store = useContractStore()
+
+const renderedDraft = computed(() => {
+  if (!store.currentDraft) return ''
+  return marked(store.currentDraft)
+})
 
 const displayTypes = computed(() => {
   if (store.contractTypes.length) {
@@ -285,33 +286,6 @@ if (!store.messages.length) {
   background: #f0f2f5;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
-  height: 56px;
-  flex-shrink: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.header-nav {
-  display: flex;
-  gap: 4px;
-}
 
 .main-body {
   flex: 1;
@@ -559,11 +533,39 @@ if (!store.messages.length) {
 .contract-text {
   font-size: 13px;
   line-height: 1.8;
-  white-space: pre-wrap;
   word-break: break-word;
   font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
   color: #303133;
-  margin: 0;
+  padding: 16px;
+}
+
+.contract-text h1,
+.contract-text h2,
+.contract-text h3 {
+  margin: 16px 0 8px;
+  color: #1a1a2e;
+}
+
+.contract-text h1 { font-size: 16px; }
+.contract-text h2 { font-size: 15px; }
+.contract-text h3 { font-size: 14px; }
+
+.contract-text p { margin: 6px 0; }
+
+.contract-text ul,
+.contract-text ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.contract-text li { margin: 3px 0; }
+
+.contract-text strong { font-weight: 600; }
+
+.contract-text hr {
+  border: none;
+  border-top: 1px solid #e4e7ed;
+  margin: 12px 0;
 }
 
 .preview-actions {

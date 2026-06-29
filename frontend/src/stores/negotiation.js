@@ -59,7 +59,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
 
       if (!cid) {
         const content = '（原始合同文本，待对比分析）'
-        const createRes = await contractApi.create(1, '谈判分析合同', content)
+        const createRes = await contractApi.create(1, '谈判辅助合同', content)
         if (createRes.code !== 0) return createRes
         cid = createRes.data.id
         contractId.value = cid

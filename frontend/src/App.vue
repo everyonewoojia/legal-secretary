@@ -4,7 +4,7 @@
       <div class="nav-left">
         <router-link to="/" class="nav-brand">法务小秘</router-link>
         <router-link to="/draft" class="nav-item">合同起草</router-link>
-        <router-link to="/negotiate" class="nav-item">谈判分析</router-link>
+        <router-link to="/negotiate" class="nav-item">谈判辅助</router-link>
         <router-link v-if="store.isAdmin" to="/admin" class="nav-item">后台管理</router-link>
       </div>
       <div class="nav-right">
@@ -13,7 +13,7 @@
             <span v-if="store.userInfo?.avatar" class="user-avatar-img"><img :src="store.userInfo.avatar" /></span>
             <span v-else class="user-avatar">{{ store.userInfo?.username?.charAt(0) || '?' }}</span>
             {{ store.userInfo?.username || '用户' }}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+            <el-icon style="margin-left:2px"><ArrowDown /></el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -25,7 +25,11 @@
         </el-dropdown>
       </div>
     </nav>
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -33,6 +37,7 @@
 import { useRouter } from 'vue-router'
 import { useUserStore } from './stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArrowDown } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const store = useUserStore()
@@ -58,6 +63,16 @@ async function handleLogout() {
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
 
 <style scoped>

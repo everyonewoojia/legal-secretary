@@ -16,7 +16,7 @@
 
       <el-card shadow="hover" class="feature-card" @click="router.push('/negotiate')">
         <div class="card-icon">🔍</div>
-        <h3>谈判分析</h3>
+        <h3>谈判辅助</h3>
         <p>上传对方修改的合同，自动比对差异，识别风险条款并提供建议话术</p>
         <el-tag size="small">差异比对 · 风险识别 · 话术建议</el-tag>
       </el-card>

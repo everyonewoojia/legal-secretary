@@ -70,18 +70,21 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUserList(page = 1, pageSize = 20) {
     const res = await adminApi.getUsers(page, pageSize)
     if (res.code === 0) {
-      return res.data.items.map((u) => ({
-        id: u.id,
-        phone: u.phone,
-        username: u.nickname || u.phone,
-        nickname: u.nickname,
-        role: u.role,
-        status: u.is_active ? 'active' : 'disabled',
-        is_active: u.is_active,
-        created_at: u.created_at,
-      }))
+      return {
+        items: res.data.items.map((u) => ({
+          id: u.id,
+          phone: u.phone,
+          username: u.nickname || u.phone,
+          nickname: u.nickname,
+          role: u.role,
+          status: u.is_active ? 'active' : 'disabled',
+          is_active: u.is_active,
+          created_at: u.created_at,
+        })),
+        total: res.data.total || 0,
+      }
     }
-    return []
+    return { items: [], total: 0 }
   }
 
   async function toggleUserStatus(userId) {
