@@ -4,6 +4,7 @@ import json
 
 from backend.app.core.llm import llm_complete
 from agent.prompts import load_prompt
+from agent.rag_client import RagClient
 
 
 class ContractAgent:
@@ -15,6 +16,15 @@ class ContractAgent:
         template = self._load_template(contract_type)
         slot_summary = self._format_slots(slots)
         rag_context = session.get("rag_context", "")
+
+        # 如果没有 RAG 上下文，主动查询
+        if not rag_context:
+            try:
+                rag = RagClient(db_session=session.get("db"))
+                docs = rag.search(f"{type_name} 合同 法律 条款", contract_type, top_k=5)
+                rag_context = "\n\n".join([d.get("content", "")[:400] for d in docs])
+            except Exception:
+                rag_context = ""
 
         system_prompt = load_prompt("contract_generation")
 

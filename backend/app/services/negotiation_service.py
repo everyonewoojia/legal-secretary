@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.risk import RiskAssessment
 from app.schemas.negotiation import CounterArgumentResponse
 from app.services.dialogue_service import analyze_risks, generate_counter_argument
+from app.services.rag_service import RagService
 
 
 class NegotiationService:
@@ -36,7 +37,21 @@ class NegotiationService:
         return risk
 
     async def ai_analyze_risks(self, contract_id: int, original: str, modified: str) -> list[dict]:
-        results = await analyze_risks(original, modified)
+        # 获取合同类型，用于 RAG 搜索
+        from app.models.contract import Contract
+        contract = self.db.query(Contract).filter(Contract.id == contract_id).first()
+        rag = RagService(self.db)
+        law_context = ""
+        if contract:
+            from app.models.contract_type import ContractType
+            ct = self.db.query(ContractType).filter(ContractType.id == contract.type_id).first()
+            if ct:
+                docs = rag.search_all(f"{ct.name} 法律风险 违约责任 法律规定", "", top_k=5)
+                parts = [f"[{d.get('source', '知识库')}] {d.get('content', '')[:300]}" for d in docs if d.get('content')]
+                if parts:
+                    law_context = "\n\n".join(parts)
+
+        results = await analyze_risks(original, modified, law_context)
         saved = []
         for r in results:
             risk = self.save_risk(

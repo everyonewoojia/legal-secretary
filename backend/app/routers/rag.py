@@ -9,6 +9,8 @@ from app.schemas.rag import (
     LawArticleCreate,
     LawArticleResponse,
     LawArticleUpdate,
+    RagSearchRequest,
+    RagSearchResult,
     TemplateCreate,
     TemplateResponse,
     TemplateUpdate,
@@ -16,6 +18,25 @@ from app.schemas.rag import (
 from app.services.rag_service import RagService
 
 router = APIRouter()
+
+
+@router.post("/search", response_model=Response)
+def rag_search(req: RagSearchRequest, db: Session = Depends(get_db)):
+    svc = RagService(db)
+    results = svc.search_all(req.query, req.contract_type, req.top_k)
+    return Response(data={
+        "query": req.query,
+        "total": len(results),
+        "chunks": [
+            RagSearchResult(
+                source=r["source"],
+                content=r["content"],
+                score=r.get("score", 0),
+                metadata=r.get("metadata", {}),
+            )
+            for r in results
+        ],
+    })
 
 
 @router.post("/laws", response_model=Response)

@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from backend.app.core.llm import llm_complete
+from agent.rag_client import RagClient
 
 
 class AgentOrchestrator:
@@ -91,6 +92,23 @@ class AgentOrchestrator:
         if message:
             session["history"].append({"role": "user", "content": message})
 
+        # ── RAG 增强：注入法律知识上下文 ──
+        rag = RagClient(db_session=context.get("db"))
+        rag_queries = []
+        if contract_type:
+            rag_queries.append(contract_type)
+        if message and len(message) > 4:
+            rag_queries.append(message[:200])
+
+        rag_context_parts = []
+        for q in rag_queries:
+            results = rag.search(q, contract_type, top_k=3)
+            for r in results:
+                content = r.get("content", "")
+                if content and len(content) > 30:
+                    rag_context_parts.append(f"[{r.get('source', '知识库')}]\n{content[:500]}")
+        session["rag_context"] = "\n\n---\n\n".join(rag_context_parts[:5]) if rag_context_parts else ""
+
         intent = await self.classify_intent(message, session)
 
         if intent == "dialogue":
@@ -112,6 +130,29 @@ class AgentOrchestrator:
     async def process_risk_negotiation(self, context: dict) -> dict:
         from agent.risk_agent import RiskAgent
         from agent.negotiation_agent import NegotiationAgent
+
+        # ── RAG 增强：注入法律知识上下文 ──
+        rag = RagClient(db_session=context.get("db"))
+        contract_type = context.get("contract_type", "")
+        original = context.get("original_text", "")
+        modified = context.get("modified_text", "")
+        diff_text = context.get("diff_text", "")
+
+        rag_query = (
+            f"{' '.join(context.get('risk_keywords', []))} "
+            f"{contract_type} 法律风险 法律规定"
+        ) if context.get("risk_keywords") else f"{contract_type} 合同风险 违约责任 法律规定"
+
+        rag_docs = rag.search(rag_query, contract_type, top_k=5)
+        if not rag_docs:
+            rag_docs = rag.search(f"{contract_type} 法律", contract_type, top_k=3)
+
+        rag_context_parts = []
+        for r in rag_docs:
+            content = r.get("content", "")
+            if content and len(content) > 30:
+                rag_context_parts.append(f"[{r.get('source', '知识库')}]\n{content[:500]}")
+        context["rag_context"] = "\n\n---\n\n".join(rag_context_parts[:5]) if rag_context_parts else ""
 
         risk_result = await RiskAgent().run(context)
         risk_items = risk_result.get("risk_items", [])
