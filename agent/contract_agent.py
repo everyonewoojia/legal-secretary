@@ -88,11 +88,28 @@ class ContractAgent:
             lines.append(f"- {label}：{value}")
         return "\n".join(lines)
 
+    TEMPLATE_FILE_MAP = {
+        "tech_service": "technical_service_contract.json",
+        "procurement": "purchase_contract.json",
+        "employment": "labor_contract.json",
+        "cooperation": "cooperation_agreement.json",
+        "non_disclosure": "nda_contract.json",
+    }
+
     def _load_template(self, contract_type: str) -> list[dict]:
         import os, json as j
-        path = f"knowledge_base/templates/{contract_type}.json"
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                data = j.load(f)
-                return data.get("clauses", [])
-        return []
+        filename = self.TEMPLATE_FILE_MAP.get(contract_type)
+        if not filename:
+            raise FileNotFoundError(
+                f"未知合同类型 '{contract_type}'，"
+                f"支持的映射: {', '.join(self.TEMPLATE_FILE_MAP.keys())}"
+            )
+        path = os.path.join("knowledge_base", "templates", filename)
+        if not os.path.exists(path):
+            raise FileNotFoundError(
+                f"模板文件不存在: {path} "
+                f"(类型: {contract_type}, 预期文件名: {filename})"
+            )
+        with open(path, "r", encoding="utf-8") as f:
+            data = j.load(f)
+            return data.get("clauses", [])
