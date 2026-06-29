@@ -16,7 +16,7 @@
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
 | `feat-wlf` (前端) | 调试完成 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术），全端点手动测试通过 |
-| `feat-agent` | 开发中 | Agent 层实现与契约定义，后端 API 路由已接入 Agent 调用 |
+| `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
 
@@ -336,6 +336,12 @@ legal-secretary/
    - api-contracts 是 Agent 进程内调用契约，不是前端 HTTP API 契约
    - 合同起草前后端模型差异最大，需要前端 store 重写
 7. 所有修改未涉及 backend、frontend、agent 业务代码，未执行 git 操作
+
+## 已完成的工作 (2026-06-29 / feat-agent / Bug 修复: DashScope role 映射 + mock 流式 dict 修复 + SSE fallback)
+1. **修复 DashScope role 拒绝错误** — DashScope 不接受 `role: "agent"`，在 `DialogueService.chat()` 中映射 `agent` → `assistant` 后发送 LLM API，消除 400 BadRequest
+2. **修复 mock 流式 yield dict 导致 `[object Object]`** — `_mock_stream` 在 JSON 格式返回时 yield 了整个 dict，改为 yield `data["content"]` 字符流，使 SSE 渲染正常
+3. **添加 SSE 自动回退 mock** — `chatStream()` 在后端不可达时自动回退到 `mockChatStream`，避免无声失败
+4. **移除未定义变量** — `contract.js` store 移除 `ragContextStr` 引用（导致 `ReferenceError` + Vue 白屏崩溃）
 
 ## 已完成的工作 (feat-jzx / 后端集成 & 结构优化 · 2026-06-26)
 1. **后端 FastAPI 完整实现** — 37+ API 端点，覆盖 6 组路由（auth/users/contracts/negotiation/rag/admin），含 JWT 认证、请求校验、统一响应格式
