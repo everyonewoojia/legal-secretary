@@ -255,24 +255,30 @@ async function onSelectRisk(id) {
 }
 
 async function exportReport() {
-  if (!store.caseId) return
-  try {
-    const res = await contractApi.download(store.caseId)
-    if (res.code === 0 && res.data?.content) {
-      const blob = new Blob([res.data.content], { type: 'text/plain;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `谈判分析报告_${store.caseId}.txt`
-      a.click()
-      URL.revokeObjectURL(url)
-      ElMessage.success('报告已下载')
-    } else {
-      ElMessage.warning('导出失败')
-    }
-  } catch {
-    ElMessage.error('导出请求失败')
+  const items = store.diffList
+  if (!items.length) {
+    ElMessage.warning('没有可导出的分析结果')
+    return
   }
+  const lines = ['谈判分析报告', '==============', '']
+  items.forEach((item, i) => {
+    lines.push(`--- 风险项 ${i + 1} ---`)
+    if (item.clause_title) lines.push(`条款: ${item.clause_title}`)
+    lines.push(`风险等级: ${item.risk_level}`)
+    if (item.risk_desc) lines.push(`描述: ${item.risk_desc}`)
+    if (item.legal_basis) lines.push(`法律依据: ${item.legal_basis}`)
+    if (item.advice) lines.push(`建议话术: ${item.advice}`)
+    lines.push('')
+  })
+  const content = lines.join('\n')
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `谈判分析报告_${Date.now()}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
+  ElMessage.success('报告已下载')
 }
 </script>
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -59,6 +60,11 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+import os
+static_dir = os.path.join(settings.UPLOAD_DIR, "avatars")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
 
 
 @app.get("/")

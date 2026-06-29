@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, UploadFile
+import os
+from fastapi import APIRouter, Depends, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import hash_password, verify_password
@@ -10,6 +12,8 @@ from app.schemas.user import ChangePasswordRequest, UpdateProfileRequest, UserIn
 from app.services.user_service import UserService
 
 router = APIRouter()
+
+AVATAR_DIR = os.path.join(settings.UPLOAD_DIR, "avatars")
 
 
 @router.get("/me", response_model=Response)
@@ -35,7 +39,12 @@ async def upload_avatar(
     db: Session = Depends(get_db),
 ):
     content = await file.read()
-    avatar_url = f"/static/avatars/{current_user.id}.jpg"
+    os.makedirs(AVATAR_DIR, exist_ok=True)
+    ext = os.path.splitext(file.filename or ".jpg")[1] or ".jpg"
+    avatar_path = os.path.join(AVATAR_DIR, f"{current_user.id}{ext}")
+    with open(avatar_path, "wb") as f:
+        f.write(content)
+    avatar_url = f"/static/avatars/{current_user.id}{ext}"
     current_user.avatar = avatar_url
     db.commit()
     return Response(data={"avatar": avatar_url})

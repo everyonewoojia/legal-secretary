@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { mockChatStream } from './mock/contractMock'
 
 const http = axios.create({ baseURL: '/api/v1' })
 
@@ -126,8 +125,7 @@ export function chatStream(typeId, message, onChunk, onDone, onError, getMessage
     (err) => {
       if (cancelled) return
       cancelled = true
-      // Backend unavailable — fall back to mock
-      mockChatStream(typeId, message, onChunk, onDone, onError, getMessages)
+      onError?.(err)
     },
   )
 }

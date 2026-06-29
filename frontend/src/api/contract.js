@@ -30,8 +30,8 @@ export async function fetchContractTypes() {
   try {
     const res = await http.get('/contract/type')
     if (res?.code === 0) return res.data || []
-  } catch {
-    // fallback
+  } catch (e) {
+    console.warn('fetchContractTypes failed, using fallback:', e)
   }
   return [
     { id: 1, name: '技术服务合同', code: 'tech_service' },
@@ -51,8 +51,8 @@ export async function searchLawContext(query, contractType = '') {
     if (targetData?.chunks && Array.isArray(targetData.chunks)) {
       return targetData.chunks.map(c => `【依据文件：${c.source}】\n${c.content}`).join('\n\n')
     }
-  } catch (error) {
-    console.error("RAG 对齐解析失败:", error)
+  } catch (e) {
+    console.warn('searchLawContext failed:', e)
   }
   return '' // 失败时 fallback 变为空字符串
 }

@@ -10,7 +10,8 @@
       <div class="nav-right">
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="nav-user">
-            <span class="user-avatar">{{ store.userInfo?.username?.charAt(0) || '?' }}</span>
+            <span v-if="store.userInfo?.avatar" class="user-avatar-img"><img :src="store.userInfo.avatar" /></span>
+            <span v-else class="user-avatar">{{ store.userInfo?.username?.charAt(0) || '?' }}</span>
             {{ store.userInfo?.username || '用户' }}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
@@ -130,6 +131,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   justify-content: center;
   font-size: 12px;
   font-weight: 600;
+}
+
+.user-avatar-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .nav-right :deep(.el-button--text) {

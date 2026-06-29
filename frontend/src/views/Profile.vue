@@ -38,7 +38,8 @@
 
         <div class="avatar-section">
           <div class="avatar-circle">
-            <span>{{ store.userInfo?.username?.charAt(0) || '?' }}</span>
+            <img v-if="store.userInfo?.avatar" :src="store.userInfo.avatar" class="avatar-img" />
+            <span v-else>{{ store.userInfo?.username?.charAt(0) || '?' }}</span>
           </div>
           <div>
             <el-button size="small" @click="simulateAvatarChange">更换头像</el-button>
@@ -125,6 +126,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { userApi } from '../api/auth'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
@@ -152,7 +154,25 @@ onMounted(() => {
 })
 
 function simulateAvatarChange() {
-  ElMessage.info('头像更换功能（模拟）已触发')
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/png,image/jpeg,image/gif'
+  input.onchange = async () => {
+    const file = input.files?.[0]
+    if (!file) return
+    try {
+      const res = await userApi.uploadAvatar(file)
+      if (res.code === 0) {
+        await store.updateProfile({ avatar: res.data?.avatar || '' })
+        ElMessage.success('头像已更新')
+      } else {
+        ElMessage.warning('头像上传失败')
+      }
+    } catch (e) {
+      ElMessage.error('头像上传失败：' + (e.message || ''))
+    }
+  }
+  input.click()
 }
 
 async function saveProfile() {
@@ -309,14 +329,21 @@ async function handleLogout() {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #409eff;
-  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #fff;
   font-size: 28px;
   font-weight: 600;
+  overflow: hidden;
   flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .avatar-hint {

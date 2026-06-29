@@ -28,12 +28,12 @@
           <h3 class="sidebar-title">合同类型选择</h3>
           <div class="type-buttons">
             <button
-              v-for="t in contractTypes"
-              :key="t.value"
-              :class="['type-btn', { active: store.contractCode === t.value }]"
-              @click="onTypeChange(t.value)"
+              v-for="t in displayTypes"
+              :key="t.code"
+              :class="['type-btn', { active: store.contractCode === t.code }]"
+              @click="onTypeChange(t.code)"
             >
-              {{ t.label }}
+              {{ t.name }}
             </button>
           </div>
         </div>
@@ -163,13 +163,18 @@ import { ElMessage } from 'element-plus'
 const router = useRouter()
 const store = useContractStore()
 
-const contractTypes = [
-  { value: 'tech_service', label: '技术服务合同' },
-  { value: 'procurement', label: '采购合同' },
-  { value: 'employment', label: '劳动合同' },
-  { value: 'cooperation', label: '合作协议' },
-  { value: 'non_disclosure', label: '保密协议' },
-]
+const displayTypes = computed(() => {
+  if (store.contractTypes.length) {
+    return store.contractTypes.map(t => ({ code: t.code, name: t.name }))
+  }
+  return [
+    { code: 'tech_service', name: '技术服务合同' },
+    { code: 'procurement', name: '采购合同' },
+    { code: 'employment', name: '劳动合同' },
+    { code: 'cooperation', name: '合作协议' },
+    { code: 'non_disclosure', name: '保密协议' },
+  ]
+})
 
 const inputMsg = ref('')
 const sending = ref(false)

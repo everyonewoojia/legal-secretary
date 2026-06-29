@@ -147,7 +147,7 @@ function sendCode() {
     return
   }
   codeCountdown.value = 60
-  ElMessage.success('验证码已发送（模拟）')
+  ElMessage.info('模拟验证码：123456')
   timer = setInterval(() => {
     codeCountdown.value--
     if (codeCountdown.value <= 0) {
@@ -168,8 +168,8 @@ async function handleRegister() {
       username: form.username || undefined,
     })
     if (res.code === 0) {
-      ElMessage.success('注册成功，请登录')
-      router.push('/login')
+      ElMessage.success('注册成功')
+      router.push('/')
     } else {
       errorMsg.value = res.message
     }

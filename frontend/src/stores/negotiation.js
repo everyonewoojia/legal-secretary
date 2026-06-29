@@ -35,7 +35,9 @@ export const useNegotiationStore = defineStore('negotiation', () => {
           item.advice = parts.join('\n\n')
         }
       }
-    } catch {}
+    } catch (e) {
+      console.warn('loadCounterArgument failed:', e)
+    }
   }
 
   function mapRiskItem(item) {
