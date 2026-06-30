@@ -83,10 +83,11 @@ function detectSlot(text, messages) {
     }
   }
   if (messages && messages.length) {
+    const sortedQuestions = Object.entries(SLOT_QUESTIONS).sort((a, b) => b[1].length - a[1].length)
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i]
       if ((m.role === 'agent' || m.role === 'assistant') && !m.loading) {
-        for (const [slot, qText] of Object.entries(SLOT_QUESTIONS)) {
+        for (const [slot, qText] of sortedQuestions) {
           if (m.content.includes(qText)) {
             return slot
           }
