@@ -15,16 +15,17 @@ def _get_client() -> AsyncOpenAI | None:
     return _client
 
 
-async def chat_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
+async def chat_stream(messages: list[dict], temperature: float | None = None) -> AsyncGenerator[str, None]:
     client = _get_client()
     if client is None:
         from app.services.ai_mock_data import mock_stream
         async for chunk in mock_stream(messages):
             yield chunk
         return
-    response = await client.chat.completions.create(
-        model=settings.LLM_MODEL_NAME, messages=messages, stream=True,
-    )
+    kwargs = dict(model=settings.LLM_MODEL_NAME, messages=messages, stream=True)
+    if temperature is not None:
+        kwargs["temperature"] = temperature
+    response = await client.chat.completions.create(**kwargs)
     async for chunk in response:
         delta = chunk.choices[0].delta if chunk.choices else None
         if delta and delta.content:

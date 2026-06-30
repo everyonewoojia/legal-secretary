@@ -36,9 +36,7 @@ SYSTEM_PROMPT_TEMPLATE = """你是法务小秘的 AI 合同助手，专门负责
 输出格式参考：
 - 提问时：正常对话文本，如"好的，已记录甲方信息。请问乙方（受托方）的公司全称是什么？"
 - 用户已回答但仍有字段缺失时：先确认已收集的信息，再自然追问下一个缺失字段
-- 所有字段收集完成时，输出：
-【收集完成】
-{{"fields": {{"字段名": "值", ...}}, "contract_type": "{contract_type}"}}"""
+- 所有字段收集完成时：用自然的语言告诉用户"所有合同信息已收集完成，您可以点击生成合同按钮来生成合同全文"。不要输出 JSON 格式。"""
 
 GENERATION_REQUIREMENTS = {
     1: """## 合同类型：技术服务合同
@@ -233,20 +231,17 @@ class DialogueService:
             yield chunk
 
     async def extract_fields(self, messages: list[dict]) -> dict | None:
-        system_prompt = self.build_system_prompt()
-        full_messages = [
-            {"role": "system", "content": system_prompt + "\n\n现在请检查所有字段是否都已收集。如果都已收集，输出【收集完成】+ JSON；否则继续提问。"},
-            *messages,
-        ]
-        reply = await chat_once(full_messages)
-        if "【收集完成】" in reply:
-            try:
-                json_str = reply.split("【收集完成】")[-1].strip()
-                data = json.loads(json_str)
-                return data.get("fields", {})
-            except (json.JSONDecodeError, AttributeError):
-                pass
-        return None
+        prompt = f"""你正在引导用户起草【{self.type_name}】。请根据以下对话历史，提取用户已提供的所有合同字段信息，以 JSON 格式输出。
+
+对话历史：
+{json.dumps([{"role": m["role"], "content": m["content"][:200]} for m in messages[-6:]], ensure_ascii=False, indent=2)}
+
+只输出 JSON，格式如：{{"字段名": "值", ...}}。如果还没有任何字段，输出 {{}}。"""
+        reply = await chat_once([{"role": "system", "content": prompt}])
+        try:
+            return json.loads(reply)
+        except (json.JSONDecodeError, TypeError):
+            return None
 
     async def generate_plan(self, collected_fields: dict) -> str:
         return await chat_once([

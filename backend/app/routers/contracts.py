@@ -37,6 +37,7 @@ async def chat_stream(
     type_id: int,
     req: ChatRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     svc = ContractService(db)
     messages = req.history + [{"role": "user", "content": req.message}]
@@ -93,13 +94,16 @@ async def generate_contract_stream(
 
     async def generate():
         full_text = ""
-        async for chunk in svc.ai_generate_contract_stream(type_id, req.collected_fields):
-            full_text += chunk
-            yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
-        contract = svc.create_contract(
-            owner_id=current_user.id, type_id=type_id, content=full_text, title=req.title or "",
-        )
-        yield f"data: {json.dumps({'done': True, 'contract_id': contract.id}, ensure_ascii=False)}\n\n"
+        try:
+            async for chunk in svc.ai_generate_contract_stream(type_id, req.collected_fields):
+                full_text += chunk
+                yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
+            contract = svc.create_contract(
+                owner_id=current_user.id, type_id=type_id, content=full_text, title=req.title or "",
+            )
+            yield f"data: {json.dumps({'done': True, 'contract_id': contract.id}, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)[:200]}, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
 
