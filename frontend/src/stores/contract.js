@@ -216,11 +216,8 @@ export const useContractStore = defineStore('contract', () => {
     return new Promise((resolve, reject) => {
       const currentCode = contractCode.value
       const slotKey = detectSlot(text, messages.value)
-      const hasPrefix = slotKey && (text.startsWith(`${slotKey}：`) || text.startsWith(`${slotKey}:`))
-      const hasKeyword = slotKey && SLOT_KEYWORDS[slotKey]?.some(kw => text.includes(kw))
-      const enrichedText = hasPrefix || hasKeyword ? text : slotKey ? `${slotKey}：${text}` : text
 
-      const userMsg = { role: 'user', content: enrichedText }
+      const userMsg = { role: 'user', content: text }
       const aiMsg = { role: 'agent', content: '', loading: true }
       messages.value.push(userMsg, aiMsg)
 
@@ -229,7 +226,7 @@ export const useContractStore = defineStore('contract', () => {
       let slotUpdated = false
       chatStream(
         typeId.value,
-        enrichedText,
+        text,
         (chunk) => {
           if (typeof chunk === 'object' && chunk.content !== undefined) {
             if (!slotUpdated && slotKey && chunk.content.trim()) {
