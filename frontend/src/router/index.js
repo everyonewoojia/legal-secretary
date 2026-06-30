@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage } from 'element-plus'
+import Home from '../views/Home.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: () => import('../views/Home.vue'), meta: { requiresAuth: true } },
+  { path: '/', name: 'Home', component: Home, meta: { requiresAuth: true } },
   { path: '/login', name: 'Login', component: () => import('../views/Login.vue'), meta: { guest: true } },
   { path: '/register', name: 'Register', component: () => import('../views/Register.vue'), meta: { guest: true } },
   { path: '/draft', name: 'ContractDraft', component: () => import('../views/ContractDraft.vue'), meta: { requiresAuth: true } },
