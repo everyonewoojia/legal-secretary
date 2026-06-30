@@ -55,7 +55,9 @@ const SLOT_QUESTIONS = {
 }
 
 function extractSlotValue(text, slotKey) {
-  for (const prefix of [`${slotKey}：`, `${slotKey}:`, ...SLOT_KEYWORDS[slotKey]]) {
+  const prefixes = [`${slotKey}：`, `${slotKey}:`, ...SLOT_KEYWORDS[slotKey]]
+  prefixes.sort((a, b) => b.length - a.length)
+  for (const prefix of prefixes) {
     const idx = text.indexOf(prefix)
     if (idx !== -1) {
       return text.substring(idx + prefix.length).trim()
