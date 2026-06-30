@@ -146,7 +146,7 @@ class DialogueService:
 
     async def generate_contract_stream(self, collected_fields: dict, law_context: str = "") -> AsyncGenerator[str, None]:
         prompt = self.build_generation_prompt(collected_fields, law_context)
-        async for chunk in chat_stream([{"role": "system", "content": prompt}]):
+        async for chunk in chat_stream([{"role": "system", "content": prompt}], temperature=0.0):
             yield chunk
 
 

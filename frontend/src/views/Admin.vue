@@ -1,14 +1,9 @@
 <template>
   <div class="admin-page">
-    <el-header class="header" height="56px">
-      <div class="header-left">
-        <span class="brand">法务小秘 · 后台管理</span>
-      </div>
-      <div class="header-nav">
-        <el-button text @click="router.push('/')">首页</el-button>
-        <el-button text @click="router.push('/draft')">合同起草</el-button>
-      </div>
-    </el-header>
+    <AppHeader tag="后台管理" tag-type="danger">
+      <el-button text @click="router.push('/')">首页</el-button>
+      <el-button text @click="router.push('/draft')">合同起草</el-button>
+    </AppHeader>
 
     <div class="admin-body">
       <div class="toolbar">
@@ -20,7 +15,7 @@
         <el-table-column label="头像" width="60">
           <template #default>
             <div class="avatar-placeholder">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <el-icon :size="20" color="#fff"><User /></el-icon>
             </div>
           </template>
         </el-table-column>
@@ -61,6 +56,18 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="pagination-wrap">
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @current-change="loadUsers"
+          @size-change="loadUsers"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -70,17 +77,24 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { User } from '@element-plus/icons-vue'
+import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
 const store = useUserStore()
 const userList = ref([])
 const loading = ref(false)
 const currentUserId = ref(store.userInfo?.id)
+const page = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 
 async function loadUsers() {
   loading.value = true
   try {
-    userList.value = await store.fetchUserList()
+    const result = await store.fetchUserList(page.value, pageSize.value)
+    userList.value = result.items
+    total.value = result.total
   } catch {
     ElMessage.error('加载用户列表失败')
   } finally {
@@ -94,6 +108,10 @@ async function toggleStatus(row) {
       `确定${row.status === 'active' ? '禁用' : '启用'}用户「${row.username}」？`,
       '操作确认',
     )
+  } catch {
+    return
+  }
+  try {
     const res = await store.toggleUserStatus(row.id)
     if (res.code === 0) {
       ElMessage.success('操作成功')
@@ -101,8 +119,8 @@ async function toggleStatus(row) {
     } else {
       ElMessage.warning(res.message)
     }
-  } catch {
-    /* cancelled */
+  } catch (e) {
+    ElMessage.error(e?.message || '操作失败')
   }
 }
 
@@ -114,6 +132,10 @@ async function changeRole(row) {
       `确定将用户「${row.username}」的角色改为「${label}」？`,
       '操作确认',
     )
+  } catch {
+    return
+  }
+  try {
     const res = await store.changeUserRole(row.id, newRole)
     if (res.code === 0) {
       ElMessage.success('角色已更新')
@@ -121,8 +143,8 @@ async function changeRole(row) {
     } else {
       ElMessage.warning(res.message)
     }
-  } catch {
-    /* cancelled */
+  } catch (e) {
+    ElMessage.error(e?.message || '操作失败')
   }
 }
 
@@ -131,38 +153,12 @@ onMounted(loadUsers)
 
 <style scoped>
 .admin-page {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #f0f2f5;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
-  flex-shrink: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.header-nav {
-  display: flex;
-  gap: 4px;
-}
 
 .admin-body {
   flex: 1;
@@ -192,5 +188,11 @@ onMounted(loadUsers)
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

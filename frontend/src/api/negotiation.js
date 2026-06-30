@@ -22,16 +22,3 @@ export const negotiationApi = {
       negotiation_style: style,
     }),
 }
-
-export async function fetchRiskContext(query) {
-  try {
-    const res = await http.post('/rag/search', { query, top_k: 3 })
-    const target = res?.chunks ? res : res?.data;
-    if (target?.chunks && Array.isArray(target.chunks)) {
-      return target.chunks.map(c => `[${c.source}] ${c.content}`).join('\n\n')
-    }
-  } catch {
-    // fallback
-  }
-  return ''
-}
