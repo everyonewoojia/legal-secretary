@@ -9,7 +9,7 @@ const SLOT_KEYWORDS = {
   '合同金额': ['金额', '总价', '合同额', '报价', '总金额'],
   '交付物': ['交付物', '交付内容', '开发内容', '服务内容', '交付'],
   '付款方式': ['付款', '支付', '一次性', '分期', '分阶段', '分次'],
-  '交付期限': ['期限', '时间', '天', '工作日', '周', '月', '交付时间'],
+  '交付期限': ['期限', '时间', '工作日', '交付时间', '交付期限'],
   '违约金比例': ['违约金', '违约', '比例', '%', '百分之'],
   '用人单位': ['用人单位', '雇主', '公司全称', '单位名称'],
   '法定代表人': ['法定代表人', '法人代表'],
@@ -78,7 +78,7 @@ function detectSlot(text, messages) {
     return maxB - maxA
   })
   for (const [slot, keywords] of sorted) {
-    if (keywords.some(kw => text.includes(kw))) {
+    if (keywords.some(kw => kw.length >= 2 && text.includes(kw))) {
       return slot
     }
   }
