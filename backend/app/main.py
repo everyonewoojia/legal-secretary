@@ -22,14 +22,14 @@ def seed_data():
                     phone="13800000000",
                     nickname="管理员",
                     role="admin",
-                    hashed_password=hash_password("admin123"),
+                    hashed_password=hash_password("admin1234"),
                     is_verified=True,
                 ),
                 User(
                     phone="13800000001",
                     nickname="普通用户",
                     role="user",
-                    hashed_password=hash_password("user123"),
+                    hashed_password=hash_password("user1234"),
                     is_verified=True,
                 ),
             ])

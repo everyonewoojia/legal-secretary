@@ -165,6 +165,7 @@
           >
             导出报告
           </el-button>
+          <el-button @click="restartAnalysis">重新分析</el-button>
         </div>
 
         <div class="disclaimer">
@@ -254,24 +255,33 @@ async function onSelectRisk(id) {
   if (id) store.loadCounterArgument(id)
 }
 
+function restartAnalysis() {
+  store.resetAnalysis()
+}
+
 async function exportReport() {
-  if (!store.caseId) return
+  if (!store.diffList.length) return
   try {
-    const res = await contractApi.download(store.caseId)
-    if (res.code === 0 && res.data?.content) {
-      const blob = new Blob([res.data.content], { type: 'text/plain;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `谈判分析报告_${store.caseId}.txt`
-      a.click()
-      URL.revokeObjectURL(url)
-      ElMessage.success('报告已下载')
-    } else {
-      ElMessage.warning('导出失败')
-    }
+    const lines = ['# 法务小秘 — 谈判风险分析报告', '', `分析编号: ${store.caseId || 'N/A'}`, `版本: ${store.version}`, '']
+    store.diffList.forEach((item) => {
+      lines.push(`## ${item.clause_title}`)
+      lines.push(`风险等级: ${riskLabel(item.risk_level)}`)
+      lines.push(`风险描述: ${item.risk_desc}`)
+      if (item.legal_basis) lines.push(`法律依据: ${item.legal_basis}`)
+      if (item.acceptable_bottom_line) lines.push(`可接受底线: ${item.acceptable_bottom_line}`)
+      if (item.advice) lines.push(`建议话术: ${item.advice}`)
+      lines.push('---', '')
+    })
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `risk_report_${store.caseId || Date.now()}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success('报告已导出')
   } catch {
-    ElMessage.error('导出请求失败')
+    ElMessage.error('导出报告失败')
   }
 }
 </script>

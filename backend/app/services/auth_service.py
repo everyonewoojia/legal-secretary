@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
-from app.schemas.user import ChangePasswordRequest, RegisterRequest
+from app.schemas.user import RegisterRequest
 
 
 class AuthService:
@@ -33,5 +33,8 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="账户已被停用")
         return create_access_token({"sub": user.id})
 
-    def change_password(self, req: ChangePasswordRequest) -> None:
-        pass
+    def change_password(self, user: User, old_password: str, new_password: str) -> None:
+        if not verify_password(old_password, user.hashed_password):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="原密码错误")
+        user.hashed_password = hash_password(new_password)
+        self.db.commit()

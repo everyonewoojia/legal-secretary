@@ -41,7 +41,7 @@ def toggle_user_active(
     if current_user.role != "admin":
         return Response(code=403, message="无权限")
     svc = AdminService(db)
-    user = svc.toggle_user_active(user_id)
+    user = svc.toggle_user_active(user_id, admin_id=current_user.id)
     if not user:
         return Response(code=404, message="用户不存在")
     return Response(data={"is_active": user.is_active})
@@ -57,7 +57,7 @@ def change_user_role(
     if current_user.role != "admin":
         return Response(code=403, message="无权限")
     svc = AdminService(db)
-    user = svc.change_user_role(user_id, role)
+    user = svc.change_user_role(user_id, role, admin_id=current_user.id)
     if not user:
         return Response(code=404, message="用户不存在")
     return Response(data={"role": user.role})
@@ -88,7 +88,7 @@ def update_api_key(
     if current_user.role != "admin":
         return Response(code=403, message="无权限")
     svc = AdminService(db)
-    key = svc.update_api_key(key_id, api_key, base_url, model_name, is_active)
+    key = svc.update_api_key(key_id, admin_id=current_user.id, api_key=api_key, base_url=base_url, model_name=model_name, is_active=is_active)
     if not key:
         return Response(code=404, message="API Key 不存在")
     return Response(data=ApiKeyResponse.model_validate(key))

@@ -51,8 +51,8 @@
         <span class="link" @click="router.push('/register')">没有账号？立即注册</span>
       </div>
       <div class="demo-hint">
-        <p>演示账号：13800000000 / admin123（管理员）</p>
-        <p>演示账号：13800000001 / user123（普通用户）</p>
+        <p>演示账号：13800000000 / admin1234（管理员）</p>
+        <p>演示账号：13800000001 / user1234（普通用户）</p>
       </div>
     </div>
   </div>

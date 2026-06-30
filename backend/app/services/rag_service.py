@@ -15,7 +15,7 @@ class RagService:
     def search_law(self, query: str, category: str | None = None, page: int = 1, page_size: int = 20):
         q = self.db.query(LawArticle)
         if query:
-            q = q.filter(LawArticle.content.ilike(f"%{query}%"))
+            q = q.filter(LawArticle.content.contains(query))
         if category:
             q = q.filter(LawArticle.category == category)
         total = q.count()
@@ -103,10 +103,9 @@ class RagService:
             return results
 
         # ChromaDB fallback: keyword on LawArticle
-        category_filter = f"|{contract_type}" if contract_type else None
-        q = self.db.query(LawArticle).filter(LawArticle.content.ilike(f"%{query}%"))
-        if category_filter:
-            q = q.filter(LawArticle.category.ilike(f"%{category_filter}"))
+        q = self.db.query(LawArticle).filter(LawArticle.content.contains(query))
+        if contract_type:
+            q = q.filter(LawArticle.category.contains(f"|{contract_type}"))
         articles = q.limit(top_k).all()
         if articles:
             return [

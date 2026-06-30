@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 
+from app.models.contract import Contract
+from app.models.contract_type import ContractType
 from app.models.risk import RiskAssessment
 from app.schemas.negotiation import CounterArgumentResponse
 from app.services.dialogue_service import analyze_risks, generate_counter_argument
@@ -37,13 +39,14 @@ class NegotiationService:
         return risk
 
     async def ai_analyze_risks(self, contract_id: int, original: str, modified: str) -> list[dict]:
-        # 获取合同类型，用于 RAG 搜索
-        from app.models.contract import Contract
+        # 清除该合同的历史风险数据，避免重复分析时结果叠加
+        self.db.query(RiskAssessment).filter(RiskAssessment.contract_id == contract_id).delete()
+        self.db.commit()
+
         contract = self.db.query(Contract).filter(Contract.id == contract_id).first()
         rag = RagService(self.db)
         law_context = ""
         if contract:
-            from app.models.contract_type import ContractType
             ct = self.db.query(ContractType).filter(ContractType.id == contract.type_id).first()
             if ct:
                 docs = rag.search_all(f"{ct.name} 法律风险 违约责任 法律规定", "", top_k=5)
@@ -91,6 +94,6 @@ class NegotiationService:
         }
         result = await generate_counter_argument(risk_info, style)
         return CounterArgumentResponse(
-            plan_a=result.get("plan_a", "【强硬方案】建议坚持原条款，必要时咨询专业律师。"),
-            plan_b=result.get("plan_b", "【折中方案】建议在双方可接受的范围内进行适当调整。"),
+            plan_a=result.get("plan_a", "建议坚持原条款，必要时咨询专业律师。"),
+            plan_b=result.get("plan_b", "建议在双方可接受的范围内进行适当调整。"),
         )

@@ -53,15 +53,12 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   async function submitAnalysis() {
     loading.value = true
     try {
-      let cid = contractId.value
-
-      if (!cid) {
-        const content = '（原始合同文本，待对比分析）'
-        const createRes = await contractApi.create(1, '谈判分析合同', content)
-        if (createRes.code !== 0) return createRes
-        cid = createRes.data.id
-        contractId.value = cid
-      }
+      contractId.value = null
+      const content = '（原始合同文本，待对比分析）'
+      const createRes = await contractApi.create(1, '谈判分析合同', content)
+      if (createRes.code !== 0) return createRes
+      const cid = createRes.data.id
+      contractId.value = cid
 
       if (fileList.value.length > 0) {
         for (const f of fileList.value) {
@@ -81,6 +78,8 @@ export const useNegotiationStore = defineStore('negotiation', () => {
       const risksRes = await negotiationApi.getRisks(cid)
       if (risksRes.code === 0) {
         const items = (risksRes.data || []).map(mapRiskItem)
+        const riskOrder = { high: 0, medium: 1, low: 2 }
+        items.sort((a, b) => (riskOrder[a.risk_level] ?? 2) - (riskOrder[b.risk_level] ?? 2))
         diffList.value = items
         version.value = 'V2'
         if (items.length > 0) {
