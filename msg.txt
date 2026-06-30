@@ -1,7 +1,0 @@
-feat: 优化 AI 提示词 + 新增合同大纲生成
-
-- System Prompt 更灵活，支持用户跳着回答
-- 5类合同各有专门的生成要求字段
-- 新增 POST /contracts/plan/{type_id} 大纲生成接口
-- DialogueService 新增 generate_plan 方法
-- ContractService 新增 ai_generate_plan
