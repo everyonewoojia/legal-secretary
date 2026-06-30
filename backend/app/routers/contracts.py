@@ -70,6 +70,18 @@ async def generate_contract(
     return Response(data=ContractResponse.model_validate(contract))
 
 
+@router.post("/plan/{type_id}", response_model=Response)
+async def generate_contract_plan(
+    type_id: int,
+    req: GenerateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    svc = ContractService(db)
+    plan = await svc.ai_generate_plan(type_id, req.collected_fields)
+    return Response(data={"plan": plan, "type_id": type_id})
+
+
 @router.post("/generate-stream/{type_id}")
 async def generate_contract_stream(
     type_id: int,
