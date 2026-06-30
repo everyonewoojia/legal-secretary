@@ -12,7 +12,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   const modifiedText = ref('')
   const loading = ref(false)
   const version = ref('V1')
-  const lawContext = ref('')
+  const loadingAdvice = ref(false)
 
   const selectedRisk = computed(() => {
     if (!selectedRiskId.value) return null
@@ -24,10 +24,13 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   }
 
   async function loadCounterArgument(riskId) {
+    if (loadingAdvice.value) return
+    const item = diffList.value.find((i) => i.id === riskId)
+    if (!item || item.advice) return
+    loadingAdvice.value = true
     try {
       const res = await negotiationApi.counterArgument(riskId)
       if (res.code === 0 && res.data) {
-        const item = diffList.value.find((i) => i.id === riskId)
         if (item) {
           const parts = []
           if (res.data.plan_a) parts.push('【强硬方案】' + res.data.plan_a)
@@ -37,6 +40,8 @@ export const useNegotiationStore = defineStore('negotiation', () => {
       }
     } catch (e) {
       console.warn('loadCounterArgument failed:', e)
+    } finally {
+      loadingAdvice.value = false
     }
   }
 
@@ -54,6 +59,8 @@ export const useNegotiationStore = defineStore('negotiation', () => {
 
   async function submitAnalysis() {
     loading.value = true
+    diffList.value = []
+    selectedRiskId.value = null
     try {
       let cid = contractId.value
 

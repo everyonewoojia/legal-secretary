@@ -76,13 +76,14 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage } from 'element-plus'
 import { Iphone, Lock } from '@element-plus/icons-vue'
 import BrandPanel from '../components/BrandPanel.vue'
 
 const router = useRouter()
+const route = useRoute()
 const store = useUserStore()
 
 const form = reactive({ phone: '', password: '' })
@@ -119,7 +120,7 @@ async function handleLogin() {
     const res = await store.login(form.phone, form.password)
     if (res.code === 0) {
       ElMessage.success('登录成功')
-      router.push('/')
+      router.push(route.query.redirect || '/')
     } else {
       errorMsg.value = res.message
     }

@@ -40,7 +40,12 @@ function detectSlot(text, messages) {
       return k
     }
   }
-  for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+  const sorted = Object.entries(SLOT_KEYWORDS).sort((a, b) => {
+    const maxA = Math.max(...a[1].map(kw => kw.length))
+    const maxB = Math.max(...b[1].map(kw => kw.length))
+    return maxB - maxA
+  })
+  for (const [slot, keywords] of sorted) {
     if (keywords.some(kw => text.includes(kw))) {
       return slot
     }
@@ -59,6 +64,30 @@ function detectSlot(text, messages) {
     }
   }
   return null
+}
+
+function saveContractState(code, messages, slots, draftId, currentDraft) {
+  try {
+    const data = {
+      messages: messages.map((m) => ({ ...m, loading: false })),
+      slots: { ...slots },
+      draftId,
+      currentDraft,
+    }
+    localStorage.setItem('contract_' + code, JSON.stringify(data))
+  } catch (e) {
+    console.warn('saveContractState failed:', e)
+  }
+}
+
+function loadContractState(code) {
+  try {
+    const raw = localStorage.getItem('contract_' + code)
+    return raw ? JSON.parse(raw) : null
+  } catch (e) {
+    console.warn('loadContractState failed:', e)
+    return null
+  }
 }
 
 export const useContractStore = defineStore('contract', () => {
@@ -135,18 +164,28 @@ export const useContractStore = defineStore('contract', () => {
       draftId.value = saved.draftId
       currentDraft.value = saved.currentDraft
     } else {
-      messages.value = [{ role: 'agent', content: '您好！我是法务小秘的合同助手。请告诉我合同的基本信息，例如甲方/乙方的名称，以及您希望起草的合同涉及的主要内容。' }]
-      slots.value = {}
-      draftId.value = null
-      currentDraft.value = ''
+      const persisted = loadContractState(code)
+      if (persisted) {
+        messages.value = persisted.messages
+        slots.value = persisted.slots
+        draftId.value = persisted.draftId
+        currentDraft.value = persisted.currentDraft
+      } else {
+        messages.value = [{ role: 'agent', content: '您好！我是法务小秘的合同助手。请告诉我合同的基本信息，例如甲方/乙方的名称，以及您希望起草的合同涉及的主要内容。' }]
+        slots.value = {}
+        draftId.value = null
+        currentDraft.value = ''
+      }
     }
   }
 
   function sendMessage(text) {
     return new Promise((resolve, reject) => {
+      const currentCode = contractCode.value
       const slotKey = detectSlot(text, messages.value)
       const hasPrefix = slotKey && (text.startsWith(`${slotKey}：`) || text.startsWith(`${slotKey}:`))
-      const enrichedText = hasPrefix ? text : slotKey ? `${slotKey}：${text}` : text
+      const hasKeyword = slotKey && SLOT_KEYWORDS[slotKey]?.some(kw => text.includes(kw))
+      const enrichedText = hasPrefix || hasKeyword ? text : slotKey ? `${slotKey}：${text}` : text
 
       const userMsg = { role: 'user', content: enrichedText }
       const aiMsg = { role: 'agent', content: '', loading: true }
@@ -180,6 +219,7 @@ export const useContractStore = defineStore('contract', () => {
         },
         () => {
           lastAi.loading = false
+          saveContractState(currentCode, messages.value, slots.value, draftId.value, currentDraft.value)
           resolve()
         },
         (err) => {
@@ -210,6 +250,7 @@ export const useContractStore = defineStore('contract', () => {
           (id) => {
             draftId.value = id
             messages.value.push({ role: 'agent', content: '✅ 合同已生成，请在右侧预览。' })
+            saveContractState(contractCode.value, messages.value, slots.value, draftId.value, currentDraft.value)
             generating.value = false
             resolve({ code: 0, data: { draft_id: id, contract_text: currentDraft.value } })
           },
@@ -226,6 +267,7 @@ export const useContractStore = defineStore('contract', () => {
 
   function updateSlots(newSlots) {
     slots.value = { ...slots.value, ...newSlots }
+    saveContractState(contractCode.value, messages.value, slots.value, draftId.value, currentDraft.value)
   }
 
   function clearSession() {
@@ -236,6 +278,11 @@ export const useContractStore = defineStore('contract', () => {
     draftId.value = null
     currentDraft.value = ''
     sessions.value = {}
+    try { localStorage.removeItem('contract_tech_service') } catch {}
+    try { localStorage.removeItem('contract_procurement') } catch {}
+    try { localStorage.removeItem('contract_employment') } catch {}
+    try { localStorage.removeItem('contract_cooperation') } catch {}
+    try { localStorage.removeItem('contract_non_disclosure') } catch {}
   }
 
   return {

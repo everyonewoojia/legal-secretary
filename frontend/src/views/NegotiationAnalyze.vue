@@ -279,7 +279,7 @@ async function exportReport() {
 
 <style scoped>
 .negotiate-page {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #f0f2f5;

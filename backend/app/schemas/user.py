@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
 class RegisterRequest(BaseModel):
     phone: str = Field(..., pattern=r"^1\d{10}$")
-    password: str = Field(..., min_length=8, max_length=16)
+    password: str = Field(..., min_length=6, max_length=16)
     nickname: str = Field("", max_length=16)
     company_name: str = Field("", max_length=32)
 
@@ -27,6 +29,7 @@ class UserInfo(BaseModel):
     company_name: str
     role: str
     is_active: bool
+    created_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -41,7 +44,7 @@ class UpdateProfileRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     old_password: str
-    new_password: str = Field(..., min_length=8, max_length=16)
+    new_password: str = Field(..., min_length=6, max_length=16)
 
 
 class SmsCodeRequest(BaseModel):

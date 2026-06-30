@@ -108,6 +108,10 @@ async function toggleStatus(row) {
       `确定${row.status === 'active' ? '禁用' : '启用'}用户「${row.username}」？`,
       '操作确认',
     )
+  } catch {
+    return
+  }
+  try {
     const res = await store.toggleUserStatus(row.id)
     if (res.code === 0) {
       ElMessage.success('操作成功')
@@ -115,8 +119,8 @@ async function toggleStatus(row) {
     } else {
       ElMessage.warning(res.message)
     }
-  } catch {
-    /* cancelled */
+  } catch (e) {
+    ElMessage.error(e?.message || '操作失败')
   }
 }
 
@@ -128,6 +132,10 @@ async function changeRole(row) {
       `确定将用户「${row.username}」的角色改为「${label}」？`,
       '操作确认',
     )
+  } catch {
+    return
+  }
+  try {
     const res = await store.changeUserRole(row.id, newRole)
     if (res.code === 0) {
       ElMessage.success('角色已更新')
@@ -135,8 +143,8 @@ async function changeRole(row) {
     } else {
       ElMessage.warning(res.message)
     }
-  } catch {
-    /* cancelled */
+  } catch (e) {
+    ElMessage.error(e?.message || '操作失败')
   }
 }
 
@@ -145,7 +153,7 @@ onMounted(loadUsers)
 
 <style scoped>
 .admin-page {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #f0f2f5;

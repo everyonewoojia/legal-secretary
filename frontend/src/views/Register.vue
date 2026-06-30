@@ -25,11 +25,11 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item :error="errors.username">
+            <el-form-item :error="errors.nickname">
               <el-input
-                v-model="form.username"
-                placeholder="用户名（选填）"
-                @input="errors.username = ''"
+                v-model="form.nickname"
+                placeholder="昵称（选填）"
+                @input="errors.nickname = ''"
               >
                 <template #prefix>
                   <el-icon><User /></el-icon>
@@ -113,7 +113,7 @@ const store = useUserStore()
 
 const form = reactive({
   phone: '',
-  username: '',
+  nickname: '',
   password: '',
   confirmPassword: '',
   code: '',
@@ -121,7 +121,7 @@ const form = reactive({
 
 const errors = reactive({
   phone: '',
-  username: '',
+  nickname: '',
   password: '',
   confirmPassword: '',
   code: '',
@@ -158,6 +158,7 @@ function sendCode() {
     errors.phone = '请先输入正确的手机号'
     return
   }
+  if (timer) { clearInterval(timer); timer = null }
   codeCountdown.value = 60
   ElMessage.info('模拟验证码：123456')
   timer = setInterval(() => {
@@ -177,7 +178,7 @@ async function handleRegister() {
     const res = await store.register({
       phone: form.phone,
       password: form.password,
-      username: form.username || undefined,
+      nickname: form.nickname || undefined,
     })
     if (res.code === 0) {
       ElMessage.success('注册成功')

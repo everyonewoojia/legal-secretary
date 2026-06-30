@@ -15,9 +15,11 @@ Base.metadata.create_all(bind=engine)
 
 
 def seed_data():
+    from datetime import datetime, timezone
     db: Session = SessionLocal()
     try:
         if not db.query(User).first():
+            demo_date = datetime(2026, 6, 30, tzinfo=timezone.utc)
             db.add_all([
                 User(
                     phone="13800000000",
@@ -25,6 +27,7 @@ def seed_data():
                     role="admin",
                     hashed_password=hash_password("admin123"),
                     is_verified=True,
+                    created_at=demo_date,
                 ),
                 User(
                     phone="13800000001",
@@ -32,6 +35,7 @@ def seed_data():
                     role="user",
                     hashed_password=hash_password("user123"),
                     is_verified=True,
+                    created_at=demo_date,
                 ),
             ])
         if not db.query(ContractType).first():

@@ -29,7 +29,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.role && !userStore.checkPermission(to.meta.role)) {
     ElMessage.warning('无权限访问该页面')
-    next({ path: '/' })
+    next(false)
     return
   }
 

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi, userApi, adminApi } from '../api/auth'
+import { useContractStore } from './contract'
+import { useNegotiationStore } from './negotiation'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
@@ -59,6 +61,8 @@ export const useUserStore = defineStore('user', () => {
     token.value = ''
     userInfo.value = null
     persist()
+    useContractStore().clearSession()
+    useNegotiationStore().resetAnalysis()
   }
 
   function checkPermission(requiredRole) {
@@ -110,7 +114,11 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function changePassword(currentPassword, newPassword) {
-    return await userApi.changePassword(currentPassword, newPassword)
+    try {
+      return await userApi.changePassword(currentPassword, newPassword)
+    } catch (e) {
+      return { code: 1, message: e.message || '修改密码失败' }
+    }
   }
 
   return {

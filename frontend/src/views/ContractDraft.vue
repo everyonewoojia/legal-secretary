@@ -422,7 +422,7 @@ if (!store.messages.length) {
 
 <style scoped>
 .draft-page {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #F8FAFC;
