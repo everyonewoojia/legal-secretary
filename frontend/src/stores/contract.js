@@ -5,7 +5,7 @@ import { chatStream, generateStream } from '../api'
 
 const SLOT_KEYWORDS = {
   '甲方': ['甲方', '委托方', '买方', '采购方'],
-  '乙方': ['乙方', '受托方', '服务方', '卖方', '销售方'],
+  '乙方': ['乙方', '受托方', '服务方', '卖方', '销售方', '姓名', '名字'],
   '合同金额': ['金额', '总价', '合同额', '报价', '总金额'],
   '交付物': ['交付物', '交付内容', '开发内容', '服务内容', '交付'],
   '付款方式': ['付款', '支付', '一次性', '分期', '分阶段', '分次'],
@@ -28,76 +28,6 @@ const SLOT_KEYWORDS = {
   '劳动仲裁': ['劳动仲裁', '仲裁委员会'],
 }
 
-const SLOT_KEYS = Object.keys(SLOT_KEYWORDS)
-const SLOT_QUESTIONS = {
-  '甲方': '请问甲方',
-  '乙方': '请问乙方',
-  '合同金额': '合同总金额',
-  '交付物': '交付物',
-  '付款方式': '付款方式',
-  '交付期限': '期限',
-  '违约金比例': '违约金',
-  '用人单位': '用人单位',
-  '法定代表人': '法定代表人',
-  '劳动者': '劳动者',
-  '身份证号': '身份证',
-  '联系电话': '联系电话',
-  '合同期限': '合同期限',
-  '试用期': '试用期',
-  '岗位': '岗位',
-  '工作地点': '工作地点',
-  '工时制度': '工时制度',
-  '基本工资': '基本工资',
-  '发薪日': '发薪日',
-  '社保': '社保',
-  '竞业限制': '竞业限制',
-  '劳动仲裁': '劳动仲裁',
-}
-
-function extractSlotValue(text, slotKey) {
-  const prefixes = [`${slotKey}：`, `${slotKey}:`, ...SLOT_KEYWORDS[slotKey]]
-  prefixes.sort((a, b) => b.length - a.length)
-  for (const prefix of prefixes) {
-    const idx = text.indexOf(prefix)
-    if (idx !== -1) {
-      return text.substring(idx + prefix.length).trim()
-    }
-  }
-  return null
-}
-
-function detectSlot(text, messages) {
-  for (const k of SLOT_KEYS) {
-    if (text.startsWith(`${k}：`) || text.startsWith(`${k}:`)) {
-      return k
-    }
-  }
-  const sorted = Object.entries(SLOT_KEYWORDS).sort((a, b) => {
-    const maxA = Math.max(...a[1].map(kw => kw.length))
-    const maxB = Math.max(...b[1].map(kw => kw.length))
-    return maxB - maxA
-  })
-  for (const [slot, keywords] of sorted) {
-    if (keywords.some(kw => kw.length >= 2 && text.includes(kw))) {
-      return slot
-    }
-  }
-  if (messages && messages.length) {
-    const sortedQuestions = Object.entries(SLOT_QUESTIONS).sort((a, b) => b[1].length - a[1].length)
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i]
-      if ((m.role === 'agent' || m.role === 'assistant') && !m.loading) {
-        for (const [slot, qText] of sortedQuestions) {
-          if (m.content.includes(qText)) {
-            return slot
-          }
-        }
-        break
-      }
-    }
-  }
-  return null
-}
 
 function saveContractState(code, messages, slots, draftId, currentDraft) {
   try {
@@ -215,7 +145,6 @@ export const useContractStore = defineStore('contract', () => {
   function sendMessage(text) {
     return new Promise((resolve, reject) => {
       const currentCode = contractCode.value
-      const slotKey = detectSlot(text, messages.value)
 
       const userMsg = { role: 'user', content: text }
       const aiMsg = { role: 'agent', content: '', loading: true }
@@ -224,14 +153,41 @@ export const useContractStore = defineStore('contract', () => {
       const lastAi = messages.value[messages.value.length - 1]
 
       let slotUpdated = false
+      function extractAllSlots(userText) {
+        const matches = []
+        for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+          for (const kw of keywords) {
+            if (kw.length < 2) continue
+            let idx = userText.indexOf(kw)
+            while (idx !== -1) {
+              matches.push({ slot, start: idx, end: idx + kw.length, len: kw.length })
+              idx = userText.indexOf(kw, idx + 1)
+            }
+          }
+        }
+        if (!matches.length) return
+        matches.sort((a, b) => a.start - b.start || b.len - a.len)
+        const kept = []
+        for (const m of matches) {
+          const overlap = kept.some(k => m.start < k.end && m.end > k.start)
+          if (!overlap) kept.push(m)
+        }
+        kept.sort((a, b) => a.start - b.start)
+        for (let i = 0; i < kept.length; i++) {
+          const m = kept[i]
+          const nextStart = i + 1 < kept.length ? kept[i + 1].start : userText.length
+          let val = userText.substring(m.end, nextStart).trim()
+          val = val.replace(/^[是：:，,]+/, '').replace(/[，,、和及]+$/, '').trim()
+          if (val) slots.value = { ...slots.value, [m.slot]: val }
+        }
+      }
       chatStream(
         typeId.value,
         text,
         (chunk) => {
           if (typeof chunk === 'object' && chunk.content !== undefined) {
-            if (!slotUpdated && slotKey && chunk.content.trim()) {
-              const cleanVal = extractSlotValue(text, slotKey) || text
-              slots.value = { ...slots.value, [slotKey]: cleanVal }
+            if (!slotUpdated && chunk.content.trim()) {
+              extractAllSlots(text)
               slotUpdated = true
             }
             lastAi.content += chunk.content
@@ -239,9 +195,8 @@ export const useContractStore = defineStore('contract', () => {
               slots.value = { ...slots.value, ...chunk.slots }
             }
           } else if (typeof chunk === 'string') {
-            if (!slotUpdated && slotKey && chunk.trim()) {
-              const cleanVal = extractSlotValue(text, slotKey) || text
-              slots.value = { ...slots.value, [slotKey]: cleanVal }
+            if (!slotUpdated && chunk.trim()) {
+              extractAllSlots(text)
               slotUpdated = true
             }
             lastAi.content += chunk
@@ -258,7 +213,6 @@ export const useContractStore = defineStore('contract', () => {
           reject(new Error(err))
         },
         () => messages.value,
-        slotKey,
       )
     })
   }
@@ -331,6 +285,5 @@ export const useContractStore = defineStore('contract', () => {
     updateSlots,
     clearSession,
     fetchTypes,
-    detectSlot,
   }
 })
