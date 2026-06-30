@@ -1,16 +1,10 @@
 <template>
   <div class="negotiate-page">
-    <el-header class="header" height="56px">
-      <div class="header-left">
-        <span class="brand">法务小秘</span>
-        <el-tag type="warning" size="small">谈判辅助</el-tag>
-      </div>
-      <div class="header-nav">
-        <el-button text @click="router.push('/')">首页</el-button>
-        <el-button text @click="router.push('/draft')">合同起草</el-button>
-        <el-button text @click="router.push('/admin')">后台管理</el-button>
-      </div>
-    </el-header>
+    <AppHeader tag="谈判辅助" tag-type="warning">
+      <el-button text @click="router.push('/')">首页</el-button>
+      <el-button text @click="router.push('/draft')">合同起草</el-button>
+      <el-button text @click="router.push('/admin')">后台管理</el-button>
+    </AppHeader>
 
     <el-alert
       v-if="errorMsg"
@@ -185,6 +179,7 @@ import { useRouter } from 'vue-router'
 import { useNegotiationStore } from '../stores/negotiation'
 import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
+import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
 const store = useNegotiationStore()
@@ -255,62 +250,41 @@ async function onSelectRisk(id) {
 }
 
 async function exportReport() {
-  if (!store.caseId) return
-  try {
-    const res = await contractApi.download(store.caseId)
-    if (res.code === 0 && res.data?.content) {
-      const blob = new Blob([res.data.content], { type: 'text/plain;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `谈判分析报告_${store.caseId}.txt`
-      a.click()
-      URL.revokeObjectURL(url)
-      ElMessage.success('报告已下载')
-    } else {
-      ElMessage.warning('导出失败')
-    }
-  } catch {
-    ElMessage.error('导出请求失败')
+  const items = store.diffList
+  if (!items.length) {
+    ElMessage.warning('没有可导出的分析结果')
+    return
   }
+  const lines = ['谈判分析报告', '==============', '']
+  items.forEach((item, i) => {
+    lines.push(`--- 风险项 ${i + 1} ---`)
+    if (item.clause_title) lines.push(`条款: ${item.clause_title}`)
+    lines.push(`风险等级: ${item.risk_level}`)
+    if (item.risk_desc) lines.push(`描述: ${item.risk_desc}`)
+    if (item.legal_basis) lines.push(`法律依据: ${item.legal_basis}`)
+    if (item.advice) lines.push(`建议话术: ${item.advice}`)
+    lines.push('')
+  })
+  const content = lines.join('\n')
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `谈判分析报告_${Date.now()}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
+  ElMessage.success('报告已下载')
 }
 </script>
 
 <style scoped>
 .negotiate-page {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #f0f2f5;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
-  height: 56px;
-  flex-shrink: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.header-nav {
-  display: flex;
-  gap: 4px;
-}
 
 .main-body {
   flex: 1;

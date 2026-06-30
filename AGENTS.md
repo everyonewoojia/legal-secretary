@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
-| `feat-wlf` (前端) | 调试完成 | 前端 8 页面 + Pinia store + 路由守卫 + 真实后端对接；增强后端 mock（字段驱动对话/合同模板 slots 填充/风险分析/话术），全端点手动测试通过 |
+| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计（BrandPanel/双栏布局/品牌卡片）；全流程 Bug 修复（SSE AbortController/401/超时/持久化/竞态/布局溢出/死代码清理）；注册/Profile/登录/Admin 全面加固 |
 | `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -25,20 +25,17 @@
 legal-secretary/
 ├── frontend/                     # Vue 3 前端项目
 │   ├── src/
-│   │   ├── api/                  # axios 实例 + 模块化 API 封装 + 模拟接口
+│   │   ├── api/                  # axios 实例 + 模块化 API 封装
 │   │   │   ├── index.js          # axios 实例 + SSE 流式聊天 (chatStream)，默认导出 http
 │   │   │   ├── contract.js       # 合同 API：createSession / generateContract / exportDraft / analyze
-│   │   │   ├── negotiation.js    # 谈判 API：analyzeNegotiation / exportReport
-│   │   │   └── mock/
-│   │   │       └── authMock.js   # 登录/注册/用户管理的模拟接口
-│   │   ├── components/           # 公共组件
+│   │   │   └── negotiation.js    # 谈判 API：analyzeNegotiation / exportReport
+│   │   ├── components/           # 公共组件（AppHeader.vue）
 │   │   ├── views/
 │   │   │   ├── Home.vue          # 首页（功能入口卡片）
 │   │   │   ├── Login.vue         # 登录页面（手机号+密码）
 │   │   │   ├── Register.vue      # 注册页面（手机号+验证码）
 │   │   │   ├── ContractDraft.vue # 合同起草（三栏布局：类型选择 + SSE 对话 + 预览）
-│   │   │   ├── NegotiationAnalyze.vue # 谈判分析（两栏：差异列表 + 风险详情）
-│   │   │   ├── Negotiate.vue     # 旧版谈判分析（已废弃）
+│   │   │   ├── NegotiationAnalyze.vue # 谈判辅助（两栏：差异列表 + 风险详情）
 │   │   │   ├── Profile.vue       # 个人中心（信息编辑/修改密码）
 │   │   │   └── Admin.vue         # 后台管理（用户列表/禁用/改角色）
 │   │   ├── stores/
@@ -371,6 +368,58 @@ legal-secretary/
 6. **AI 开发规范** — 新增 `.opencode/constraints.md`，定义全栈联调契约、进度同步、垃圾文件防护规则
 7. **AGENTS.md 同步改版** — 项目概况、完整目录树、API 端点表、路由表、分支状态看板、多人工作日志
 
+## 已完成的工作 (feat-wlf) (2026-06-29 / 前后端联调完成 & Bug 修复)
+1. **前后端联调完成**：前端所有 API 调用（登录/合同起草对话/生成/谈判分析/管理后台）走真实后端 `/api/v1/*` 端点，SSE 流式对话+流式合同生成走通
+2. **修复裸值槽位推断 Bug**：`_mock_chat` 新增 `_infer_field_from_context`，当用户输入无前缀（如"456"→乙方）时回溯上一条 AI 消息匹配提问内容，自动推断字段
+3. **前端的 `detectSlot` 增加上下文感知**：新增 `SLOT_QUESTIONS` 映射，结合 `messages` 历史匹配最后一条 AI 提问自动推断槽位，显示 `"乙方：456"` 格式消息
+4. **`ACCESS_TOKEN_EXPIRE_MINUTES` 改为 7 天**：修复 token 过期后聊天可用但生成合同返回 401 的问题
+5. **前端 401 自动处理**：axios 拦截器 + `sseFetch` 检测 401 时清 token 并跳转 `/login`
+6. **清理死代码**：移除 `_all_slots_from_messages` 函数后的死代码（原 unreachable 280-310 行）
+7. **SSH 远程推送**：生成 SSH Key 并配置，解决网络 HTTPS 阻塞问题，成功推送至远程
+
+## 已完成的工作 (feat-wlf) (2026-06-29 / 前端设计优化 & Bug 修复)
+### 第一轮
+1. **导航文本统一"谈判辅助"**：App.vue/Home.vue/ContractDraft.vue/Admin.vue 中所有"谈判分析"/"风险审查" → "谈判辅助"
+2. **创建共享 AppHeader 组件**：提取 ContractDraft/NegotiationAnalyze/Admin 三页面重复的白色子导航为 `src/components/AppHeader.vue`
+3. **Element Plus 图标替换**：Login.vue/Register.vue/Admin.vue/App.vue 中手写 SVG → `@element-plus/icons-vue`（Iphone/Lock/User/ArrowDown）
+4. **Markdown 合同预览**：ContractDraft.vue 引入 `marked` 库，`<pre>` 纯文本 → `v-html` 渲染带样式的 Markdown
+5. **Admin 用户列表分页**：添加 `el-pagination`，store 返回分页数据（items + total）
+6. **删除废弃 Negotiate.vue**：249 行旧版代码，已被 NegotiationAnalyze.vue 替代
+7. **页面过渡动画**：App.vue 添加 `router-view` fade 切换动画
+8. **修复生成合同堆积 Bug**：`stores/contract.js:generateContract()` 开头添加 `currentDraft.value = ''`，防止重复点击追加旧内容
+9. **移除了 `src/api/mock/` 目录**：死 mock 文件（authMock/contractMock/negotiationMock）已无引用并删除
+
+### 第二轮 — 视觉统一设计 & 品牌一致性 + 后端确定性生成
+1. **新建 BrandPanel.vue 共享组件**：gradient 背景、痛点气泡、能力列表、吉祥物插图、slogan，Login & Register 双页面复用
+2. **Login.vue 双栏布局重写**：55% BrandPanel + 45% 表单卡片；卡片顶装饰条；标题 28px/700 + 副标题 15px/400；装饰线；breathe-glow 按钮动画；演示账号快速填充标签；登录成功跳转 `/`；响应式隐藏品牌面板
+3. **Register.vue 匹配 Login 设计**：双栏 BrandPanel 布局，5 字段（手机/用户名/密码/确认/验证码），60s 倒计时，注册成功跳转 `/login`
+4. **Home.vue 渐变背景 + 品牌卡片**：`#F0F5FF→#FFFFFF` 背景；28px/700 Hero 标题 + dot-line 装饰；440px 特征卡片（16px 圆角、36px padding、蓝色阴影）；hover -6px 上浮效果；图标 `#EFF6FF` 背景框；卡片底部渐变线；CSS 几何装饰（circle + square）；fade-in 动画；响应式堆叠
+5. **ContractDraft.vue 三栏动态 flex + 视觉升级**：移除 AppHeader（App.vue 全局导航）；三栏 flex 布局（sidebar/chat/preview 动态 flex 比例）；展开折叠按钮；AI 笑脸头像 + 用户头像；状态指示点；气泡消息（角色区分圆角）；打字动画点；快捷回复 chips；SVG 发送图标；40px 紧凑 header；52px 输入框；bubble 风格要素展示（`#EFF6FF` bg、`#BFDBFE` 边框、slide-in 动画）；要素计数进度；14px 统一预览字体；serif 合同文档样式；白色卡片 800px max-width + box-shadow；`preprocessContract()` 结构化 Markdown 渲染；操作按钮一致高度/宽度
+6. **修复快速回复前缀重复 Bug**：`sendMessage` 检测 `hasPrefix` 后不再重复添加 `${slotKey}：`，解决点击"甲方："后输入框内容变成"甲方：甲方：1"
+7. **修复合同预览及时显示**：`previewVisible` 改为 `generate()` 首行设置（不 await）；预览区空态区分"合同生成中..." + 动画加载点；`v-if` → `v-show` 避免首次挂载 flex 布局抢占
+8. **修复槽位更新时机**：`slotUpdated` 标记 + `extractSlotValue` 辅助函数；槽位在 AI 首个 chunk 到达时更新（非用户发送时），同步气泡与 AI 确认
+9. **后端 `chat_stream` 增加 `temperature` 参数**：`generate_contract_stream` 传入 `temperature=0.0` 确保合同生成确定性；对话 SSE 保留默认温度保自然感
+10. **后端的 CONTRACT_TEMPLATES 统一化**：共享 `_COMMON_PREAMBLE`，5 类合同按统一条款顺序（合同标的 → 价款 → 权利义务 → 违约责任 → 保密 → 争议解决），简化格式
+
+## 已完成的工作 (feat-wlf) (2026-06-30 / 第三轮 / 全流程 Bug 修复与加固)
+1. **注册流程修复**：后端密码最小 6 位、返回 created_at 字段；前端发送 nickname 匹配后端字段
+2. **Profile 重设计**：渐变英雄卡片（#2563EB→#7C3AED）、白色圆角卡片、label-position="top"、全宽保存按钮；头像改为"选择预览→保存提交"流程
+3. **修改密码错误透传**：后端 6 位校验、store 捕获后端错误文本、前端展示具体错误
+4. **登录路由重定向**：Login.vue 读取 `route.query.redirect`，登录后跳转原目标页
+5. **SSE 全面加固**：401 返回 rejected Promise（不静默挂起）；AbortController 支持取消；120s 超时；cancelled 守卫；buffer 尾部 JSON 解析容错
+6. **Admin 弹窗逻辑分离**：对话框取消（用户点击取消/关闭）与 API 调用失败分别处理，不再将取消视为错误
+7. **布局溢出修复**：Admin/ContractDraft/NegotiationAnalyze 三页 `height: 100vh` → `flex: 1`，配合 48px 导航栏
+8. **合同 Store 持久化**：`saveContractState`/`loadContractState` 按合同类型 localStorage 存取；自动存于 send/generate/updateSlots 后；clearSession 清理全部
+9. **竞态条件修复**：`sendMessage` 在闭包中 capture `currentCode`，避免切换类型后存错 key；`loadCounterArgument` 防重复请求
+10. **谈判 Store 清除**：`submitAnalysis` 顶部清空 diffList/selectedRiskId
+11. **Logout 清空所有 Store**：`user.js` logout 调用 `clearSession` + `resetAnalysis`
+12. **死代码清理**：移除 `fetchContractTypes`/`searchLawContext`/`fetchRiskContext`/`lawContext` ref
+13. **关键词去重**：`hasKeyword` 检测用户输入是否已含关键词，避免 `甲方：甲方是公司` 重复前缀
+14. **detectSlot 语义排序**：长关键词优先匹配（"交付期限"先于"交付物"）
+15. **catch 日志**：localStorage 操作的 catch 块补 `console.warn`
+16. **Register 定时器泄漏**：`sendCode` 先 `clearInterval` 再启动新倒计时
+17. **Profile 卡片居中**：`.content-card` 加 `margin: 0 auto`
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|
@@ -378,7 +427,7 @@ legal-secretary/
 | `/register` | 注册 | 游客 |
 | `/` | 首页 | 需登录 |
 | `/draft` | 合同起草 | 需登录 |
-| `/negotiate` | 谈判分析 | 需登录 |
+| `/negotiate` | 谈判辅助 | 需登录 |
 | `/profile` | 个人中心 | 需登录 |
 | `/admin` | 后台管理 | 需 admin 角色 |
 
@@ -386,24 +435,22 @@ legal-secretary/
 - 项目在 WSL (Ubuntu) 下开发，Node.js 需用 **Linux 版**（Windows 版会因 UNC 路径问题导致 Vite 报错）
 - Linux Node.js 安装在 `~/.local/node/bin`，已加入 `.bashrc` 的 PATH
 - 启动前端: `cd ~/projects/legal-secretary/frontend && npm run dev`
-- 启动后端: `cd ~/projects/legal-secretary && uvicorn backend.app.main:app --reload --port 8000`
+- 启动后端: `cd ~/projects/legal-secretary && PYTHONPATH=backend python3 -m uvicorn app.main:app --reload --port 8000`
 - 前端代理配置：`vite.config.js` 中 `/api` → `http://localhost:8000`
 - 需配置 `.env` 文件（参考 `.env.example`），填入 `LLM_API_KEY`（阿里云 DashScope）
 
 ## 待办/后续可做
-- [ ] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
-- [ ] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
-- [ ] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
-- [ ] 实现真正的 DOCX/PDF 导出（当前 download 端点仅返回 JSON）
-- [ ] 实现 `utils/file_parser.py` 的 PDF 解析（当前抛 NotImplementedError）
-- [x] 补全基础测试（`tests/` 目录 — 模板结构、底线规则、索引清单、元数据、脚本基础结构验证已覆盖）
-- [ ] 补全后端 Service 层和 API 层测试（需等 backend 模块稳定后补充）
-- [ ] 补全前端组件测试（需等 frontend 模块稳定后补充）
-- [x] 构建 FAISS 向量索引（`knowledge_base/faiss_index.bin` 已构建）
-- [ ] 增强合同预览的 Markdown 渲染样式
-- [ ] 移动端适配
-- [ ] 前端从 Mock 切换为真实 HTTP 调用（见 `docs/integration_todo.md` 按模块推进）
-- [ ] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
-- [ ] 谈判分析流程确认（多步流程 vs. 合并端点）
-- [ ] 合同下载方案确认（文件流 vs. 文本下载）
+- [x] 填写 `.env` 中的 `LLM_API_KEY`（阿里云 DashScope），AI 层才能跑通
+- [x] 修复 `agent/contract_agent.py` 模板文件名不匹配（代码读 `tech_service.json`，实际文件名为 `technical_service_contract.json`）
+- [x] 前端从 Mock 切换为调用真实后端 API（`api/contract.js`、`api/negotiation.js`、`chatStream()`）
+- [x] 合同起草 store 重写（适配后端 type_id + collected_fields 模型）
+- [x] 谈判分析流程确认（多步流程 vs. 合并端点）
+- [x] 合同下载方案确认（文件流 vs. 文本下载）
+- [x] 增强合同预览的 Markdown 渲染样式（已使用 marked）
+- [x] 删除废弃 Mock 文件和 Negotiate.vue
+- [x] 创建共享 AppHeader 组件
+- [x] 替换内联 SVG 为 Element Plus 图标
+- [x] Admin 用户列表分页
+- [x] 添加页面过渡动画
+- [x] 移动端适配
 - [ ] api-contracts 目录定位说明更新

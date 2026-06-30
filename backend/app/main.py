@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -14,9 +15,11 @@ Base.metadata.create_all(bind=engine)
 
 
 def seed_data():
+    from datetime import datetime, timezone
     db: Session = SessionLocal()
     try:
         if not db.query(User).first():
+            demo_date = datetime(2026, 6, 30, tzinfo=timezone.utc)
             db.add_all([
                 User(
                     phone="13800000000",
@@ -24,6 +27,7 @@ def seed_data():
                     role="admin",
                     hashed_password=hash_password("admin123"),
                     is_verified=True,
+                    created_at=demo_date,
                 ),
                 User(
                     phone="13800000001",
@@ -31,6 +35,7 @@ def seed_data():
                     role="user",
                     hashed_password=hash_password("user123"),
                     is_verified=True,
+                    created_at=demo_date,
                 ),
             ])
         if not db.query(ContractType).first():
@@ -59,6 +64,11 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+import os
+static_dir = os.path.join(settings.UPLOAD_DIR, "avatars")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
 
 
 @app.get("/")
