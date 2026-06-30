@@ -120,6 +120,7 @@ const decorations = [
 const router = useRouter()
 const route = useRoute()
 const store = useUserStore()
+import('../views/Home.vue')
 
 const form = reactive({ phone: '', password: '' })
 const errors = reactive({ phone: '', password: '' })
@@ -148,14 +149,17 @@ function fillDemo(phone, password) {
 }
 
 async function handleLogin() {
+  if (loading.value) return
   errorMsg.value = ''
   if (!validate()) return
   loading.value = true
+  console.time('login-total')
   try {
     const res = await store.login(form.phone, form.password)
     if (res.code === 0) {
+      console.timeEnd('login-total')
       ElMessage.success('登录成功')
-      router.push(route.query.redirect || '/')
+      window.location.href = route.query.redirect || '/'
     } else {
       errorMsg.value = res.message
     }

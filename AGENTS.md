@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
-| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计（BrandPanel/双栏布局/品牌卡片）；全流程 Bug 修复（SSE AbortController/401/超时/持久化/竞态/布局溢出/死代码清理）；注册/Profile/登录/Admin 全面加固 |
+| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计（BrandPanel/双栏布局/品牌卡片）；全流程 Bug 修复（SSE AbortController/401/超时/持久化/竞态/布局溢出/死代码清理）；注册/Profile/登录/Admin 全面加固；登录速度优化（4s 路由跳转→秒级 `window.location.href`） |
 | `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -419,6 +419,14 @@ legal-secretary/
 15. **catch 日志**：localStorage 操作的 catch 块补 `console.warn`
 16. **Register 定时器泄漏**：`sendCode` 先 `clearInterval` 再启动新倒计时
 17. **Profile 卡片居中**：`.content-card` 加 `margin: 0 auto`
+
+## 已完成的工作 (feat-wlf) (2026-06-30 / 第四轮 / 登录速度优化 + 背景动效)
+1. **登录页背景动效**：呼吸动画（`#C7D2FE`↔`#FFFFFF` 4s 循环）；13 个盾牌/合同/放大镜装饰图标均匀分布背景，浮动动画
+2. **`isLoggedIn` 只认 token**：不再依赖 `userInfo`，路由守卫立即放行
+3. **Profile 异步加载**：`login()` 改为 `.then()` 非阻塞，token 到手即返回，profile 后台加载
+4. **登录跳转提速**：`router.push` 替换为 `window.location.href`，绕过 vue-router 过渡卡顿（从 4016ms→秒级）
+5. **首页静态导入**：`Home.vue` 改为 `import` 静态引入，避免懒加载延迟
+6. **预加载首页组件**：Login.vue setup 中 `import('../views/Home.vue')` 提前触发编译
 
 ## 路由表
 | 路径 | 页面 | 访问权限 |
