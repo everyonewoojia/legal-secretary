@@ -108,7 +108,7 @@
     }
   ],
   "vector_index": {
-    "status": "待构建",
+    "status": "已构建",
     "build_script": "scripts/build_vector_index.py",
     "search_script": "scripts/search_knowledge_base.py",
     "index_file": "knowledge_base/faiss_index.bin",

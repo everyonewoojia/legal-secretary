@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.common import Response
 from app.schemas.user import (
-    ChangePasswordRequest,
     LoginRequest,
     RegisterRequest,
     SmsCodeRequest,
@@ -33,10 +32,3 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/sms-code", response_model=Response)
 def send_sms_code(req: SmsCodeRequest):
     return Response(data={"message": "验证码已发送（演示模式），验证码：123456"})
-
-
-@router.post("/change-password", response_model=Response)
-def change_password(req: ChangePasswordRequest, db: Session = Depends(get_db)):
-    svc = AuthService(db)
-    svc.change_password(req)
-    return Response()

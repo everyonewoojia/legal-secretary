@@ -75,11 +75,11 @@
           <div class="demo-section">
             <p class="demo-label">快速体验</p>
             <div class="demo-btns">
-              <button class="demo-btn" @click="fillDemo('13800000000', 'admin123')">
+              <button class="demo-btn" @click="fillDemo('13800000000', 'admin1234')">
                 <span class="demo-role admin">管理员</span>
                 <span class="demo-phone">13800000000</span>
               </button>
-              <button class="demo-btn" @click="fillDemo('13800000001', 'user123')">
+              <button class="demo-btn" @click="fillDemo('13800000001', 'user1234')">
                 <span class="demo-role user">普通用户</span>
                 <span class="demo-phone">13800000001</span>
               </button>

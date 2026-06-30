@@ -36,6 +36,8 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useUserStore } from './stores/user'
+import { useContractStore } from './stores/contract'
+import { useNegotiationStore } from './stores/negotiation'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 
@@ -51,6 +53,8 @@ function handleCommand(command) {
 async function handleLogout() {
   try {
     await ElMessageBox.confirm('确定退出登录？', '提示')
+    useContractStore().clearSession()
+    useNegotiationStore().resetAnalysis()
     store.logout()
     ElMessage.success('已退出')
     router.push('/login')
