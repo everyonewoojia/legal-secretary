@@ -69,7 +69,7 @@
           </el-form>
 
           <div class="form-footer">
-            <span class="link" @click="router.push('/register')">没有账号？<span class="link-highlight">立即注册</span></span>
+            <a class="link" href="/register">没有账号？<span class="link-highlight">立即注册</span></a>
           </div>
 
           <div class="demo-section">

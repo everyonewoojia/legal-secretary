@@ -1,5 +1,22 @@
 <template>
   <div class="register-page">
+    <div class="shield-bg">
+      <template v-for="d in decorations" :key="d.id">
+        <svg v-if="d.type === 'shield'" class="deco-icon" :style="d.style" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2L3 7v6c0 5.25 3.83 10 9 12 5.17-2 9-6.75 9-12V7l-9-5z"/>
+          <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg v-else-if="d.type === 'document'" class="deco-icon" :style="d.style" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8M8 17h8M8 9h1"/>
+        </svg>
+        <svg v-else class="deco-icon" :style="d.style" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M16.5 16.5L21 21" stroke-linecap="round"/>
+        </svg>
+      </template>
+    </div>
     <div class="register-container">
       <BrandPanel />
 
@@ -92,7 +109,7 @@
           </el-form>
 
           <div class="form-footer">
-            <span class="link" @click="router.push('/login')">已有账号？<span class="link-highlight">去登录</span></span>
+            <a class="link" href="/login">已有账号？<span class="link-highlight">去登录</span></a>
           </div>
         </div>
       </div>
@@ -110,6 +127,22 @@ import BrandPanel from '../components/BrandPanel.vue'
 
 const router = useRouter()
 const store = useUserStore()
+
+const decorations = [
+  { id: 1, type: 'shield', style: { top: '5%', left: '3%', width: '80px', opacity: '0.10', animationDelay: '0s', animationDuration: '3.5s' } },
+  { id: 2, type: 'document', style: { top: '4%', left: '28%', width: '68px', opacity: '0.08', animationDelay: '1.2s', animationDuration: '4s' } },
+  { id: 3, type: 'magnifier', style: { top: '30%', left: '1%', width: '88px', opacity: '0.11', animationDelay: '1.8s', animationDuration: '4.2s' } },
+  { id: 4, type: 'shield', style: { top: '35%', left: '25%', width: '64px', opacity: '0.07', animationDelay: '0.3s', animationDuration: '3.5s' } },
+  { id: 5, type: 'document', style: { bottom: '25%', left: '4%', width: '76px', opacity: '0.09', animationDelay: '2.2s', animationDuration: '4.5s' } },
+  { id: 6, type: 'magnifier', style: { bottom: '8%', left: '30%', width: '84px', opacity: '0.10', animationDelay: '1s', animationDuration: '3.6s' } },
+  { id: 7, type: 'shield', style: { bottom: '2%', left: '2%', width: '66px', opacity: '0.07', animationDelay: '0.8s', animationDuration: '3.2s' } },
+  { id: 8, type: 'shield', style: { top: '6%', right: '4%', width: '76px', opacity: '0.09', animationDelay: '1.5s', animationDuration: '4s' } },
+  { id: 9, type: 'document', style: { top: '5%', right: '35%', width: '70px', opacity: '0.08', animationDelay: '0.4s', animationDuration: '3.7s' } },
+  { id: 10, type: 'magnifier', style: { top: '35%', right: '2%', width: '82px', opacity: '0.10', animationDelay: '2s', animationDuration: '4.3s' } },
+  { id: 11, type: 'shield', style: { top: '38%', right: '32%', width: '68px', opacity: '0.07', animationDelay: '0.7s', animationDuration: '3.4s' } },
+  { id: 12, type: 'document', style: { bottom: '10%', right: '3%', width: '86px', opacity: '0.08', animationDelay: '1.6s', animationDuration: '3.3s' } },
+  { id: 13, type: 'magnifier', style: { bottom: '12%', right: '36%', width: '72px', opacity: '0.09', animationDelay: '2.5s', animationDuration: '4.8s' } },
+]
 
 const form = reactive({
   phone: '',
@@ -182,7 +215,7 @@ async function handleRegister() {
     })
     if (res.code === 0) {
       ElMessage.success('注册成功')
-      router.push('/login')
+      window.location.href = '/login'
     } else {
       errorMsg.value = res.message
     }
@@ -204,7 +237,31 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  animation: breatheBg 4s ease-in-out infinite;
+  position: relative;
+}
+
+.shield-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  color: #2563EB;
+}
+
+.deco-icon {
+  position: absolute;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes breatheBg {
+  0%, 100% { background: #C7D2FE; }
+  50% { background: #FFFFFF; }
 }
 
 .register-container {

@@ -427,6 +427,8 @@ legal-secretary/
 4. **登录跳转提速**：`router.push` 替换为 `window.location.href`，绕过 vue-router 过渡卡顿（从 4016ms→秒级）
 5. **首页静态导入**：`Home.vue` 改为 `import` 静态引入，避免懒加载延迟
 6. **预加载首页组件**：Login.vue setup 中 `import('../views/Home.vue')` 提前触发编译
+7. **注册页背景统一**：Register.vue 同步呼吸动画 + 装饰图标，与登录页一致
+8. **`router.push` 全面替换**：Login/Register 页间的 `router.push('/register')`/`router.push('/login')` 改为 `<a href>` 原生跳转，消除 vue-router 过渡延迟
 
 ## 路由表
 | 路径 | 页面 | 访问权限 |
