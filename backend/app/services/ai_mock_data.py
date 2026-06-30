@@ -118,7 +118,7 @@ def mock_chat(messages: list[dict]) -> str:
     if "风险" in last or "risk" in last.lower():
         if "plan_a" in last or "counter" in last.lower():
             return mock_counter_argument()
-        return mock_risk_analysis()
+        return mock_risk_analysis(last)
     type_name = extract_contract_type(messages)
     all_slots = all_slots_from_messages(messages)
     last_slots = extract_slots(last)
@@ -155,8 +155,14 @@ def mock_generate_contract(contract_type: str = "", messages: list[dict] = None)
     return CONTRACT_TEMPLATES["技术服务合同"]
 
 
-def mock_risk_analysis() -> str:
-    return json.dumps(MOCK_RISK_ITEMS, ensure_ascii=False)
+def mock_risk_analysis(input_text: str = "") -> str:
+    import hashlib
+    # 根据输入文本的 hash 动态选择返回的条数，避免每次都一样
+    n = (hashlib.md5(input_text.encode()).digest()[0] % 3) + 3  # 3~5 条
+    items = MOCK_RISK_ITEMS[:n]
+    for i, item in enumerate(items):
+        item["id"] = i + 1
+    return json.dumps(items, ensure_ascii=False)
 
 
 def mock_counter_argument() -> str:
