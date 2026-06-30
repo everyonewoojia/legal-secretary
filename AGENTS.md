@@ -430,6 +430,13 @@ legal-secretary/
 7. **注册页背景统一**：Register.vue 同步呼吸动画 + 装饰图标，与登录页一致
 8. **`router.push` 全面替换**：Login/Register 页间的 `router.push('/register')`/`router.push('/login')` 改为 `<a href>` 原生跳转，消除 vue-router 过渡延迟
 
+## 已完成的工作 (feat-wlf) (2026-06-30 / 第五轮 / 劳动合同生成优化)
+1. **DialogueService 字段扩增**：`FIELDS_MAP[3]` 从 8 项扩增至 10 项（用人单位信息/劳动者信息/合同期限/试用期/岗位与工作地点/工时与休假/劳动报酬/社会保险/竞业与培训/解除与争议），覆盖劳动合同全部法定必备要素
+2. **Mock 合同模板重写**：`CONTRACT_TEMPLATES["劳动合同"]` 从 6 条/400 字升级为 11 条完整结构（合同期限→工作内容→工时休假→劳动报酬→社保→劳动保护→规章→竞业限制→解除终止→争议解决→附则），含用人单位/法定代表人/住所地/劳动者/身份证号等完整字段
+3. **Labor 专有字段体系**：新增 `FIELD_LIST_LABOR`（17 个字段）、`FIELD_QUESTIONS_LABOR`（15 条专有问话）、`SLOT_EXTRACTION_MAP_LABOR`（17 条 labor 专属正则），与通用字段体系隔离
+4. **Mock 对话智能分支**：`_mock_chat` 检测合同类型为"劳动合同"时自动路由到 `_mock_chat_labor`，使用 labor 专有字段进行槽位抽取、缺失检测和追问，不再问"合同金额"等无关问题
+5. **生成占位符填充**：`_fill_placeholders` 新增 labor 专用替换映射（15 组正则+格式化），`_mock_generate_contract` 对劳动合同使用 labor 专有槽位提取
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|

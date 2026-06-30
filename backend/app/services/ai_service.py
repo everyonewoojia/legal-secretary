@@ -135,32 +135,70 @@ CONTRACT_TEMPLATES = {
 
     "劳动合同": """劳动合同
 
-""" + _COMMON_PREAMBLE.format(number="MOCK-2025-EMP-001", subject="劳动") + """\
-第一条 合同标的
-1.1 乙方同意在________________岗位工作。
-1.2 工作地点：________________________
-1.3 本合同期限类型为：________________（固定期限/无固定期限/以完成一定工作任务为期限）。
-1.4 试用期自____年____月____日起至____年____月____日止。
+甲方（用人单位）：________________________
+法定代表人：________________________
+住所地：________________________
 
-第二条 价款与支付
-2.1 乙方月工资为人民币________元（税前）。
-2.2 试用期工资为人民币________元，不低于约定工资的80%。
-2.3 甲方实行标准工时制，每日工作不超过8小时，每周工作不超过40小时。
+乙方（劳动者）：________________________
+身份证号码：________________________
+住址：________________________
+联系电话：________________________
 
-第三条 双方权利义务
-3.1 甲方应按照约定提供必要的工作条件和劳动保护。
-3.2 甲方依法为乙方缴纳养老保险、医疗保险、失业保险、工伤保险和生育保险。
-3.3 乙方应按照岗位职责要求完成工作任务。
+根据《中华人民共和国劳动法》《中华人民共和国劳动合同法》及相关法律法规，甲乙双方经平等协商，自愿签订本合同，共同遵守。
 
-第四条 违约责任
-4.1 双方解除或终止劳动合同应按照《劳动合同法》的有关规定执行。
+第一条 合同期限
+1.1 本合同期限类型为：________________（固定期限/无固定期限/以完成一定工作任务为期限）。
+1.2 固定期限合同：自____年____月____日起至____年____月____日止。
+1.3 试用期自____年____月____日起至____年____月____日止，试用期为____个月。
+1.4 试用期工资为人民币________元/月，不低于约定工资的80%。
 
-第五条 保密
-5.1 乙方对工作中知悉的甲方商业秘密和客户信息负有保密义务。
+第二条 工作内容与工作地点
+2.1 乙方同意在________________岗位工作，具体职责为：________________________。
+2.2 工作地点为：________________________
+2.3 甲方根据工作需要，经与乙方协商一致，可对工作岗位和地点进行合理调整。
 
-第六条 争议解决
-6.1 因本合同引起的劳动争议，双方应友好协商解决。
-6.2 协商不成的，可向劳动争议仲裁委员会申请仲裁。
+第三条 工作时间与休息休假
+3.1 甲方实行________________工时制度。
+3.2 每日工作时间不超过8小时，每周工作时间不超过40小时。
+3.3 加班规则：________________________
+3.4 乙方依法享有法定节假日、年休假、病假等休假权利。
+
+第四条 劳动报酬
+4.1 乙方月工资为人民币________元（税前），其中基本工资________元，绩效工资________元。
+4.2 加班费计算基数为人民币________元/月。
+4.3 甲方于每月____日以________方式支付上月工资。
+
+第五条 社会保险与福利待遇
+5.1 甲方依法为乙方缴纳养老保险、医疗保险、失业保险、工伤保险、生育保险（五险）。
+5.2 社会保险自____年____月起开始缴纳。
+5.3 其他福利待遇：________________________
+
+第六条 劳动保护与职业危害防护
+6.1 甲方应为乙方提供符合国家规定的劳动安全卫生条件和必要的劳动保护用品。
+6.2 甲方应按规定对乙方进行安全生产教育和培训。
+6.3 对从事有职业危害作业的乙方，甲方应定期进行健康检查。
+
+第七条 劳动纪律与规章制度
+7.1 乙方应遵守甲方依法制定的各项规章制度。
+7.2 甲方应将规章制度公示或以书面形式告知乙方。
+
+第八条 竞业限制与培训服务期
+8.1 竞业限制约定：________________________
+8.2 服务期约定：________________________
+8.3 培训违约金：________________________
+
+第九条 合同解除与终止
+9.1 甲乙双方解除或终止本合同，应按照《劳动合同法》的有关规定执行。
+9.2 经济补偿按国家有关规定执行。
+
+第十条 争议解决
+10.1 因本合同发生的劳动争议，双方应协商解决。
+10.2 协商不成的，可向________________劳动争议仲裁委员会申请仲裁。
+10.3 对仲裁裁决不服的，可依法向人民法院提起诉讼。
+
+第十一条 附则
+11.1 本合同一式两份，甲乙双方各执一份，具有同等法律效力。
+11.2 本合同自甲乙双方签字盖章之日起生效。
 
 甲方（盖章）：________________    乙方（签字）：________________
 日期：____年____月____日          日期：____年____月____日""",
@@ -256,6 +294,62 @@ SLOT_EXTRACTION_MAP = {
     "保密期限": re.compile(r"(?:保密|保密期限)[：:是叫]?\s*([^\n，,。.]+)"),
 }
 
+# Labor contract specific field definitions
+FIELD_LIST_LABOR = [
+    "用人单位", "法定代表人", "用人单位住所",
+    "劳动者", "身份证号", "联系电话",
+    "合同期限",
+    "试用期", "试用期工资",
+    "岗位", "工作地点",
+    "工时制度",
+    "基本工资", "发薪日",
+    "社保",
+    "竞业限制",
+    "劳动仲裁",
+]
+
+FIELD_QUESTIONS_LABOR = {
+    "用人单位": "请提供用人单位（甲方）的公司全称是什么？",
+    "法定代表人": "用人单位的法定代表人是谁？注册地址是哪里？",
+    "用人单位住所": "",
+    "劳动者": "请提供劳动者（乙方）的姓名是？",
+    "身份证号": "劳动者的身份证号码是多少？",
+    "联系电话": "劳动者的联系电话是多少？",
+    "合同期限": "请问合同期限类型是什么？（固定期限/无固定期限/以完成一定工作任务为期限）",
+    "试用期": "试用期是多长时间？",
+    "试用期工资": "试用期期间的工资是多少？（不低于正式工资的80%）",
+    "岗位": "劳动者的岗位名称是什么？",
+    "工作地点": "工作地点在哪里？",
+    "工时制度": "采用什么工时制度？（标准工时/综合计算工时/不定时工作制）",
+    "基本工资": "月基本工资是多少？每月几号发放工资？",
+    "发薪日": "",
+    "社保": "是否依法为劳动者缴纳五险（养老、医疗、失业、工伤、生育）？",
+    "竞业限制": "是否有竞业限制、服务期或培训违约金约定？",
+    "劳动仲裁": "劳动争议管辖的仲裁委员会是哪个？",
+}
+
+QUESTION_TO_FIELD_LABOR = {v: k for k, v in FIELD_QUESTIONS_LABOR.items() if v}
+
+SLOT_EXTRACTION_MAP_LABOR = {
+    "用人单位": re.compile(r"(?:用人单位|雇主|公司全称|甲方|单位名称)[：:是叫]?\s*([^\n，,。.]+)"),
+    "法定代表人": re.compile(r"(?:法定代表人|法人代表|法定代表)[：:是叫]?\s*([^\n，,。.]+)"),
+    "用人单位住所": re.compile(r"(?:住所|地址|注册地址|单位地址|办公地址)[：:是叫]?\s*([^\n，,。.]+)"),
+    "劳动者": re.compile(r"(?:劳动者|员工|乙方|雇员|姓名)[：:是叫]?\s*([^\n，,。.]+)"),
+    "身份证号": re.compile(r"(?:身份证|身份证号|身份证号码)[：:是叫]?\s*([0-9Xx]{15,18})"),
+    "联系电话": re.compile(r"(?:联系|电话|手机|手机号)[：:是叫]?\s*([0-9\-（）()]{7,15})"),
+    "合同期限": re.compile(r"(?:合同期限|合同类型|期限类型)[：:是叫]?\s*([^\n，,。.]+)"),
+    "试用期": re.compile(r"(?:试用期期限|试用期)[：:是叫]?\s*([^\n，,。.]+)"),
+    "试用期工资": re.compile(r"(?:试用期)?工资[：:是叫]?\s*([0-9，,.\d]+[万亿元元]*)"),
+    "岗位": re.compile(r"(?:岗位|职位|职务|工种)[：:是叫]?\s*([^\n，,。.]+)"),
+    "工作地点": re.compile(r"(?:工作地点|工作地|上班地点|办公地点)[：:是叫]?\s*([^\n，,。.]+)"),
+    "工时制度": re.compile(r"(?:工时|工时制度|工作时间制度)[：:是叫]?\s*([^\n，,。.]+)"),
+    "基本工资": re.compile(r"(?:基本工资|底薪)[：:是叫]?\s*([0-9，,.\d]+[万亿元元]*)"),
+    "发薪日": re.compile(r"(?:发薪日|发薪|工资发放日|发放日)[：:是叫]?\s*([^\n，,。.]+)"),
+    "社保": re.compile(r"(?:社保|社会保险|五险|五险一金)[：:是叫]?\s*([^\n，,。.]+)"),
+    "竞业限制": re.compile(r"(?:竞业|竞业限制|竞业禁止|保密|服务期|培训)[：:是叫]?\s*([^\n，,。.]+)"),
+    "劳动仲裁": re.compile(r"(?:仲裁|劳动仲裁|争议|管辖)[：:是叫]?\s*([^\n，,。.]+)"),
+}
+
 MOCK_RISK_ITEMS = [
     {
         "clause_location": "付款条款",
@@ -332,6 +426,80 @@ def _infer_field_from_context(messages: list[dict]) -> str | None:
     return None
 
 
+def _extract_slots_labor(text: str) -> dict:
+    slots = {}
+    for key, regex in SLOT_EXTRACTION_MAP_LABOR.items():
+        match = regex.search(text)
+        if match:
+            slots[key] = match.group(1).strip()
+    return slots
+
+
+def _all_slots_from_messages_labor(messages: list[dict], from_system: bool = False) -> dict:
+    all_slots = {}
+    for m in messages:
+        if m["role"] == "user":
+            all_slots.update(_extract_slots_labor(m.get("content", "")))
+        elif from_system and m["role"] == "system":
+            js_match = re.search(r'收集的要素.*?(\{.+?\})', m["content"], re.DOTALL)
+            if js_match:
+                try:
+                    data = json.loads(js_match.group(1))
+                    if isinstance(data, dict):
+                        all_slots.update({k: str(v).strip('"') for k, v in data.items()})
+                except (json.JSONDecodeError, AttributeError):
+                    pass
+    return all_slots
+
+
+def _infer_field_from_context_labor(messages: list[dict]) -> str | None:
+    for m in reversed(messages[:-1]):
+        if m["role"] in ("assistant", "agent"):
+            for q_text, field in QUESTION_TO_FIELD_LABOR.items():
+                if q_text in m.get("content", ""):
+                    return field
+            for field in FIELD_LIST_LABOR:
+                if f"请问{field}" in m.get("content", ""):
+                    return field
+            break
+    return None
+
+
+def _mock_chat_labor(messages: list[dict]) -> str:
+    last = messages[-1]["content"] if messages else ""
+
+    all_slots = _all_slots_from_messages_labor(messages)
+    last_slots = _extract_slots_labor(last)
+
+    if not last_slots:
+        inferred = _infer_field_from_context_labor(messages)
+        if inferred and inferred not in all_slots:
+            all_slots[inferred] = last.strip()
+            last_slots[inferred] = last.strip()
+
+    filled_set = set(all_slots.keys())
+    missing = [f for f in FIELD_LIST_LABOR if f not in filled_set]
+
+    ack_parts = []
+    for k, v in last_slots.items():
+        ack_parts.append(f"好的，已记录「{k}：{v}」")
+    ack = "，".join(ack_parts) + "。" if ack_parts else ""
+
+    if missing and ack:
+        question = FIELD_QUESTIONS_LABOR.get(missing[0], f"请问{missing[0]}是什么？")
+        reply = f"{ack} {question}"
+    elif missing:
+        reply = FIELD_QUESTIONS_LABOR.get(missing[0], f"请问{missing[0]}是什么？")
+    elif ack:
+        reply = f"{ack} 所有劳动合同信息已收集完成！您可以点击「生成合同」按钮来生成合同初稿。"
+    else:
+        reply = "所有劳动合同信息已收集完成！您可以点击「生成合同」按钮来生成合同初稿。"
+
+    if all_slots:
+        return json.dumps({"content": reply, "slots": all_slots}, ensure_ascii=False)
+    return reply
+
+
 def _mock_chat(messages: list[dict]) -> str:
     last = messages[-1]["content"] if messages else ""
 
@@ -345,6 +513,9 @@ def _mock_chat(messages: list[dict]) -> str:
         return _mock_risk_analysis()
 
     type_name = _extract_contract_type(messages)
+
+    if type_name == "劳动合同":
+        return _mock_chat_labor(messages)
 
     all_slots = _all_slots_from_messages(messages)
     last_slots = _extract_slots(last)
@@ -399,6 +570,30 @@ def _fill_placeholders(text: str, slots: dict) -> str:
     for key, value in slots.items():
         v = value.strip('"').strip()
         text = text.replace(f"【{key}】", v)
+
+    labor_replacements = {
+        "用人单位": (r"甲方（用人单位）[：:]\s*_{2,}", "甲方（用人单位）：{v}"),
+        "法定代表人": (r"法定代表人[：:]\s*_{2,}", "法定代表人：{v}"),
+        "用人单位住所": (r"住所地[：:]\s*_{2,}", "住所地：{v}"),
+        "劳动者": (r"乙方（劳动者）[：:]\s*_{2,}", "乙方（劳动者）：{v}"),
+        "身份证号": (r"身份证号码[：:]\s*_{2,}", "身份证号码：{v}"),
+        "联系电话": (r"联系电话[：:]\s*_{2,}", "联系电话：{v}"),
+        "合同期限": (r"本合同期限类型为[：:]\s*_{2,}", "本合同期限类型为：{v}"),
+        "试用期工资": (r"试用期工资为人民币[：:]\s*_{2,}", "试用期工资为人民币：{v}"),
+        "岗位": (r"乙方同意在[：:]\s*_{2,}(?:岗位)", "乙方同意在{v}岗位"),
+        "工作地点": (r"工作地点(?:为)?[：:]\s*_{2,}", "工作地点：{v}"),
+        "工时制度": (r"甲方实行[：:]\s*_{2,}(?:工时制度)", "甲方实行{v}工时制度"),
+        "基本工资": (r"基本工资[：:]\s*_{2,}", "基本工资：{v}"),
+        "社保": (r"社会保险自[：:]\s*__", "社会保险自{v}"),
+        "竞业限制": (r"竞业限制约定[：:]\s*_{2,}", "竞业限制约定：{v}"),
+        "劳动仲裁": (r"可向[：:]\s*_{2,}(?:劳动争议仲裁委员会)", "可向{v}劳动争议仲裁委员会"),
+    }
+
+    for key, (pattern, fmt) in labor_replacements.items():
+        if key in slots:
+            v = slots[key].strip('"').strip()
+            text = re.sub(pattern, fmt.format(v=v), text)
+
     if "甲方" in slots:
         a = slots["甲方"].strip('"').strip()
         text = re.sub(r"甲方（[^）]+）[：:]\s*_{2,}", f"甲方：{a}", text)
@@ -431,7 +626,10 @@ def _mock_generate_contract(contract_type: str = "", messages: list[dict] = None
         if name in contract_type or contract_type in name:
             result = template
             if messages:
-                slots = _all_slots_from_messages(messages, from_system=True)
+                if name == "劳动合同":
+                    slots = _all_slots_from_messages_labor(messages, from_system=True)
+                else:
+                    slots = _all_slots_from_messages(messages, from_system=True)
                 if slots:
                     result = _fill_placeholders(result, slots)
             return result
