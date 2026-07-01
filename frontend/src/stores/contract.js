@@ -19,7 +19,7 @@ const SLOT_KEYWORDS = {
   '合同期限': ['合同期限', '期限类型', '固定期限', '无固定期限'],
   '试用期': ['试用期'],
   '岗位': ['岗位', '职位', '职务'],
-  '工作地点': ['工作地点', '工作地', '上班地点'],
+  '工作地点': ['工作地点', '工作地', '上班地点', '地点'],
   '工时制度': ['工时', '工时制度', '工作时间制度'],
   '基本工资': ['基本工资', '底薪'],
   '发薪日': ['发薪', '发薪日', '发放日'],
@@ -177,8 +177,10 @@ export const useContractStore = defineStore('contract', () => {
           const m = kept[i]
           const nextStart = i + 1 < kept.length ? kept[i + 1].start : userText.length
           let val = userText.substring(m.end, nextStart).trim()
-          val = val.replace(/^[是：:，,]+/, '').replace(/[，,、和及]+$/, '').trim()
-          if (val) slots.value = { ...slots.value, [m.slot]: val }
+          val = val.replace(/^[是为：:，,]+/, '').replace(/[，,、和及]+$/, '').trim()
+          // If no value after keyword, use the keyword text itself
+          if (!val) val = userText.substring(m.start, m.end).trim()
+          slots.value = { ...slots.value, [m.slot]: val }
         }
       }
       chatStream(
