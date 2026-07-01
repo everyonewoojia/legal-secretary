@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
-| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计（BrandPanel/双栏布局/品牌卡片）；全流程 Bug 修复（SSE AbortController/401/超时/持久化/竞态/布局溢出/死代码清理）；注册/Profile/登录/Admin 全面加固 |
+| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计；全流程 Bug 修复（SSE/401/超时/持久化/竞态/溢出）；注册/Profile/登录/Admin 加固；登录速度优化；导航合并与提取修复；头像同步与分页修复 |
 | `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -420,6 +420,23 @@ legal-secretary/
 16. **Register 定时器泄漏**：`sendCode` 先 `clearInterval` 再启动新倒计时
 17. **Profile 卡片居中**：`.content-card` 加 `margin: 0 auto`
 
+## 已完成的工作 (feat-wlf) (2026-06-30 / 第四轮 / 登录速度优化 + 背景动效)
+1. **登录页背景动效**：呼吸动画（`#C7D2FE`↔`#FFFFFF` 4s 循环）；13 个盾牌/合同/放大镜装饰图标均匀分布背景，浮动动画
+2. **`isLoggedIn` 只认 token**：不再依赖 `userInfo`，路由守卫立即放行
+3. **Profile 异步加载**：`login()` 改为 `.then()` 非阻塞，token 到手即返回，profile 后台加载
+4. **登录跳转提速**：`router.push` 替换为 `window.location.href`，绕过 vue-router 过渡卡顿（从 4016ms→秒级）
+5. **首页静态导入**：`Home.vue` 改为 `import` 静态引入，避免懒加载延迟
+6. **预加载首页组件**：Login.vue setup 中 `import('../views/Home.vue')` 提前触发编译
+7. **注册页背景统一**：Register.vue 同步呼吸动画 + 装饰图标，与登录页一致
+8. **`router.push` 全面替换**：Login/Register 页间的 `router.push('/register')`/`router.push('/login')` 改为 `<a href>` 原生跳转，消除 vue-router 过渡延迟
+
+## 已完成的工作 (feat-wlf) (2026-06-30 / 第五轮 / 劳动合同生成优化)
+1. **DialogueService 字段扩增**：`FIELDS_MAP[3]` 从 8 项扩增至 10 项（用人单位信息/劳动者信息/合同期限/试用期/岗位与工作地点/工时与休假/劳动报酬/社会保险/竞业与培训/解除与争议），覆盖劳动合同全部法定必备要素
+2. **Mock 合同模板重写**：`CONTRACT_TEMPLATES["劳动合同"]` 从 6 条/400 字升级为 11 条完整结构（合同期限→工作内容→工时休假→劳动报酬→社保→劳动保护→规章→竞业限制→解除终止→争议解决→附则），含用人单位/法定代表人/住所地/劳动者/身份证号等完整字段
+3. **Labor 专有字段体系**：新增 `FIELD_LIST_LABOR`（17 个字段）、`FIELD_QUESTIONS_LABOR`（15 条专有问话）、`SLOT_EXTRACTION_MAP_LABOR`（17 条 labor 专属正则），与通用字段体系隔离
+4. **Mock 对话智能分支**：`_mock_chat` 检测合同类型为"劳动合同"时自动路由到 `_mock_chat_labor`，使用 labor 专有字段进行槽位抽取、缺失检测和追问，不再问"合同金额"等无关问题
+5. **生成占位符填充**：`_fill_placeholders` 新增 labor 专用替换映射（15 组正则+格式化），`_mock_generate_contract` 对劳动合同使用 labor 专有槽位提取
+
 ## 路由表
 | 路径 | 页面 | 访问权限 |
 |------|------|---------|
@@ -453,4 +470,13 @@ legal-secretary/
 - [x] Admin 用户列表分页
 - [x] 添加页面过渡动画
 - [x] 移动端适配
+- [x] 槽位气泡显示优化（show values alongside field names）
+
+## 已完成的工作 (feat-wlf) (2026-07-01 / 第六轮 / 导航合并+Admin修复+槽位提取修复)
+1. **导航栏合并**：App.vue 黑色导航 (#1a1a2e) → 白色统一导航 (#fff + 底部边框)，nav-item 颜色 #606266；删除 AppHeader.vue 共享组件（Admin/Negotiate 页取消重复子导航）
+2. **Admin 头像同步**：后端 `AdminUserResponse` 新增 `avatar` 字段；前端 store 映射 avatar；Admin.vue 头像列显示真实头像图片（有值 → `<img>`，无值 → `<el-icon>` 回退）
+3. **Admin 统计修复**：`{{ userList.length }}` → `{{ total }}` 使用数据库总数
+4. **槽位提取 Bug 修复**：`extractFromAiResponse` — 移除 `existing.has(slot) continue`，将 `claimed` 移入每个 `part` 内防止跨段误判；`contract.js:6` — 给 `工时制度` 关键词表新增 `工作时间` (len=4)，修复"劳动者:8小时"误赋和"交付期限:每天8小时"泄漏
+
+## 待办/后续可做
 - [ ] api-contracts 目录定位说明更新

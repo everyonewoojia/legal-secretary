@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || 'null'))
 
-  const isLoggedIn = computed(() => !!token.value && !!userInfo.value)
+  const isLoggedIn = computed(() => !!token.value)
   const role = computed(() => userInfo.value?.role || '')
   const isAdmin = computed(() => role.value === 'admin')
 
@@ -29,18 +29,20 @@ export const useUserStore = defineStore('user', () => {
     return { ...data, username: data.nickname || data.phone }
   }
 
-  async function login(phone, password) {
-    const res = await authApi.login(phone, password)
-    if (res.code === 0) {
-      token.value = res.data.access_token
-      persist()
-      const profileRes = await userApi.getProfile()
-      if (profileRes.code === 0) {
-        userInfo.value = normalizeUser(profileRes.data)
+  function login(phone, password) {
+    return authApi.login(phone, password).then(res => {
+      if (res.code === 0) {
+        token.value = res.data.access_token
         persist()
+        userApi.getProfile().then(profileRes => {
+          if (profileRes.code === 0) {
+            userInfo.value = normalizeUser(profileRes.data)
+            persist()
+          }
+        })
       }
-    }
-    return res
+      return res
+    })
   }
 
   async function register(data) {
@@ -81,6 +83,7 @@ export const useUserStore = defineStore('user', () => {
           avatar: u.avatar || '',
           username: u.nickname || u.phone,
           nickname: u.nickname,
+          avatar: u.avatar || '',
           role: u.role,
           status: u.is_active ? 'active' : 'disabled',
           is_active: u.is_active,

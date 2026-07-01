@@ -32,11 +32,10 @@
         </div>
 
         <div class="sidebar-section slots-section">
-          <h3 class="sidebar-title">已采集要素</h3>
-          <div v-if="!bubbleFields.length" class="slots-empty">等待采集要素...</div>
+          <div v-if="!fieldKeys.length" class="slots-empty">等待采集要素...</div>
           <div v-else class="slots-bubbles">
             <div
-              v-for="field in bubbleFields"
+              v-for="field in fieldKeys"
               :key="field"
               class="slot-bubble"
             >
@@ -199,6 +198,11 @@
           >
             下载
           </el-button>
+          <el-button
+            @click="restartDraft"
+          >
+            重新起草
+          </el-button>
         </div>
       </aside>
     </div>
@@ -230,7 +234,7 @@ const typeIcons = {
 }
 
 const filledCount = computed(() => Object.keys(store.slots).length)
-const bubbleFields = computed(() => Object.keys(store.slots).filter(k => store.slots[k]))
+const fieldKeys = computed(() => Object.keys(store.slots))
 
 const hasDraft = computed(() => !!store.currentDraft)
 
@@ -369,6 +373,13 @@ async function regenerate() {
   store.currentDraft = ''
   store.draftId = null
   await generate()
+}
+
+function restartDraft() {
+  store.clearSession()
+  if (store.typeList.length > 0) {
+    store.startSession(store.typeList[0].code)
+  }
 }
 
 async function exportDoc() {
@@ -564,6 +575,7 @@ if (!store.messages.length) {
 .slots-section {
   flex: 1;
   overflow-y: auto;
+  padding-top: 0;
 }
 
 .slots-empty {

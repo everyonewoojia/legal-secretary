@@ -55,7 +55,7 @@ class RagEngine:
     def _keyword_search(self, query: str, top_k: int = 3) -> list[dict]:
         articles = (
             self.db.query(LawArticle)
-            .filter(LawArticle.content.ilike(f"%{query}%"))
+            .filter(LawArticle.content.contains(query))
             .limit(top_k)
             .all()
         )

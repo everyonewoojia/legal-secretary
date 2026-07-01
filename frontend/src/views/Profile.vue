@@ -136,6 +136,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { userApi } from '../api/auth'
+import { useContractStore } from '../stores/contract'
+import { useNegotiationStore } from '../stores/negotiation'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
@@ -256,6 +258,8 @@ async function changePassword() {
 async function handleLogout() {
   try {
     await ElMessageBox.confirm('确定退出登录？', '提示')
+    useContractStore().clearSession()
+    useNegotiationStore().resetAnalysis()
     store.logout()
     ElMessage.success('已退出')
     router.push('/login')

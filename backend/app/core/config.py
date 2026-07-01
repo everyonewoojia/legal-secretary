@@ -23,3 +23,8 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if not settings.SECRET_KEY:
+    import sys
+    print("FATAL: SECRET_KEY 未设置，请在 .env 中配置 SECRET_KEY")
+    sys.exit(1)

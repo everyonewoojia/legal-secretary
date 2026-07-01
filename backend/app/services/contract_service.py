@@ -128,6 +128,10 @@ class ContractService:
         contract = await dialog.generate_contract(collected_fields, law_context)
         return contract
 
+    async def ai_generate_plan(self, type_id: int, collected_fields: dict) -> str:
+        dialog = DialogueService(type_id)
+        return await dialog.generate_plan(collected_fields)
+
     async def ai_generate_contract_stream(self, type_id: int, collected_fields: dict) -> AsyncGenerator[str, None]:
         dialog = DialogueService(type_id)
         async for chunk in dialog.generate_contract_stream(collected_fields):

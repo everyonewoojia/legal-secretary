@@ -12,7 +12,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   const modifiedText = ref('')
   const loading = ref(false)
   const version = ref('V1')
-  const loadingAdvice = ref(false)
+  const lawContext = ref('')
 
   const selectedRisk = computed(() => {
     if (!selectedRiskId.value) return null
@@ -24,13 +24,10 @@ export const useNegotiationStore = defineStore('negotiation', () => {
   }
 
   async function loadCounterArgument(riskId) {
-    if (loadingAdvice.value) return
-    const item = diffList.value.find((i) => i.id === riskId)
-    if (!item || item.advice) return
-    loadingAdvice.value = true
     try {
       const res = await negotiationApi.counterArgument(riskId)
       if (res.code === 0 && res.data) {
+        const item = diffList.value.find((i) => i.id === riskId)
         if (item) {
           const parts = []
           if (res.data.plan_a) parts.push('【强硬方案】' + res.data.plan_a)
@@ -38,11 +35,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
           item.advice = parts.join('\n\n')
         }
       }
-    } catch (e) {
-      console.warn('loadCounterArgument failed:', e)
-    } finally {
-      loadingAdvice.value = false
-    }
+    } catch {}
   }
 
   function mapRiskItem(item) {
@@ -59,18 +52,13 @@ export const useNegotiationStore = defineStore('negotiation', () => {
 
   async function submitAnalysis() {
     loading.value = true
-    diffList.value = []
-    selectedRiskId.value = null
     try {
-      let cid = contractId.value
-
-      if (!cid) {
-        const content = '（原始合同文本，待对比分析）'
-        const createRes = await contractApi.create(1, '谈判辅助合同', content)
-        if (createRes.code !== 0) return createRes
-        cid = createRes.data.id
-        contractId.value = cid
-      }
+      contractId.value = null
+      const content = '（原始合同文本，待对比分析）'
+      const createRes = await contractApi.create(1, '谈判分析合同', content)
+      if (createRes.code !== 0) return createRes
+      const cid = createRes.data.id
+      contractId.value = cid
 
       if (fileList.value.length > 0) {
         for (const f of fileList.value) {
@@ -91,7 +79,8 @@ export const useNegotiationStore = defineStore('negotiation', () => {
       if (risksRes.code === 0) {
         const RISK_ORDER = { high: 3, medium: 2, low: 1 }
         const items = (risksRes.data || []).map(mapRiskItem)
-        items.sort((a, b) => (RISK_ORDER[b.risk_level] || 0) - (RISK_ORDER[a.risk_level] || 0))
+        const riskOrder = { high: 0, medium: 1, low: 2 }
+        items.sort((a, b) => (riskOrder[a.risk_level] ?? 2) - (riskOrder[b.risk_level] ?? 2))
         diffList.value = items
         version.value = 'V2'
         if (items.length > 0) {
