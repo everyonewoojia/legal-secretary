@@ -89,7 +89,9 @@ export const useNegotiationStore = defineStore('negotiation', () => {
 
       const risksRes = await negotiationApi.getRisks(cid)
       if (risksRes.code === 0) {
+        const RISK_ORDER = { high: 3, medium: 2, low: 1 }
         const items = (risksRes.data || []).map(mapRiskItem)
+        items.sort((a, b) => (RISK_ORDER[b.risk_level] || 0) - (RISK_ORDER[a.risk_level] || 0))
         diffList.value = items
         version.value = 'V2'
         if (items.length > 0) {
