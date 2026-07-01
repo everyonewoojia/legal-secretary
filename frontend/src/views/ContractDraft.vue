@@ -198,6 +198,11 @@
           >
             下载
           </el-button>
+          <el-button
+            @click="restartDraft"
+          >
+            重新起草
+          </el-button>
         </div>
       </aside>
     </div>
@@ -368,6 +373,13 @@ async function regenerate() {
   store.currentDraft = ''
   store.draftId = null
   await generate()
+}
+
+function restartDraft() {
+  store.clearSession()
+  if (store.typeList.length > 0) {
+    store.startSession(store.typeList[0].code)
+  }
 }
 
 async function exportDoc() {

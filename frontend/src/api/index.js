@@ -150,6 +150,12 @@ export function generateStream(typeId, collectedFields, title, onChunk, onDone, 
     { collected_fields: collectedFields, title: title || '' },
     (data) => {
       if (cancelled) return
+      if (data.error) {
+        cancelled = true
+        clearTimeout(timer)
+        onError?.(data.error)
+        return
+      }
       if (data.done && data.contract_id) {
         contractId = data.contract_id
         clearTimeout(timer)

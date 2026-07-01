@@ -18,20 +18,26 @@ class AdminService:
         users = q.order_by(User.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
         return users, total
 
-    def toggle_user_active(self, user_id: int) -> User | None:
+    def _log(self, admin_id: int, action: str, resource: str, detail: str = ""):
+        self.db.add(AuditLog(user_id=admin_id, action=action, resource=resource, detail=detail))
+
+    def toggle_user_active(self, user_id: int, admin_id: int = 0) -> User | None:
         user = self.db.query(User).filter(User.id == user_id).first()
         if not user:
             return None
         user.is_active = not user.is_active
+        self._log(admin_id, "toggle_user_active", f"user:{user_id}", f"is_active={user.is_active}")
         self.db.commit()
         self.db.refresh(user)
         return user
 
-    def change_user_role(self, user_id: int, role: str) -> User | None:
+    def change_user_role(self, user_id: int, role: str, admin_id: int = 0) -> User | None:
         user = self.db.query(User).filter(User.id == user_id).first()
         if not user:
             return None
+        old_role = user.role
         user.role = role
+        self._log(admin_id, "change_user_role", f"user:{user_id}", f"{old_role} -> {role}")
         self.db.commit()
         self.db.refresh(user)
         return user
@@ -39,7 +45,7 @@ class AdminService:
     def list_api_keys(self) -> list[ApiKeyConfig]:
         return self.db.query(ApiKeyConfig).all()
 
-    def update_api_key(self, key_id: int, api_key: str | None = None,
+    def update_api_key(self, key_id: int, admin_id: int = 0, api_key: str | None = None,
                        base_url: str | None = None, model_name: str | None = None,
                        is_active: bool | None = None) -> ApiKeyConfig | None:
         key = self.db.query(ApiKeyConfig).filter(ApiKeyConfig.id == key_id).first()
@@ -53,6 +59,7 @@ class AdminService:
             key.model_name = model_name
         if is_active is not None:
             key.is_active = is_active
+        self._log(admin_id, "update_api_key", f"apikey:{key_id}")
         self.db.commit()
         self.db.refresh(key)
         return key

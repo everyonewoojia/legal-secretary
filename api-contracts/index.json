@@ -50,7 +50,7 @@
       "agent_file": "agent/negotiation_agent.py",
       "prompt_file": "（无独立 prompt，hardcoded）",
       "priority": "P0",
-      "status": "已实现（后端 API 未接入）"
+      "status": "已实现（后端 POST /negotiation/counter-argument 已接入）"
     },
     {
       "id": "single_reply",
@@ -82,7 +82,7 @@
     "P0": "核心流程必须，已在前端/后端代码中定义",
     "P1": "重要功能，代码已写但未接入完整链路",
     "已实现": "Agent 方法已编码，返回值格式与 schema 一致",
-    "已实现（后端 API 未接入）": "Agent 逻辑已完成，但后端 API 路由尚未调用该方法",
+    "已实现（后端 API 未接入）": "Agent 逻辑已完成，但后端 API 路由尚未调用该方法（不再使用）",
     "待实现（当前为 stub）": "尚无真实实现，需要开发"
   }
 }
