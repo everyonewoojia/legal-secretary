@@ -80,6 +80,7 @@ export const useUserStore = defineStore('user', () => {
         items: res.data.items.map((u) => ({
           id: u.id,
           phone: u.phone,
+          avatar: u.avatar || '',
           username: u.nickname || u.phone,
           nickname: u.nickname,
           avatar: u.avatar || '',

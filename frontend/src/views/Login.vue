@@ -164,7 +164,14 @@ async function handleLogin() {
       errorMsg.value = res.message
     }
   } catch (e) {
-    errorMsg.value = e?.message || '登录请求失败，请重试'
+    const msg = e?.message || ''
+    if (msg === '该账户不存在') {
+      errorMsg.value = '该账户不存在'
+      await new Promise((r) => setTimeout(r, 1000))
+      router.push('/register')
+      return
+    }
+    errorMsg.value = msg || '登录请求失败，请重试'
   } finally {
     loading.value = false
   }

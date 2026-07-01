@@ -175,6 +175,13 @@ onMounted(loadUsers)
   margin: 0;
 }
 
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .avatar-placeholder {
   width: 32px;
   height: 32px;

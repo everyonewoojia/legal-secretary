@@ -220,7 +220,7 @@ async function handleRegister() {
       errorMsg.value = res.message
     }
   } catch {
-    errorMsg.value = '注册请求失败，请重试'
+    errorMsg.value = '该手机号已被注册，请重试'
   } finally {
     loading.value = false
   }

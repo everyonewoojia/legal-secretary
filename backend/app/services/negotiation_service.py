@@ -1,3 +1,4 @@
+from sqlalchemy import case
 from sqlalchemy.orm import Session
 
 from app.models.contract import Contract
@@ -13,10 +14,16 @@ class NegotiationService:
         self.db = db
 
     def get_risks(self, contract_id: int) -> list[RiskAssessment]:
+        risk_order = case(
+            (RiskAssessment.risk_level == 'high', 3),
+            (RiskAssessment.risk_level == 'medium', 2),
+            (RiskAssessment.risk_level == 'low', 1),
+            else_=0
+        )
         return (
             self.db.query(RiskAssessment)
             .filter(RiskAssessment.contract_id == contract_id)
-            .order_by(RiskAssessment.risk_level.desc())
+            .order_by(risk_order.desc(), RiskAssessment.id.asc())
             .all()
         )
 

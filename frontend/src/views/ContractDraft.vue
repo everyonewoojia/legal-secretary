@@ -27,23 +27,6 @@
           </div>
         </div>
 
-        <div class="sidebar-section progress-section">
-          <div class="progress-text">已采集 <span class="progress-num">{{ filledCount }}</span> 条要素</div>
-        </div>
-
-        <div class="sidebar-section slots-section">
-          <div v-if="!fieldKeys.length" class="slots-empty">等待采集要素...</div>
-          <div v-else class="slots-bubbles">
-            <div
-              v-for="field in fieldKeys"
-              :key="field"
-              class="slot-bubble"
-            >
-              <span class="bubble-dot" />
-              <span class="bubble-text">{{ field }}：{{ store.slots[field] }}</span>
-            </div>
-          </div>
-        </div>
       </aside>
 
       <main class="chat-area">
@@ -137,6 +120,13 @@
               @click="regenerate"
             >
               重新生成
+            </button>
+            <button
+              v-if="store.currentDraft && !previewVisible"
+              class="view-btn"
+              @click="previewVisible = true"
+            >
+              查看合同
             </button>
             <button v-if="store.typeId" class="reset-btn" @click="resetChat">↺ 重新开始</button>
           </div>
@@ -233,9 +223,6 @@ const typeIcons = {
   non_disclosure: '📋',
 }
 
-const filledCount = computed(() => Object.keys(store.slots).length)
-const fieldKeys = computed(() => Object.keys(store.slots))
-
 const hasDraft = computed(() => !!store.currentDraft)
 
 const userAvatar = computed(() => userStore.userInfo?.avatar || '')
@@ -326,6 +313,7 @@ async function onTypeChange(type) {
   errorMsg.value = ''
   previewVisible.value = false
   previewExpanded.value = false
+  if (msgBox.value) msgBox.value.scrollTop = 0 // 归零
   try {
     await store.startSession(type)
   } catch (e) {
@@ -414,16 +402,21 @@ function resetChat() {
   inputMsg.value = ''
   errorMsg.value = ''
   previewVisible.value = false
+  store.startSession(store.contractCode)
 }
 
 watch(
-  () => store.messages.length,
+  () => store.messages,
   async () => {
     await nextTick()
     if (msgBox.value) {
-      msgBox.value.scrollTop = msgBox.value.scrollHeight
+      msgBox.value.scrollTo({
+        top: msgBox.value.scrollHeight,
+        behavior: 'smooth'
+      })
     }
   },
+  { deep: true }
 )
 
 if (!store.messages.length) {
@@ -433,10 +426,11 @@ if (!store.messages.length) {
 
 <style scoped>
 .draft-page {
-  flex: 1;
+  height: 100vh;          /* 限制整页高度为视口高度 */
   display: flex;
   flex-direction: column;
   background: #F8FAFC;
+  overflow: hidden;       /* 阻止外层出现全局滚动条 */
 }
 
 .draft-page :deep(.el-alert) {
@@ -448,7 +442,8 @@ if (!store.messages.length) {
   flex: 1;
   display: flex;
   gap: 0;
-  overflow: hidden;
+  height: calc(100vh - 40px); /* 减去 el-alert 或 header 的高度，确保主体不超高 */
+  overflow: hidden;           /* 核心：父级锁死，只让子内部滚动 */
   transition: all 0.3s ease;
 }
 
@@ -468,17 +463,21 @@ if (!store.messages.length) {
   flex: 1.2;
   display: flex;
   flex-direction: column;
+  height: 100%;           /* 满格撑开 */
   min-width: 0;
+  overflow: hidden;       /* 切断外溢，逼迫 .messages 产生滚动条 */
   transition: flex 0.3s ease;
 }
 
 .sidebar-right {
   flex: 0.8;
   min-width: 300px;
+  height: 100%;           /* 满格撑开 */
   background: #fff;
   border-left: 1px solid #E5E7EB;
   display: flex;
   flex-direction: column;
+  overflow: hidden;       /* 切断外溢 */
   transition: flex 0.3s ease;
 }
 
@@ -556,87 +555,6 @@ if (!store.messages.length) {
   font-weight: 500;
 }
 
-.progress-section {
-  padding: 10px 16px;
-}
-
-.progress-text {
-  font-size: 16px;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.progress-num {
-  color: #2563EB;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.slots-section {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: 0;
-}
-
-.slots-empty {
-  font-size: 16px;
-  color: #94A3B8;
-  text-align: center;
-  padding: 32px 0;
-}
-
-.slots-bubbles {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.slot-bubble {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  border-radius: 8px;
-  animation: bubbleSlideIn 0.3s ease;
-}
-
-.bubble-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2563EB;
-  flex-shrink: 0;
-}
-
-.bubble-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: #1E293B;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@keyframes bubbleSlideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.slot-name {
-  color: #1E293B;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.slot-value {
-  color: #64748B;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 /* ===== Chat Area ===== */
 .chat-header {
   height: 40px;
@@ -677,8 +595,8 @@ if (!store.messages.length) {
 
 /* Messages */
 .messages {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1;                /* 自动吃掉输入框上方的所有剩余空间 */
+  overflow-y: auto;       /* 仅在这里产生垂直滚动条 */
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -821,7 +739,7 @@ if (!store.messages.length) {
   padding: 8px 24px 24px;
   background: #fff;
   border-top: 1px solid #E5E7EB;
-  flex-shrink: 0;
+  flex-shrink: 0;         /* 绝对不允许被压缩，死死固定在底部 */
 }
 
 .quick-replies {
@@ -932,6 +850,26 @@ if (!store.messages.length) {
 
 .regenerate-btn:hover {
   background: #EFF6FF;
+}
+
+.view-btn {
+  border: 1px solid #2563EB;
+  background: #2563EB;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 16px;
+  height: 52px;
+  border-radius: 8px;
+  min-width: 118px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.view-btn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .reset-btn:hover {

@@ -12,9 +12,6 @@
 
     <div class="main-body">
       <div class="left-panel">
-        <div class="panel-header">
-          <h2 class="page-title">法务小秘 谈判辅助</h2>
-        </div>
 
         <div class="input-section">
           <el-upload
@@ -66,7 +63,7 @@
 
         <div v-if="store.diffList.length" class="diff-section">
           <h3 class="section-title">
-            修改差异列表
+            风险项列表
             <el-tag size="small" type="info" style="margin-left:8px">
               {{ store.diffList.length }} 项
             </el-tag>

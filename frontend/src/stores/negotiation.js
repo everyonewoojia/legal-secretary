@@ -77,6 +77,7 @@ export const useNegotiationStore = defineStore('negotiation', () => {
 
       const risksRes = await negotiationApi.getRisks(cid)
       if (risksRes.code === 0) {
+        const RISK_ORDER = { high: 3, medium: 2, low: 1 }
         const items = (risksRes.data || []).map(mapRiskItem)
         const riskOrder = { high: 0, medium: 1, low: 2 }
         items.sort((a, b) => (riskOrder[a.risk_level] ?? 2) - (riskOrder[b.risk_level] ?? 2))

@@ -35,8 +35,8 @@
           <span class="card-icon">🔍</span>
         </div>
         <h3 class="card-title">谈判辅助</h3>
-        <p class="card-desc">上传对方修改的合同，自动比对差异，识别风险条款并提供建议话术</p>
-        <div class="card-tags">差异比对 · 风险识别 · 话术建议</div>
+        <p class="card-desc">上传对方给出的合同，对照内置知识库，自动识别风险条款并提供建议话术</p>
+        <div class="card-tags">风险识别 · 话术建议</div>
         <el-button type="primary" class="card-btn">开始分析</el-button>
         <div class="card-bottom-line" />
       </el-card>
