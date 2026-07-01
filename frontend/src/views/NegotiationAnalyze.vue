@@ -1,11 +1,5 @@
 <template>
   <div class="negotiate-page">
-    <AppHeader tag="谈判辅助" tag-type="warning">
-      <el-button text @click="router.push('/')">首页</el-button>
-      <el-button text @click="router.push('/draft')">合同起草</el-button>
-      <el-button text @click="router.push('/admin')">后台管理</el-button>
-    </AppHeader>
-
     <el-alert
       v-if="errorMsg"
       :title="errorMsg"
@@ -175,13 +169,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useNegotiationStore } from '../stores/negotiation'
 import { contractApi } from '../api/contract'
 import { ElMessage } from 'element-plus'
-import AppHeader from '../components/AppHeader.vue'
 
-const router = useRouter()
 const store = useNegotiationStore()
 const errorMsg = ref('')
 const showValidationHint = ref(false)

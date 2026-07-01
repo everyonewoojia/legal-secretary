@@ -7,6 +7,7 @@ class AdminUserResponse(BaseModel):
     id: int
     phone: str
     nickname: str
+    avatar: str = ""
     role: str
     is_active: bool
     is_verified: bool

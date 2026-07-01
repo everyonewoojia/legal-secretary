@@ -1,21 +1,17 @@
 <template>
   <div class="admin-page">
-    <AppHeader tag="后台管理" tag-type="danger">
-      <el-button text @click="router.push('/')">首页</el-button>
-      <el-button text @click="router.push('/draft')">合同起草</el-button>
-    </AppHeader>
-
     <div class="admin-body">
       <div class="toolbar">
         <h3 class="section-title">用户管理</h3>
-        <el-tag type="info" size="small">{{ userList.length }} 个用户</el-tag>
+        <el-tag type="info" size="small">{{ total }} 个用户</el-tag>
       </div>
 
       <el-table :data="userList" style="width:100%" v-loading="loading">
         <el-table-column label="头像" width="60">
-          <template #default>
+          <template #default="{ row }">
             <div class="avatar-placeholder">
-              <el-icon :size="20" color="#fff"><User /></el-icon>
+              <el-icon v-if="!row.avatar" :size="20" color="#fff"><User /></el-icon>
+              <img v-else :src="row.avatar" class="avatar-img" />
             </div>
           </template>
         </el-table-column>
@@ -78,7 +74,6 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { User } from '@element-plus/icons-vue'
-import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
 const store = useUserStore()
@@ -188,6 +183,13 @@ onMounted(loadUsers)
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .pagination-wrap {

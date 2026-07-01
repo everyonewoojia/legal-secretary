@@ -20,7 +20,7 @@ const SLOT_KEYWORDS = {
   '试用期': ['试用期'],
   '岗位': ['岗位', '职位', '职务'],
   '工作地点': ['工作地点', '工作地', '上班地点', '地点'],
-  '工时制度': ['工时', '工时制度', '工作时间制度'],
+  '工时制度': ['工时', '工时制度', '工作时间', '工作时间制度'],
   '基本工资': ['基本工资', '底薪', '月工资', '月薪'],
   '发薪日': ['发薪', '发薪日', '发放日'],
   '社保': ['社保', '五险', '社会保险'],
@@ -165,7 +165,32 @@ export const useContractStore = defineStore('contract', () => {
             }
           }
         }
-        if (!matches.length) return
+        if (!matches.length) {
+          // Context inference: match bare value to last AI question
+          for (let i = messages.value.length - 1; i >= 0; i--) {
+            const last = messages.value[i]
+            if (last.role !== 'agent' || last.loading) continue
+            const ai = last.content
+            const candidates = []
+            for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+              if (slots.value[slot]) continue
+              for (const kw of keywords) {
+                if (kw.length < 2) continue
+                if (ai.includes(kw)) {
+                  candidates.push({ slot, len: kw.length })
+                  break
+                }
+              }
+            }
+            if (candidates.length) {
+              candidates.sort((a, b) => b.len - a.len)
+              const val = userText.trim()
+              if (val) slots.value = { ...slots.value, [candidates[0].slot]: val }
+            }
+            break
+          }
+          return
+        }
         matches.sort((a, b) => a.start - b.start || b.len - a.len)
         const kept = []
         for (const m of matches) {
@@ -181,6 +206,43 @@ export const useContractStore = defineStore('contract', () => {
           // If no value after keyword, use the keyword text itself
           if (!val) val = userText.substring(m.start, m.end).trim()
           slots.value = { ...slots.value, [m.slot]: val }
+        }
+      }
+      function extractFromAiResponse(aiText) {
+        const existing = new Set(Object.keys(slots.value))
+        const parts = aiText.split('已记录')
+        for (const part of parts) {
+          if (!part.trim()) continue
+          const firstSentence = part.split(/[。？！]/)[0]
+          const partMatches = []
+          for (const [slot, keywords] of Object.entries(SLOT_KEYWORDS)) {
+            for (const kw of keywords) {
+              if (kw.length < 2) continue
+              let idx = firstSentence.indexOf(kw)
+              while (idx !== -1) {
+                const after = firstSentence.substring(idx + kw.length)
+                if (after[0] === '为' || after[0] === '是') {
+                  let value = after.replace(/^[为是]/, '').replace(/^[\u201C\u201D"]/, '')
+                  const eIdx = value.search(/[\u201C\u201D"。？！，,）)]/)
+                  if (eIdx !== -1) value = value.substring(0, eIdx)
+                  if (value.trim()) {
+                    partMatches.push({ slot, start: idx, end: idx + kw.length, len: kw.length, value: value.trim() })
+                  }
+                }
+                idx = firstSentence.indexOf(kw, idx + 1)
+              }
+            }
+          }
+          partMatches.sort((a, b) => b.len - a.len)
+          const claimed = []
+          for (const m of partMatches) {
+            const overlap = claimed.some(c => m.start < c.end && m.end > c.start)
+            if (overlap) continue
+            claimed.push({ start: m.start, end: m.end })
+            if (existing.has(m.slot)) continue
+            slots.value = { ...slots.value, [m.slot]: m.value }
+            existing.add(m.slot)
+          }
         }
       }
       chatStream(
@@ -205,6 +267,7 @@ export const useContractStore = defineStore('contract', () => {
           }
         },
         () => {
+          extractFromAiResponse(lastAi.content)
           lastAi.loading = false
           saveContractState(currentCode, messages.value, slots.value, draftId.value, currentDraft.value)
           resolve()

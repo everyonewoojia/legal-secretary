@@ -82,6 +82,7 @@ export const useUserStore = defineStore('user', () => {
           phone: u.phone,
           username: u.nickname || u.phone,
           nickname: u.nickname,
+          avatar: u.avatar || '',
           role: u.role,
           status: u.is_active ? 'active' : 'disabled',
           is_active: u.is_active,

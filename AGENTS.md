@@ -15,7 +15,7 @@
 | 分支 | 状态 | 说明 |
 |------|------|------|
 | `master` | 已整合 | 合并 feat-wlf（前端完整实现）+ feat-agent（AI Agent 层 + API 契约定义），当前 HEAD 包含对契约 JSON 的语法修复+ RAG 检索与 Agent 集成调用链 |
-| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计（BrandPanel/双栏布局/品牌卡片）；全流程 Bug 修复（SSE AbortController/401/超时/持久化/竞态/布局溢出/死代码清理）；注册/Profile/登录/Admin 全面加固；登录速度优化（4s 路由跳转→秒级 `window.location.href`） |
+| `feat-wlf` (前端) | 已优化 | 前端视觉统一 + 品牌一致性设计；全流程 Bug 修复（SSE/401/超时/持久化/竞态/溢出）；注册/Profile/登录/Admin 加固；登录速度优化；导航合并与提取修复；头像同步与分页修复 |
 | `feat-agent` | 调试完成 | Agent 层实现；修复 DashScope role 映射 + mock 流式 dict Bug + SSE fallback；当前 HEAD 包含完整 RAG 检索与 Agent 集成调用链 |
 | `feat-jzx` (后端集成) | 开发中 | 后端 FastAPI 完整实现（37+ API/9 ORM/10 Services/6 Routers）+ 全栈联调。当前 HEAD：合并 feat-agent + 项目结构优化 |
 | `feat-zhy` (知识库) | 开发中 | 模板/知识库/RAG/测试/文档方向。当前 HEAD：联调前接口一致性分析完成，产出 check/todo/bug 三份文档 |
@@ -470,4 +470,13 @@ legal-secretary/
 - [x] Admin 用户列表分页
 - [x] 添加页面过渡动画
 - [x] 移动端适配
+- [x] 槽位气泡显示优化（show values alongside field names）
+
+## 已完成的工作 (feat-wlf) (2026-07-01 / 第六轮 / 导航合并+Admin修复+槽位提取修复)
+1. **导航栏合并**：App.vue 黑色导航 (#1a1a2e) → 白色统一导航 (#fff + 底部边框)，nav-item 颜色 #606266；删除 AppHeader.vue 共享组件（Admin/Negotiate 页取消重复子导航）
+2. **Admin 头像同步**：后端 `AdminUserResponse` 新增 `avatar` 字段；前端 store 映射 avatar；Admin.vue 头像列显示真实头像图片（有值 → `<img>`，无值 → `<el-icon>` 回退）
+3. **Admin 统计修复**：`{{ userList.length }}` → `{{ total }}` 使用数据库总数
+4. **槽位提取 Bug 修复**：`extractFromAiResponse` — 移除 `existing.has(slot) continue`，将 `claimed` 移入每个 `part` 内防止跨段误判；`contract.js:6` — 给 `工时制度` 关键词表新增 `工作时间` (len=4)，修复"劳动者:8小时"误赋和"交付期限:每天8小时"泄漏
+
+## 待办/后续可做
 - [ ] api-contracts 目录定位说明更新
