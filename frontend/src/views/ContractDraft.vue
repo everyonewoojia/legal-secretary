@@ -27,23 +27,6 @@
           </div>
         </div>
 
-        <div class="sidebar-section progress-section">
-          <div class="progress-text">已采集 <span class="progress-num">{{ filledCount }}</span> 条要素</div>
-        </div>
-
-        <div class="sidebar-section slots-section">
-          <div v-if="!fieldKeys.length" class="slots-empty">等待采集要素...</div>
-          <div v-else class="slots-bubbles">
-            <div
-              v-for="field in fieldKeys"
-              :key="field"
-              class="slot-bubble"
-            >
-              <span class="bubble-dot" />
-              <span class="bubble-text">{{ field }}：{{ store.slots[field] }}</span>
-            </div>
-          </div>
-        </div>
       </aside>
 
       <main class="chat-area">
@@ -240,9 +223,6 @@ const typeIcons = {
   non_disclosure: '📋',
 }
 
-const filledCount = computed(() => Object.keys(store.slots).length)
-const fieldKeys = computed(() => Object.keys(store.slots))
-
 const hasDraft = computed(() => !!store.currentDraft)
 
 const userAvatar = computed(() => userStore.userInfo?.avatar || '')
@@ -422,6 +402,7 @@ function resetChat() {
   inputMsg.value = ''
   errorMsg.value = ''
   previewVisible.value = false
+  store.startSession(store.contractCode)
 }
 
 watch(
@@ -572,87 +553,6 @@ if (!store.messages.length) {
   font-size: 13px;
   color: #1E293B;
   font-weight: 500;
-}
-
-.progress-section {
-  padding: 10px 16px;
-}
-
-.progress-text {
-  font-size: 16px;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.progress-num {
-  color: #2563EB;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.slots-section {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: 0;
-}
-
-.slots-empty {
-  font-size: 16px;
-  color: #94A3B8;
-  text-align: center;
-  padding: 32px 0;
-}
-
-.slots-bubbles {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.slot-bubble {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  border-radius: 8px;
-  animation: bubbleSlideIn 0.3s ease;
-}
-
-.bubble-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2563EB;
-  flex-shrink: 0;
-}
-
-.bubble-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: #1E293B;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@keyframes bubbleSlideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.slot-name {
-  color: #1E293B;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.slot-value {
-  color: #64748B;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* ===== Chat Area ===== */

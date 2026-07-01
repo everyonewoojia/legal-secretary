@@ -320,18 +320,13 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   function clearSession() {
-    typeId.value = null
-    contractCode.value = 'tech_service'
     messages.value = []
     slots.value = {}
     draftId.value = null
     currentDraft.value = ''
-    sessions.value = {}
-    try { localStorage.removeItem('contract_tech_service') } catch {}
-    try { localStorage.removeItem('contract_procurement') } catch {}
-    try { localStorage.removeItem('contract_employment') } catch {}
-    try { localStorage.removeItem('contract_cooperation') } catch {}
-    try { localStorage.removeItem('contract_non_disclosure') } catch {}
+    if (contractCode.value) {
+      try { localStorage.removeItem('contract_' + contractCode.value) } catch {}
+    }
   }
 
   return {
