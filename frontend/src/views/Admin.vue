@@ -13,9 +13,10 @@
 
       <el-table :data="userList" style="width:100%" v-loading="loading">
         <el-table-column label="头像" width="60">
-          <template #default>
-            <div class="avatar-placeholder">
-              <el-icon :size="20" color="#fff"><User /></el-icon>
+          <template #default="{ row }">
+            <img v-if="row.avatar" :src="row.avatar" class="admin-avatar" />
+            <div v-else class="avatar-placeholder">
+              <span class="avatar-letter">{{ (row.username || '?')[0] }}</span>
             </div>
           </template>
         </el-table-column>
@@ -77,7 +78,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User } from '@element-plus/icons-vue'
 import AppHeader from '../components/AppHeader.vue'
 
 const router = useRouter()
@@ -180,6 +180,13 @@ onMounted(loadUsers)
   margin: 0;
 }
 
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .avatar-placeholder {
   width: 32px;
   height: 32px;
@@ -188,6 +195,12 @@ onMounted(loadUsers)
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.avatar-letter {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .pagination-wrap {
