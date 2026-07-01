@@ -32,11 +32,10 @@
         </div>
 
         <div class="sidebar-section slots-section">
-          <h3 class="sidebar-title">已采集要素</h3>
-          <div v-if="!bubbleFields.length" class="slots-empty">等待采集要素...</div>
+          <div v-if="!fieldKeys.length" class="slots-empty">等待采集要素...</div>
           <div v-else class="slots-bubbles">
             <div
-              v-for="field in bubbleFields"
+              v-for="field in fieldKeys"
               :key="field"
               class="slot-bubble"
             >
@@ -235,7 +234,7 @@ const typeIcons = {
 }
 
 const filledCount = computed(() => Object.keys(store.slots).length)
-const bubbleFields = computed(() => Object.keys(store.slots).filter(k => store.slots[k]))
+const fieldKeys = computed(() => Object.keys(store.slots))
 
 const hasDraft = computed(() => !!store.currentDraft)
 
@@ -576,6 +575,7 @@ if (!store.messages.length) {
 .slots-section {
   flex: 1;
   overflow-y: auto;
+  padding-top: 0;
 }
 
 .slots-empty {

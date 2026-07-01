@@ -109,10 +109,9 @@ async function sseFetch(path, body, onChunk, onDone, onError, signal) {
   }
 }
 
-export function chatStream(typeId, message, onChunk, onDone, onError, getMessages, slotKey) {
+export function chatStream(typeId, message, onChunk, onDone, onError, getMessages) {
   const history = getMessages ? getMessages().filter((m) => m.role !== 'system').map((m) => ({ role: m.role, content: m.content })) : []
   const body = { message, history }
-  if (slotKey) body.slotKey = slotKey
 
   let cancelled = false
   const controller = new AbortController()

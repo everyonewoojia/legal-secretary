@@ -92,7 +92,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   justify-content: space-between;
   height: 48px;
   padding: 0 20px;
-  background: #1a1a2e;
+  background: #fff;
+  border-bottom: 1px solid #e4e7ed;
   flex-shrink: 0;
   z-index: 100;
 }
@@ -106,7 +107,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .nav-brand {
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: #1a1a2e;
   text-decoration: none;
   letter-spacing: 1px;
   margin-right: 8px;
@@ -114,14 +115,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 .nav-item {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #606266;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .nav-item:hover,
 .nav-item.router-link-active {
-  color: #fff;
+  color: #1a1a2e;
+  font-weight: 600;
 }
 
 .nav-right {
@@ -135,7 +137,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #606266;
   cursor: pointer;
 }
 
@@ -169,10 +171,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 
 .nav-right :deep(.el-button--text) {
-  color: rgba(255, 255, 255, 0.6);
+  color: #606266;
 }
 
 .nav-right :deep(.el-button--text:hover) {
-  color: #fff;
+  color: #1a1a2e;
 }
 </style>
